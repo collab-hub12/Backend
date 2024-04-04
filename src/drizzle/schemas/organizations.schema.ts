@@ -46,5 +46,5 @@ export const orgMemberRelations = relations(orgMembers, ({one}) => ({
 
 
 
-export type SelectUser = typeof organizations.$inferSelect;
-export type InsertUser = typeof organizations.$inferInsert;
+export type SelectOrganization = typeof organizations.$inferSelect;
+export type InsertOrgnization = typeof organizations.$inferInsert;

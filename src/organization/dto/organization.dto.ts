@@ -10,3 +10,8 @@ export class CreateOrgDto {
     @IsNumber()
     founder_id: number;
 }
+
+export class AddUserToOrgDto {
+    @IsNumber()
+    user_id: number;
+}
