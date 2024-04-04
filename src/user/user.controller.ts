@@ -1,0 +1,14 @@
+import {Controller, Get, Param} from '@nestjs/common';
+import {UserService} from './user.service';
+
+@Controller('users')
+export class UserController {
+
+    constructor(private readonly userService: UserService) { }
+
+    @Get(":id")
+    async getUserProfile(@Param("id") id: number) {
+        const {password, ...result} = await this.userService.findById(id);
+        return result
+    }
+}
