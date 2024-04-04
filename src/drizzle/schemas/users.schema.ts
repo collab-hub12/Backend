@@ -14,7 +14,7 @@ export const users = sqliteTable("users", {
 
 export const usersRelations = relations(users, ({many}) => ({
     organizations: many(organizations),
-    member: many(orgMembers)
+    orgMember: many(orgMembers)
 }))
 
 export type SelectUser = typeof users.$inferSelect;

@@ -6,7 +6,7 @@ export const organizations = sqliteTable("organizations", {
     id: integer("id").primaryKey({autoIncrement: true}),
     org_name: text("org_name").notNull(),
     org_desc: text("org_description").notNull(),
-    founder_id: integer("id").notNull().references(() => users.id),
+    founder_id: integer("founder_id").notNull().references(() => users.id),
     location: text("location").notNull(),
     createdAt: text('created_at')
         .default(sql`CURRENT_TIMESTAMP`)
@@ -29,7 +29,7 @@ export const orgMembers = sqliteTable('organization_members', {
     userId: integer('user_id').notNull().references(() => users.id),
     organizationId: integer('organization_id').notNull().references(() => organizations.id),
 }, (t) => ({
-    pk: primaryKey({columns: [t.userId, t.organizationId]}),
+    pk: primaryKey({columns: [t.organizationId, t.userId]}),
 }),
 );
 

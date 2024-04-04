@@ -1,4 +1,4 @@
-import {IsEmail, IsString} from "class-validator";
+import {IsNumber, IsString} from "class-validator";
 
 export class CreateOrgDto {
     @IsString()
@@ -7,4 +7,6 @@ export class CreateOrgDto {
     org_desc: string;
     @IsString()
     location: string;
+    @IsNumber()
+    founder_id: number;
 }
