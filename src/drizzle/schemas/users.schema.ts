@@ -1,6 +1,7 @@
 import {relations, sql} from 'drizzle-orm';
 import {integer, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 import {orgMembers, organizations} from './organizations.schema';
+import {assignedTasks} from './tasks.schema';
 
 export const users = sqliteTable("users", {
     id: integer("id").primaryKey({autoIncrement: true}),
@@ -14,7 +15,8 @@ export const users = sqliteTable("users", {
 
 export const usersRelations = relations(users, ({many}) => ({
     organizations: many(organizations),
-    orgMember: many(orgMembers)
+    orgMember: many(orgMembers),
+    assignedTask: many(assignedTasks)
 }))
 
 export type SelectUser = typeof users.$inferSelect;
