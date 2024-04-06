@@ -1,6 +1,7 @@
 import {Controller, Post, Body, Param, Get, Put, Delete, Query} from '@nestjs/common';
-import {AddUserToOrgDto, CreateOrgDto} from './dto/organization.dto';
+import {AddUserToOrgDto, CreateOrgDto, CreateTeamUnderOrgDto} from './dto/organization.dto';
 import {OrganizationService} from './organization.service';
+import {CreateTaskDto} from 'src/task/dto/create-task.dto';
 
 @Controller('organizations')
 export class OrganizationController {
@@ -44,5 +45,23 @@ export class OrganizationController {
     async deleteOrganization(@Param("org_id") id: number) {
         return this.orgService.deleteOrganization(id)
     }
+
+
+    @Post(":org_id/teams")
+    async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto) {
+        return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name})
+    }
+
+    @Get(":org_id/teams")
+    async getTeams(@Param("org_id") org_id: number) {
+        return this.orgService.getTeams(org_id)
+    }
+
+    @Post(":org_id/teams/:team_id/tasks")
+    async createTask(@Param("org_id") org_id: number, @Param("team_id") team_id: number, createTaskDto: CreateTaskDto) {
+        return this.orgService.createTask(org_id, team_id, createTaskDto)
+    }
+
+
 }
 

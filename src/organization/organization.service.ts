@@ -5,13 +5,16 @@ import {AddUserToOrgDto, CreateOrgDto} from './dto/organization.dto';
 import {UserService} from 'src/user/user.service';
 import {orgMembers, organizations} from 'src/drizzle/schemas/organizations.schema';
 import {and, eq, like} from 'drizzle-orm';
-import * as org_schema from 'src/drizzle/schemas/organizations.schema'
-import * as user_schema from 'src/drizzle/schemas/users.schema'
+import type {schema} from 'src/drizzle/schemas/schema';
+import {TeamService} from 'src/team/team.service';
+import {CreateTeamDto} from 'src/team/dto/team.dto';
+
 
 @Injectable()
 export class OrganizationService {
-    constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<typeof org_schema & typeof user_schema>,
-        private readonly userService: UserService
+    constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+        private readonly userService: UserService,
+        private readonly teamService: TeamService
     ) { }
 
     async createOrganization(dto: CreateOrgDto) {
@@ -126,5 +129,31 @@ export class OrganizationService {
             throw new NotFoundException("Organization not found")
         }
         return {"message": "organization deleted successfully"}
+    }
+
+    async addTeamUnderOrg(createTeamDto: CreateTeamDto) {
+        const orgExists = await this.findOrgById(createTeamDto.org_id)
+        if (!orgExists) {
+            throw new ConflictException('org doesnt exists')
+        }
+
+        const teamAlreadyInOrg = await this.teamService.FindATeamUnderOrg(createTeamDto.org_id, createTeamDto.team_name)
+        if (teamAlreadyInOrg) {
+            throw new ConflictException('team is already part of org')
+        }
+        const teamDetails = await this.teamService.createTeam(createTeamDto);
+
+        // pending task : orgExists.founder_id should be changed to requested user
+        await this.teamService.addMemberToTeam(teamDetails.id, orgExists.founder_id)
+
+        return teamDetails
+    }
+
+    async getTeams(org_id: number) {
+        return this.teamService.getAllTeamsUnderOrg(org_id)
+    }
+    async createTask(org_id: number, team_id: number, createTaskDto) {
+
+        // pending 
     }
 }

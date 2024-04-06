@@ -15,3 +15,8 @@ export class AddUserToOrgDto {
     @IsNumber()
     user_id: number;
 }
+
+export class CreateTeamUnderOrgDto {
+    @IsString()
+    team_name: string;
+}

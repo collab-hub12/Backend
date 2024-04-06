@@ -5,7 +5,7 @@ import {relations} from 'drizzle-orm';
 
 export const teams = sqliteTable("teams", {
     id: integer("id").primaryKey({autoIncrement: true}),
-    name: text("name").notNull(),
+    name: text("name").notNull().unique(),
     org_id: integer("org_id").notNull().references(() => organizations.id),
 })
 

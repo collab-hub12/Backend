@@ -7,23 +7,22 @@ import * as task_schema from "../drizzle/schemas/tasks.schema"
 import {LibSQLDatabase} from 'drizzle-orm/libsql';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {eq} from 'drizzle-orm';
+import {schema} from 'src/drizzle/schemas/schema';
 
 
 @Injectable()
 export class TaskService {
 
-  constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<
-    typeof user_schema &
-    typeof org_schema &
-    typeof task_schema>) { }
+  constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>) { }
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, team_id: number) {
 
     const task_detail = (await this.db.insert(task_schema.tasks).values({
       title: createTaskDto.taskTitle,
       task_deadline: createTaskDto.taskDeadline,
       task_desc: createTaskDto.taskDescription,
-      task_progress: createTaskDto.taskProgress
+      task_progress: createTaskDto.taskProgress,
+      team_id: team_id
     }).returning())[0]
 
     return task_detail;

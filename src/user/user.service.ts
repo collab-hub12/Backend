@@ -5,11 +5,12 @@ import {CreateUserDto} from './dto/user.dto';
 import {users} from 'src/drizzle/schemas/users.schema';
 import {eq, count} from 'drizzle-orm';
 import {hash} from 'bcrypt';
+import {schema} from 'src/drizzle/schemas/schema';
 
 
 @Injectable()
 export class UserService {
-    constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase) { }
+    constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>) { }
 
     async create(dto: CreateUserDto) {
 
