@@ -1,12 +1,14 @@
 import {relations, sql} from 'drizzle-orm';
 import {integer, primaryKey, sqliteTable, text, unique} from 'drizzle-orm/sqlite-core';
 import {users} from './users.schema';
+import {teamMember} from './teams.schema';
+import {tasks} from './tasks.schema';
 
 export const organizations = sqliteTable("organizations", {
     id: integer("id").primaryKey({autoIncrement: true}),
     org_name: text("org_name").notNull(),
     org_desc: text("org_description").notNull(),
-    founder_id: integer("founder_id").notNull().references(() => users.id),
+    founder_id: integer("founder_id").notNull().references(() => users.id, {onDelete: 'cascade'}),
     location: text("location").notNull(),
     createdAt: text('created_at')
         .default(sql`CURRENT_TIMESTAMP`)
@@ -20,14 +22,16 @@ export const orgRelations = relations(organizations,
             fields: [organizations.founder_id],
             references: [users.id]
         }),
-        member: many(orgMembers)
+        member: many(orgMembers),
+        teamMember: many(teamMember),
+        task: many(tasks)
     })
 )
 
 // many users can be part of many organizations
 export const orgMembers = sqliteTable('organization_members', {
-    userId: integer('user_id').notNull().references(() => users.id),
-    organizationId: integer('organization_id').notNull().references(() => organizations.id),
+    userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}),
+    organizationId: integer('organization_id').notNull().references(() => organizations.id, {onDelete: 'cascade'}),
 }, (t) => ({
     pk: primaryKey({columns: [t.organizationId, t.userId]}),
 }),
@@ -43,8 +47,6 @@ export const orgMemberRelations = relations(orgMembers, ({one}) => ({
         references: [users.id],
     }),
 }))
-
-
 
 export type SelectOrganization = typeof organizations.$inferSelect;
 export type InsertOrgnization = typeof organizations.$inferInsert;

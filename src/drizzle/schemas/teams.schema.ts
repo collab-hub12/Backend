@@ -6,7 +6,7 @@ import {relations} from 'drizzle-orm';
 export const teams = sqliteTable("teams", {
     id: integer("id").primaryKey({autoIncrement: true}),
     name: text("name").notNull().unique(),
-    org_id: integer("org_id").notNull().references(() => organizations.id),
+    org_id: integer("org_id").notNull().references(() => organizations.id, {onDelete: 'cascade'}),
 })
 
 export const teamRelation = relations(teams, ({one, many}) => ({
@@ -18,10 +18,11 @@ export const teamRelation = relations(teams, ({one, many}) => ({
 }))
 
 export const teamMember = sqliteTable("team_member_details", {
-    user_id: integer("user_id").notNull().references(() => users.id),
-    team_id: integer("team_id").notNull().references(() => teams.id)
+    user_id: integer("user_id").notNull().references(() => users.id, {onDelete: 'cascade'}),
+    team_id: integer("team_id").notNull().references(() => teams.id, {onDelete: 'cascade'}),
+    org_id: integer("org_id").notNull().references(() => organizations.id, {onDelete: 'cascade'})
 }, (t) => ({
-    pk: primaryKey({columns: [t.user_id, t.team_id]}),
+    pk: primaryKey({columns: [t.user_id, t.team_id, t.org_id]}),
 }))
 
 export const teamMemberRelations = relations(teamMember, ({one}) => ({
@@ -32,5 +33,9 @@ export const teamMemberRelations = relations(teamMember, ({one}) => ({
     user: one(users, {
         fields: [teamMember.user_id],
         references: [users.id],
+    }),
+    organization: one(organizations, {
+        fields: [teamMember.org_id],
+        references: [organizations.id],
     })
 }))

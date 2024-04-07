@@ -46,7 +46,6 @@ export class OrganizationController {
         return this.orgService.deleteOrganization(id)
     }
 
-
     @Post(":org_id/teams")
     async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto) {
         return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name})
@@ -57,11 +56,24 @@ export class OrganizationController {
         return this.orgService.getTeams(org_id)
     }
 
-    @Post(":org_id/teams/:team_id/tasks")
-    async createTask(@Param("org_id") org_id: number, @Param("team_id") team_id: number, createTaskDto: CreateTaskDto) {
-        return this.orgService.createTask(org_id, team_id, createTaskDto)
+    @Put(":org_id/teams/:team_name/users/:users_id")
+    async addUserToATeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
+        return this.orgService.addUserToATeam(org_id, team_name, users_id);
     }
 
+    @Delete(":org_id/teams/:team_name/users/:users_id")
+    async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
+        return this.orgService.removeUserFromTeam(org_id, team_name, users_id);
+    }
+
+    @Post(":org_id/teams/:team_name/tasks")
+    async createTask(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Body() createTaskDto: CreateTaskDto) {
+        return this.orgService.createTask(org_id, team_name, createTaskDto)
+    }
+
+    @Get(":org_id/teams/:team_name/tasks")
+    async getTasks(@Param("org_id") org_id: number, @Param("team_name") team_name: string) {
+        return this.orgService.getTasks(org_id, team_name)
+    }
 
 }
-

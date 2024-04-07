@@ -8,13 +8,16 @@ import {and, eq, like} from 'drizzle-orm';
 import type {schema} from 'src/drizzle/schemas/schema';
 import {TeamService} from 'src/team/team.service';
 import {CreateTeamDto} from 'src/team/dto/team.dto';
+import {CreateTaskDto} from 'src/task/dto/create-task.dto';
+import {TaskService} from 'src/task/task.service';
 
 
 @Injectable()
 export class OrganizationService {
     constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
         private readonly userService: UserService,
-        private readonly teamService: TeamService
+        private readonly teamService: TeamService,
+        private readonly taskService: TaskService
     ) { }
 
     async createOrganization(dto: CreateOrgDto) {
@@ -47,6 +50,15 @@ export class OrganizationService {
         return org_details
     }
 
+    async getMemberInOrg(org_id: number, user_id: number) {
+        return (await this.db.select().from(orgMembers).where(
+            and(
+                eq(orgMembers.organizationId, org_id),
+                eq(orgMembers.userId, user_id)
+            )
+        ))[0]
+    }
+
     async addMember(org_id: number, dto: AddUserToOrgDto) {
         const member = await this.userService.findById(dto.user_id)
         if (!member) {
@@ -56,12 +68,7 @@ export class OrganizationService {
         if (!result) {
             throw new ConflictException('org doesnt exists')
         }
-        const isAlreadyInOrg = (await this.db.select().from(orgMembers).where(
-            and(
-                eq(orgMembers.organizationId, org_id),
-                eq(orgMembers.userId, dto.user_id)
-            )
-        ))[0]
+        const isAlreadyInOrg = await this.getMemberInOrg(org_id, dto.user_id)
 
         if (isAlreadyInOrg) {
             throw new ConflictException('user is already added in Org')
@@ -144,7 +151,7 @@ export class OrganizationService {
         const teamDetails = await this.teamService.createTeam(createTeamDto);
 
         // pending task : orgExists.founder_id should be changed to requested user
-        await this.teamService.addMemberToTeam(teamDetails.id, orgExists.founder_id)
+        await this.teamService.addMemberToTeam(teamDetails.id, orgExists.founder_id, orgExists.id)
 
         return teamDetails
     }
@@ -152,8 +159,49 @@ export class OrganizationService {
     async getTeams(org_id: number) {
         return this.teamService.getAllTeamsUnderOrg(org_id)
     }
-    async createTask(org_id: number, team_id: number, createTaskDto) {
 
-        // pending 
+    async getTeamInsideOrg(org_id: number, team_name: string) {
+        const orgExists = await this.findOrgById(org_id)
+        if (!orgExists) {
+            throw new ConflictException('org doesnt exists')
+        }
+        const teamExistsInOrg = await this.teamService.FindATeamUnderOrg(org_id, team_name)
+        if (!teamExistsInOrg) {
+            throw new ConflictException('team doesnot exist inside org')
+        }
+        return teamExistsInOrg
     }
+    async addUserToATeam(org_id: number, team_name: string, user_id: number) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+
+        const isUserPartofOrg = await this.getMemberInOrg(org_id, user_id)
+
+        if (!isUserPartofOrg) {
+            throw new ConflictException('user is not part of this org');
+        }
+
+        return await this.teamService.addMemberToTeam(teamExistsInOrg.id, user_id, org_id)
+    }
+
+    async removeUserFromTeam(org_id: number, team_name: string, user_id: number) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+
+        const isUserPartofOrg = await this.getMemberInOrg(org_id, user_id)
+
+        if (!isUserPartofOrg) {
+            throw new ConflictException('user is not part of this org');
+        }
+        return await this.teamService.removeMemberFromTeam(teamExistsInOrg.id, user_id, org_id)
+    }
+
+    async createTask(org_id: number, team_name: string, createTaskDto: CreateTaskDto) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        return await this.taskService.create(createTaskDto, teamExistsInOrg.id, teamExistsInOrg.org_id)
+    }
+
+    async getTasks(org_id: number, team_name: string) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        return await this.taskService.getAllTasksOfATeamInsideOrg(org_id, teamExistsInOrg.id)
+    }
+
 }
