@@ -5,7 +5,6 @@ import type {schema} from 'src/drizzle/schemas/schema';
 import {CreateTeamDto} from './dto/team.dto';
 import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
 import {and, eq} from 'drizzle-orm';
-import {organizations} from 'src/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TeamService {
@@ -18,7 +17,7 @@ export class TeamService {
         }).returning())[0]
     }
 
-    async FindATeamUnderOrg(org_id: number, team_name: string) {
+    async findATeamUnderOrg(org_id: number, team_name: string) {
         return (await this.db.select().from(teams).where(
             and(
                 eq(teams.org_id, org_id),
@@ -50,8 +49,35 @@ export class TeamService {
         return {"msg": "member removed from the team successFully"}
     }
 
+    async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
+        const user = (await this.db.select().from(teamMember).where(
+            and(
+                eq(teamMember.team_id, team_id),
+                eq(teamMember.user_id, user_id),
+                eq(teamMember.org_id, org_id)
+            )
+        ))[0]
+        if (!user) throw new ConflictException("user is not a part of Team inside Org")
+        return user
+    }
 
-
-
+    async getUsersinTeamInOrg(team_id: number, org_id: number) {
+        const result = await this.db.query.teamMember.findMany({
+            where:
+                and(
+                    eq(teamMember.team_id, team_id),
+                    eq(teamMember.org_id, org_id)
+                ),
+            with: {
+                user: {
+                    columns: {
+                        password: false
+                    }
+                }
+            }
+        })
+        const users = result.map(data => data.user)
+        return users;
+    }
 
 }

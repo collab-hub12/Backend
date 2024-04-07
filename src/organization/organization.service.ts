@@ -14,6 +14,7 @@ import {TaskService} from 'src/task/task.service';
 
 @Injectable()
 export class OrganizationService {
+
     constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
         private readonly userService: UserService,
         private readonly teamService: TeamService,
@@ -97,6 +98,7 @@ export class OrganizationService {
             }
         })
     }
+
     async CheckFounderorNot(org_id: number, user_id: number): Promise<boolean> {
         const IsFounder = (await this.db.select().from(organizations).where(
             and(
@@ -144,7 +146,7 @@ export class OrganizationService {
             throw new ConflictException('org doesnt exists')
         }
 
-        const teamAlreadyInOrg = await this.teamService.FindATeamUnderOrg(createTeamDto.org_id, createTeamDto.team_name)
+        const teamAlreadyInOrg = await this.teamService.findATeamUnderOrg(createTeamDto.org_id, createTeamDto.team_name)
         if (teamAlreadyInOrg) {
             throw new ConflictException('team is already part of org')
         }
@@ -165,12 +167,13 @@ export class OrganizationService {
         if (!orgExists) {
             throw new ConflictException('org doesnt exists')
         }
-        const teamExistsInOrg = await this.teamService.FindATeamUnderOrg(org_id, team_name)
+        const teamExistsInOrg = await this.teamService.findATeamUnderOrg(org_id, team_name)
         if (!teamExistsInOrg) {
             throw new ConflictException('team doesnot exist inside org')
         }
         return teamExistsInOrg
     }
+
     async addUserToATeam(org_id: number, team_name: string, user_id: number) {
         const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
 
@@ -194,6 +197,11 @@ export class OrganizationService {
         return await this.teamService.removeMemberFromTeam(teamExistsInOrg.id, user_id, org_id)
     }
 
+    async getTeamMember(org_id: number, team_name: string) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        return await this.teamService.getUsersinTeamInOrg(teamExistsInOrg.id, org_id)
+    }
+
     async createTask(org_id: number, team_name: string, createTaskDto: CreateTaskDto) {
         const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
         return await this.taskService.create(createTaskDto, teamExistsInOrg.id, teamExistsInOrg.org_id)
@@ -202,6 +210,20 @@ export class OrganizationService {
     async getTasks(org_id: number, team_name: string) {
         const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
         return await this.taskService.getAllTasksOfATeamInsideOrg(org_id, teamExistsInOrg.id)
+    }
+
+    async assignTask(org_id: number, team_name: string, task_id: number, assignee_id: number) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        const {user_id} = await this.teamService.getUserinTeaminOrg(teamExistsInOrg.id, assignee_id, org_id)
+        await this.taskService.assignTask(user_id, task_id)
+        return {"msg": "task assigned to the user successfully"}
+    }
+
+    async revokeTask(org_id: number, team_name: string, task_id: number, revoked_from: number) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        const {user_id} = await this.teamService.getUserinTeaminOrg(teamExistsInOrg.id, revoked_from, org_id)
+        await this.taskService.revokeTask(user_id, task_id)
+        return {"msg": "task revoked from user successfully"}
     }
 
 }

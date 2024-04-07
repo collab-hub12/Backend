@@ -1,7 +1,9 @@
 import {drizzle} from 'drizzle-orm/libsql';
 import {createClient} from '@libsql/client';
-import * as user_schema from './schemas/users.schema'
-import * as org_schema from './schemas/organizations.schema'
+import * as users_schema from './schemas/users.schema'
+import * as orgs_schema from './schemas/organizations.schema'
+import * as teams_schema from './schemas/teams.schema'
+import * as tasks_schema from './schemas/tasks.schema'
 
 export const DrizzleAsyncProvider = "drizzleProvider"
 
@@ -12,7 +14,7 @@ export const drizzleProvider = [{
             url: process.env.TURSO_CONNECTION_URL!,
             authToken: process.env.TURSO_AUTH_TOKEN!,
         });
-        const db = drizzle(client, {schema: {...org_schema, ...user_schema}});
+        const db = drizzle(client, {schema: {...orgs_schema, ...users_schema, ...teams_schema, ...tasks_schema}});
         return db
     },
     exports: [DrizzleAsyncProvider]
