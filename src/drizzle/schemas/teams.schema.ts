@@ -20,7 +20,8 @@ export const teamRelation = relations(teams, ({one, many}) => ({
 export const teamMember = sqliteTable("team_member_details", {
     user_id: integer("user_id").notNull().references(() => users.id, {onDelete: 'cascade'}),
     team_id: integer("team_id").notNull().references(() => teams.id, {onDelete: 'cascade'}),
-    org_id: integer("org_id").notNull().references(() => organizations.id, {onDelete: 'cascade'})
+    org_id: integer("org_id").notNull().references(() => organizations.id, {onDelete: 'cascade'}),
+    is_admin: integer("is_admin", {mode: "boolean"}).notNull()
 }, (t) => ({
     pk: primaryKey({columns: [t.user_id, t.team_id, t.org_id]}),
 }))

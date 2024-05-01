@@ -28,7 +28,7 @@ export class OrganizationService {
         }
         const result = await this.db.insert(organizations).values(dto).returning()
         const org_id = result[0].id
-        await this.db.insert(orgMembers).values({userId: dto.founder_id, organizationId: org_id})
+        await this.db.insert(orgMembers).values({userId: dto.founder_id, organizationId: org_id, is_admin: true})
         return result[0]
     }
 
@@ -60,6 +60,16 @@ export class OrganizationService {
         ))[0]
     }
 
+    async makeUserAdminInsideOrg(user_id: number, org_id: number) {
+        const rowsAffected = (await this.db.update(orgMembers).set({is_admin: true}).where(
+            and(
+                eq(orgMembers.userId, user_id),
+                eq(orgMembers.organizationId, org_id),
+            )
+        )).rowsAffected;
+        if (!rowsAffected) throw new ConflictException("issue occured while making an user admin");
+    }
+
     async addMember(org_id: number, dto: AddUserToOrgDto) {
         const member = await this.userService.findById(dto.user_id)
         if (!member) {
@@ -75,7 +85,7 @@ export class OrganizationService {
             throw new ConflictException('user is already added in Org')
         }
 
-        return await this.db.insert(orgMembers).values({userId: dto.user_id, organizationId: org_id})
+        return await this.db.insert(orgMembers).values({userId: dto.user_id, organizationId: org_id, is_admin: false})
     }
 
     async getMembers(org_id: number) {

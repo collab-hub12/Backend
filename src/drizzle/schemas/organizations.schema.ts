@@ -1,8 +1,9 @@
 import {relations, sql} from 'drizzle-orm';
-import {integer, primaryKey, sqliteTable, text, unique} from 'drizzle-orm/sqlite-core';
+import {integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 import {users} from './users.schema';
 import {teamMember} from './teams.schema';
 import {tasks} from './tasks.schema';
+import {roomMembers} from './room.schema';
 
 export const organizations = sqliteTable("organizations", {
     id: integer("id").primaryKey({autoIncrement: true}),
@@ -24,6 +25,7 @@ export const orgRelations = relations(organizations,
         }),
         member: many(orgMembers),
         teamMember: many(teamMember),
+        roomMember: many(roomMembers),
         task: many(tasks)
     })
 )
@@ -32,6 +34,7 @@ export const orgRelations = relations(organizations,
 export const orgMembers = sqliteTable('organization_members', {
     userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}),
     organizationId: integer('organization_id').notNull().references(() => organizations.id, {onDelete: 'cascade'}),
+    is_admin: integer("is_admin", {mode: "boolean"}).notNull()
 }, (t) => ({
     pk: primaryKey({columns: [t.organizationId, t.userId]}),
 }),

@@ -31,7 +31,7 @@ export class TeamService {
     }
 
     async addMemberToTeam(team_id: number, user_id: number, org_id: number) {
-        const rowsAffected = (await this.db.insert(teamMember).values({team_id, user_id, org_id})).rowsAffected
+        const rowsAffected = (await this.db.insert(teamMember).values({team_id, user_id, org_id, is_admin: false})).rowsAffected
         if (!rowsAffected) throw new ConflictException("issue occured adding member to the team")
         return {"msg": "member added to the team successFully"}
     }
@@ -78,6 +78,16 @@ export class TeamService {
         })
         const users = result.map(data => data.user)
         return users;
+    }
+
+    async makeUserAdminInsideTeam(user_id: number, team_id: number) {
+        const rowsAffected = (await this.db.update(teamMember).set({is_admin: true}).where(
+            and(
+                eq(teamMember.user_id, user_id),
+                eq(teamMember.team_id, team_id),
+            )
+        )).rowsAffected;
+        if (!rowsAffected) throw new ConflictException("issue occured while making an user admin");
     }
 
 }
