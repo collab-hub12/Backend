@@ -6,7 +6,7 @@ import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {eq, and} from 'drizzle-orm';
 import {schema} from 'src/drizzle/schemas/schema';
 import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
-import {users} from 'src/drizzle/schemas/users.schema';
+
 
 
 @Injectable()
@@ -38,11 +38,7 @@ export class TaskService {
         where: eq(assignedTasks.task_id, task.id),
         columns: {},
         with: {
-          user: {
-            columns: {
-              password: false
-            }
-          }
+          user: true
         }
       })
       return {...task, assigned_to}

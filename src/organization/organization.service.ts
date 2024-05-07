@@ -21,14 +21,14 @@ export class OrganizationService {
         private readonly taskService: TaskService
     ) { }
 
-    async createOrganization(dto: CreateOrgDto) {
-        const founder = await this.userService.findById(dto.founder_id)
+    async createOrganization(dto: CreateOrgDto, founder_id: number) {
+        const founder = await this.userService.findById(founder_id)
         if (!founder) {
             throw new ConflictException('user not found')
         }
-        const result = await this.db.insert(organizations).values(dto).returning()
+        const result = await this.db.insert(organizations).values({...dto, founder_id}).returning()
         const org_id = result[0].id
-        await this.db.insert(orgMembers).values({userId: dto.founder_id, organizationId: org_id, is_admin: true})
+        await this.db.insert(orgMembers).values({userId: founder_id, organizationId: org_id, is_admin: true})
         return result[0]
     }
 
@@ -52,12 +52,19 @@ export class OrganizationService {
     }
 
     async getMemberInOrg(org_id: number, user_id: number) {
-        return (await this.db.select().from(orgMembers).where(
+
+        const result = (await this.db.select().from(orgMembers).where(
             and(
                 eq(orgMembers.organizationId, org_id),
                 eq(orgMembers.userId, user_id)
             )
         ))[0]
+
+
+        if (!result) {
+            throw new ConflictException("member not found inside org")
+        }
+        return result
     }
 
     async makeUserAdminInsideOrg(user_id: number, org_id: number) {
@@ -71,10 +78,7 @@ export class OrganizationService {
     }
 
     async addMember(org_id: number, dto: AddUserToOrgDto) {
-        const member = await this.userService.findById(dto.user_id)
-        if (!member) {
-            throw new ConflictException('user not found')
-        }
+        await this.userService.findById(dto.user_id)
         const result = await this.findOrgById(org_id)
         if (!result) {
             throw new ConflictException('org doesnt exists')
@@ -100,11 +104,7 @@ export class OrganizationService {
                 organizationId: false
             },
             with: {
-                user: {
-                    columns: {
-                        password: false
-                    }
-                }
+                user: true
             }
         })
     }

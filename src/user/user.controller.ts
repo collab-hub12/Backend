@@ -8,7 +8,6 @@ export class UserController {
 
     @Get(":id")
     async getUserProfile(@Param("id") id: number) {
-        const {password, ...result} = await this.userService.findById(id);
-        return result
+        return await this.userService.findById(id);
     }
 }

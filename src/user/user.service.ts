@@ -18,13 +18,9 @@ export class UserService {
         const countUser = query[0].value
         if (countUser > 0) throw new ConflictException('This Email is already Registered')
 
-        const newUser = await this.db.insert(users).values({
-            ...dto,
-            password: await hash(dto.password, 10),
-        }).returning()
+        const newUser = await this.db.insert(users).values(dto).returning()
 
-        const {password, ...result} = newUser[0]
-        return result
+        return newUser[0]
     }
 
     async findByEmail(email: string) {
@@ -34,7 +30,6 @@ export class UserService {
 
     async findById(id: number) {
         const result = await this.db.select().from(users).where(eq(users.id, id));
-
         return result[0]
     }
 }

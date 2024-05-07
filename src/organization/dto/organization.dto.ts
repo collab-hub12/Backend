@@ -7,8 +7,6 @@ export class CreateOrgDto {
     org_desc: string;
     @IsString()
     location: string;
-    @IsNumber()
-    founder_id: number;
 }
 
 export class AddUserToOrgDto {

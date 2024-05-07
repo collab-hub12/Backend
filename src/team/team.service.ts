@@ -69,11 +69,7 @@ export class TeamService {
                     eq(teamMember.org_id, org_id)
                 ),
             with: {
-                user: {
-                    columns: {
-                        password: false
-                    }
-                }
+                user: true
             }
         })
         const users = result.map(data => data.user)
