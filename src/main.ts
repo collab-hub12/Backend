@@ -17,7 +17,8 @@ async function bootstrap() {
   app.use(cookieParser())
   app.enableCors({
     credentials: true,
-    origin: process.env.FRONTEND_URL,
+    origin: ["http://127.0.0.1:3000", "https://accounts.google.com/o/oauth2/v2/auth"],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
   await app.listen(8000);
 }

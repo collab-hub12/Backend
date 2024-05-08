@@ -32,7 +32,7 @@ export class AuthController {
     @Get('login')
     @UseGuards(GoogleOauthGuard)
     async login(@Body() dto: LoginUserDto) {
-
+        console.log("hi");
     }
 
 
@@ -41,12 +41,10 @@ export class AuthController {
     async handleRedirect(@Res({passthrough: true}) res: Response, @Req() req: IGetUserAuthInfoRequest) {
 
         const {accessToken} = await this.authService.signIn(req.user)
-
         res.cookie('jwt', accessToken, {
             httpOnly: true,
-            sameSite: 'lax',
         });
 
-        return req.user;
+        return res.redirect("http://127.0.0.1:3000");
     }
 }
