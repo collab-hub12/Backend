@@ -1,13 +1,17 @@
-import {Controller, Get, Param} from '@nestjs/common';
+import {Controller, Get, Param, Req, UseGuards} from '@nestjs/common';
 import {UserService} from './user.service';
+import {AuthGuard} from '@nestjs/passport';
+import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
+import {JwtAuthGuard} from 'src/auth/guards/auth.guard';
 
 @Controller('users')
 export class UserController {
 
-    constructor(private readonly userService: UserService) { }
+    constructor() { }
 
-    @Get(":id")
-    async getUserProfile(@Param("id") id: number) {
-        return await this.userService.findById(id);
+    @Get("")
+    @UseGuards(JwtAuthGuard)
+    async getUserProfile(@Req() req: IGetUserAuthInfoRequest) {
+        return req.user
     }
 }
