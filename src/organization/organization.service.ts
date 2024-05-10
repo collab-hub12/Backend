@@ -162,7 +162,7 @@ export class OrganizationService {
         return {"message": "organization deleted successfully"}
     }
 
-    async addTeamUnderOrg(createTeamDto: CreateTeamDto) {
+    async addTeamUnderOrg(createTeamDto: CreateTeamDto, user_id: number) {
         const orgExists = await this.findOrgById(createTeamDto.org_id)
         if (!orgExists) {
             throw new ConflictException('org doesnt exists')
@@ -174,14 +174,13 @@ export class OrganizationService {
         }
         const teamDetails = await this.teamService.createTeam(createTeamDto);
 
-        // pending task : orgExists.founder_id should be changed to requested user
-        await this.teamService.addMemberToTeam(teamDetails.id, orgExists.founder_id, orgExists.id)
+        await this.teamService.addMemberToTeam(teamDetails.id, user_id, orgExists.id)
 
         return teamDetails
     }
 
-    async getTeams(org_id: number) {
-        return this.teamService.getAllTeamsUnderOrg(org_id)
+    async getTeamsThatUserIsPartOf(org_id: number, user_id: number) {
+        return this.teamService.getAllTeamsThatUserIsPartOf(org_id, user_id)
     }
 
     async getTeamInsideOrg(org_id: number, team_name: string) {

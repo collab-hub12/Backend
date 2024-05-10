@@ -62,16 +62,16 @@ export class OrganizationController {
 
     //********************----TEAM-RELATED-QUERIES----*************************//
 
-    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @Roles(Role.ORG_ADMIN)
     @Post(":org_id/teams")
-    async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto) {
-        return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name})
+    async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto, @Req() req: IGetUserAuthInfoRequest) {
+        return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name}, req.user.id)
     }
 
 
     @Get(":org_id/teams")
-    async getTeams(@Param("org_id") org_id: number) {
-        return this.orgService.getTeams(org_id)
+    async getTeams(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest) {
+        return this.orgService.getTeamsThatUserIsPartOf(org_id, req.user.id)
     }
 
 

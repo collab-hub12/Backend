@@ -1,4 +1,4 @@
-import {BadRequestException, Body, Controller, Get, Req, Res, UseGuards} from '@nestjs/common';
+import {BadRequestException, Body, Controller, Get, Query, Req, Res, UseGuards} from '@nestjs/common';
 import {RoleService} from './role.service';
 import {JwtAuthGuard} from 'src/auth/guards/auth.guard';
 import {OrganizationService} from 'src/organization/organization.service';
@@ -21,23 +21,18 @@ export class RoleController {
   ) { }
 
   @Get()
-  async getRoles(@Body() dto: GetRolesDto, @Req() req: IGetUserAuthInfoRequest, @Res({passthrough: true}) res: Response) {
+  async getRoles(@Req() req: IGetUserAuthInfoRequest, @Res({passthrough: true}) res: Response, @Query('org_id') org_id?: number, @Query('team_id') team_id?: number, @Query('room_id') room_id?: number) {
     let role_details = [];
+    const {is_admin} = await this.orgService.getMemberInOrg(org_id, req.user.id)
+    if (is_admin) role_details.push(Role.ORG_ADMIN)
 
-    if (dto.org_id) {
-      console.log(req.user);
-
-      const {is_admin} = await this.orgService.getMemberInOrg(dto.org_id, req.user.id)
-      if (is_admin) role_details.push(Role.ORG_ADMIN)
-
-    }
-    if (dto.team_id) {
-      const {is_admin} = await this.teamService.getUserinTeaminOrg(dto.org_id, req.user.id, dto.team_id)
+    if (team_id) {
+      const {is_admin} = await this.teamService.getUserinTeaminOrg(org_id, req.user.id, team_id)
       if (is_admin) role_details.push(Role.TEAM_ADMIN)
     }
 
-    if (dto.room_id) {
-      const {is_admin} = await this.roomService.getUsersinRoom(req.user.id, dto.room_id)
+    if (room_id) {
+      const {is_admin} = await this.roomService.getUsersinRoom(req.user.id, room_id)
       if (is_admin) role_details.push(Role.ROOM_ADMIN)
     }
 

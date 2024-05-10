@@ -15,6 +15,7 @@ export class TeamService {
             name: createTeamDto.team_name,
             org_id: createTeamDto.org_id
         }).returning())[0]
+
     }
 
     async findATeamUnderOrg(org_id: number, team_name: string) {
@@ -26,8 +27,14 @@ export class TeamService {
         ))[0]
     }
 
-    async getAllTeamsUnderOrg(org_id: number) {
-        return await this.db.select().from(teams).where(eq(teams.org_id, org_id))
+    async getAllTeamsThatUserIsPartOf(org_id: number, user_id: number) {
+        const result = await this.db.query.teamMember.findMany({
+            where: and(eq(teamMember.org_id, org_id), eq(teamMember.user_id, user_id)),
+            with: {
+                team: true
+            }
+        })
+        return result.map(data => data.team)
     }
 
     async addMemberToTeam(team_id: number, user_id: number, org_id: number) {
