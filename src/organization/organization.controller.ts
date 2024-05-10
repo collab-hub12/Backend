@@ -9,7 +9,7 @@ import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
 import {Roles} from 'src/decorator/roles.decorator';
 import {Role} from 'src/enum/role.enum';
 
-@Controller('organizations')
+@Controller('orgs')
 @UseGuards(JwtAuthGuard)
 export class OrganizationController {
 
@@ -27,8 +27,8 @@ export class OrganizationController {
     }
 
     @Get("")
-    async getOrgDetails(@Query("search") search_text: string, @Query("offset") offset: number, @Query("limit") limit: number) {
-        return this.orgService.findOrgs(search_text, offset, limit)
+    async getOrgDetails(@Query("offset") offset: number, @Query("limit") limit: number, @Req() req: IGetUserAuthInfoRequest) {
+        return this.orgService.findOrgsThatUserIsPartOf(req.user.id, offset, limit)
     }
 
     @Roles(Role.ORG_ADMIN)

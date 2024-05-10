@@ -25,7 +25,9 @@ export class AuthService {
 
         const token = this.generateJwt({
             sub: userExists.id,
-            email: userExists.email
+            email: userExists.email,
+            name: userExists.name,
+            picture: userExists.picture
         })
 
         return {

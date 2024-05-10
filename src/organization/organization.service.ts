@@ -51,6 +51,18 @@ export class OrganizationService {
         return org_details
     }
 
+    async findOrgsThatUserIsPartOf(user_id: number, limit: number, offset: number) {
+        return (await this.db.query.orgMembers.findMany({
+            where: eq(orgMembers.userId, user_id),
+            with: {
+                organization: true
+            },
+            limit,
+            offset
+        })).map(data => data.organization)
+    }
+
+
     async getMemberInOrg(org_id: number, user_id: number) {
 
         const result = (await this.db.select().from(orgMembers).where(

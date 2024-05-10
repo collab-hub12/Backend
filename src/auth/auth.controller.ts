@@ -32,14 +32,13 @@ export class AuthController {
     @Get('login')
     @UseGuards(GoogleOauthGuard)
     async login(@Body() dto: LoginUserDto) {
-        console.log("hi");
+
     }
 
 
     @Get('google/callback')
     @UseGuards(GoogleOauthGuard)
     async handleRedirect(@Res({passthrough: true}) res: Response, @Req() req: IGetUserAuthInfoRequest) {
-
         const {accessToken} = await this.authService.signIn(req.user)
         res.cookie('jwt', accessToken, {
             httpOnly: true,
