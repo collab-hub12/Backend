@@ -6,6 +6,7 @@ import {UserService} from 'src/user/user.service';
 import {LoginUserDto} from './dto/auth.dto';
 import {GoogleOauthGuard} from './guards/google-oauth.guard';
 import {Role} from 'src/enum/role.enum';
+import {JwtAuthGuard} from './guards/auth.guard';
 
 export interface IGetUserAuthInfoRequest extends Request {
     user: {
@@ -25,6 +26,12 @@ export class AuthController {
     @Post('register')
     async registerUser(@Body() dto: CreateUserDto) {
         return this.userService.create(dto);
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    async getUserProfile(@Req() req: IGetUserAuthInfoRequest) {
+        return req.user
     }
 
 

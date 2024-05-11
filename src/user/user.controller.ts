@@ -1,17 +1,15 @@
-import {Controller, Get, Param, Req, UseGuards} from '@nestjs/common';
+import {Controller, Get, Query, Req} from '@nestjs/common';
 import {UserService} from './user.service';
-import {AuthGuard} from '@nestjs/passport';
 import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
-import {JwtAuthGuard} from 'src/auth/guards/auth.guard';
 
 @Controller('users')
 export class UserController {
 
-    constructor() { }
+    constructor(private readonly userService: UserService) { }
 
-    @Get("")
-    @UseGuards(JwtAuthGuard)
-    async getUserProfile(@Req() req: IGetUserAuthInfoRequest) {
-        return req.user
+    @Get()
+    async getUsers(@Req() req: IGetUserAuthInfoRequest, @Query("offset") offset?: number, @Query("limit") limit?: number) {
+        return this.userService.getAllUser(offset, limit)
     }
+
 }

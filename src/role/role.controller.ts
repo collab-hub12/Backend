@@ -23,20 +23,19 @@ export class RoleController {
   @Get()
   async getRoles(@Req() req: IGetUserAuthInfoRequest, @Res({passthrough: true}) res: Response, @Query('org_id') org_id?: number, @Query('team_id') team_id?: number, @Query('room_id') room_id?: number) {
     let role_details = [];
-    const {is_admin} = await this.orgService.getMemberInOrg(org_id, req.user.id)
-    if (is_admin) role_details.push(Role.ORG_ADMIN)
-
+    // check if user is admin inside org
+    const result = await this.orgService.getMemberInOrg(org_id, req.user.id)
+    if (result?.is_admin) role_details.push(Role.ORG_ADMIN)
+    // check if user is admin inside team
     if (team_id) {
-      const {is_admin} = await this.teamService.getUserinTeaminOrg(org_id, req.user.id, team_id)
-      if (is_admin) role_details.push(Role.TEAM_ADMIN)
+      const result = await this.teamService.getUserinTeaminOrg(org_id, req.user.id, team_id)
+      if (result?.is_admin) role_details.push(Role.TEAM_ADMIN)
     }
-
+    // check if user is admin inside role
     if (room_id) {
-      const {is_admin} = await this.roomService.getUsersinRoom(req.user.id, room_id)
-      if (is_admin) role_details.push(Role.ROOM_ADMIN)
+      const result = await this.roomService.getUsersinRoom(req.user.id, room_id)
+      if (result?.is_admin) role_details.push(Role.ROOM_ADMIN)
     }
-
-
     const jwtPayload = {
       sub: req.user.id,
       email: req.user.email,
@@ -51,8 +50,6 @@ export class RoleController {
     })
 
     req.user = {...req.user, roles: role_details}
-    console.log(req.user);
-
 
     return req.user
 

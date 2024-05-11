@@ -71,11 +71,6 @@ export class OrganizationService {
                 eq(orgMembers.userId, user_id)
             )
         ))[0]
-
-
-        if (!result) {
-            throw new ConflictException("member not found inside org")
-        }
         return result
     }
 

@@ -1,4 +1,4 @@
-import {Controller, Post, Body, Param, Get, Put, Delete, Query, UseGuards, Req} from '@nestjs/common';
+import {Controller, Post, Body, Param, Get, Put, Delete, Query, UseGuards, Req, ConflictException, ForbiddenException} from '@nestjs/common';
 import {AddUserToOrgDto, CreateOrgDto, CreateTeamUnderOrgDto} from './dto/organization.dto';
 import {OrganizationService} from './organization.service';
 import {CreateTaskDto} from 'src/task/dto/create-task.dto';
@@ -22,7 +22,11 @@ export class OrganizationController {
 
 
     @Get(":org_id")
-    async getOrgById(@Param("org_id") org_id: number) {
+    async getOrgById(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest) {
+        const user = await this.orgService.getMemberInOrg(org_id, req.user.id)
+        if (!user) {
+            throw new ForbiddenException("user is not part of this org")
+        }
         return this.orgService.findOrgById(org_id);
     }
 

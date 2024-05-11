@@ -32,6 +32,10 @@ export class UserService {
         const result = await this.db.select().from(users).where(eq(users.id, id));
         return result[0]
     }
+
+    async getAllUser(offset: number, limit: number) {
+        return await this.db.select().from(users).offset(offset).limit(limit)
+    }
 }
 
 
