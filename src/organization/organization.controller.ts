@@ -8,6 +8,7 @@ import {JwtAuthGuard} from 'src/auth/guards/auth.guard';
 import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
 import {Roles} from 'src/decorator/roles.decorator';
 import {Role} from 'src/enum/role.enum';
+import {RolesGuard} from 'src/auth/guards/role.guard';
 
 @Controller('orgs')
 @UseGuards(JwtAuthGuard)
@@ -24,10 +25,13 @@ export class OrganizationController {
     @Get(":org_id")
     async getOrgById(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest) {
         const user = await this.orgService.getMemberInOrg(org_id, req.user.id)
-        if (!user) {
+
+        if (user === undefined) {
             throw new ForbiddenException("user is not part of this org")
+        } else {
+
+            return this.orgService.findOrgById(org_id);
         }
-        return this.orgService.findOrgById(org_id);
     }
 
     @Get("")
@@ -45,8 +49,10 @@ export class OrganizationController {
 
     @Roles(Role.ORG_ADMIN)
     @Post(":org_id/users")
-    async addMemberToOrganization(@Param("org_id") org_id: number, @Body() dto: AddUserToOrgDto) {
-        await this.orgService.addMember(org_id, dto)
+    async addMemberToOrganization(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest, @Body() dto: AddUserToOrgDto) {
+        console.log(req.user);
+
+        await this.orgService.addMember(org_id, req.user.id, dto)
         return {
             "message": "users added successfully"
         }
@@ -59,6 +65,7 @@ export class OrganizationController {
     }
 
     @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Put(":org_id/users/:user_id")
     async removeMemberFromOrganization(@Param("org_id") orgId: number, @Param("user_id") user_id: number) {
         return this.orgService.removeMember(orgId, user_id)

@@ -50,6 +50,7 @@ export class RoleController {
     })
 
     req.user = {...req.user, roles: role_details}
+    console.log(req.user);
 
     return req.user
 

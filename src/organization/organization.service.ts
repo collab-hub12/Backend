@@ -84,7 +84,7 @@ export class OrganizationService {
         if (!rowsAffected) throw new ConflictException("issue occured while making an user admin");
     }
 
-    async addMember(org_id: number, dto: AddUserToOrgDto) {
+    async addMember(org_id: number, user_id: number, dto: AddUserToOrgDto) {
         await this.userService.findById(dto.user_id)
         const result = await this.findOrgById(org_id)
         if (!result) {
@@ -100,6 +100,7 @@ export class OrganizationService {
     }
 
     async getMembers(org_id: number) {
+
         const orgExists = await this.findOrgById(org_id)
         if (!orgExists) {
             throw new ConflictException('org doesnt exists')

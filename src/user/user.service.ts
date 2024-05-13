@@ -3,7 +3,7 @@ import {LibSQLDatabase} from 'drizzle-orm/libsql';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {CreateUserDto} from './dto/user.dto';
 import {users} from 'src/drizzle/schemas/users.schema';
-import {eq, count} from 'drizzle-orm';
+import {eq, count, and, or, ilike, like, sql} from 'drizzle-orm';
 import {hash} from 'bcrypt';
 import {schema} from 'src/drizzle/schemas/schema';
 
@@ -33,8 +33,15 @@ export class UserService {
         return result[0]
     }
 
-    async getAllUser(offset: number, limit: number) {
-        return await this.db.select().from(users).offset(offset).limit(limit)
+    async getAllUser(search_text: string, offset: number, limit: number) {
+        search_text = search_text.toLowerCase()
+
+        return await this.db.select().from(users).where(
+            or(
+                like(users.email, `%${search_text}%`),
+                like(users.name, `%${search_text}%`)
+            )
+        ).offset(offset).limit(limit)
     }
 }
 

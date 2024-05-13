@@ -8,8 +8,8 @@ export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Get()
-    async getUsers(@Req() req: IGetUserAuthInfoRequest, @Query("offset") offset?: number, @Query("limit") limit?: number) {
-        return this.userService.getAllUser(offset, limit)
+    async getUsers(@Req() req: IGetUserAuthInfoRequest, @Query("search") search_text?: string, @Query("offset") offset?: number, @Query("limit") limit?: number) {
+        return this.userService.getAllUser(search_text, offset, limit)
     }
 
 }

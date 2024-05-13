@@ -53,4 +53,10 @@ export class AuthController {
 
         return res.redirect("http://127.0.0.1:3000");
     }
+
+    @Get('logout')
+    async logoutHandler(@Req() req: IGetUserAuthInfoRequest, @Res() res: Response) {
+        res.clearCookie('jwt')
+        res.redirect("http://127.0.0.1:3000")
+    }
 }
