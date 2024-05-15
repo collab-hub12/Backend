@@ -67,6 +67,14 @@ export class OrganizationController {
 
     @Roles(Role.ORG_ADMIN)
     @UseGuards(RolesGuard)
+    @Put(":org_id/users/:user_id")
+    async makeUserAdminInOrg(@Param("org_id") orgId: number, @Param("user_id") user_id: number) {
+        await this.orgService.makeUserAdminInsideOrg(user_id, orgId)
+        return {"message": "operation successfull"}
+    }
+
+    @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Delete(":org_id/users/:user_id")
     async removeMemberFromOrganization(@Param("org_id") orgId: number, @Param("user_id") user_id: number) {
         return this.orgService.removeMember(orgId, user_id)
