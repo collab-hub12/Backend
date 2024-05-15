@@ -40,6 +40,7 @@ export class OrganizationController {
     }
 
     @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Delete(":org_id")
     async deleteOrganization(@Param("org_id") id: number) {
         return this.orgService.deleteOrganization(id)
@@ -47,12 +48,12 @@ export class OrganizationController {
 
     //********************----USER-RELATED-QUERIES----*************************//
 
-    @Roles(Role.ORG_ADMIN)
     @Post(":org_id/users")
-    async addMemberToOrganization(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest, @Body() dto: AddUserToOrgDto) {
-        console.log(req.user);
+    @UseGuards(RolesGuard)
+    @Roles(Role.ORG_ADMIN)
+    async addMemberToOrganization(@Param("org_id") org_id: number, @Body() dto: AddUserToOrgDto) {
 
-        await this.orgService.addMember(org_id, req.user.id, dto)
+        await this.orgService.addMember(org_id, dto)
         return {
             "message": "users added successfully"
         }
@@ -66,7 +67,7 @@ export class OrganizationController {
 
     @Roles(Role.ORG_ADMIN)
     @UseGuards(RolesGuard)
-    @Put(":org_id/users/:user_id")
+    @Delete(":org_id/users/:user_id")
     async removeMemberFromOrganization(@Param("org_id") orgId: number, @Param("user_id") user_id: number) {
         return this.orgService.removeMember(orgId, user_id)
     }
@@ -74,6 +75,7 @@ export class OrganizationController {
     //********************----TEAM-RELATED-QUERIES----*************************//
 
     @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Post(":org_id/teams")
     async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto, @Req() req: IGetUserAuthInfoRequest) {
         return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name}, req.user.id)
@@ -91,12 +93,17 @@ export class OrganizationController {
         return this.orgService.getTeamMember(org_id, team_name)
     }
 
+
+    @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @Put(":org_id/teams/:team_name/users/:users_id")
     async addUserToATeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
         return this.orgService.addUserToATeam(org_id, team_name, users_id);
     }
 
+    @Roles(Role.ORG_ADMIN)
+    @UseGuards(RolesGuard)
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @Delete(":org_id/teams/:team_name/users/:users_id")
     async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {

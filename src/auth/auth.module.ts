@@ -7,6 +7,10 @@ import {JwtModule, JwtService} from '@nestjs/jwt';
 import {GoogleStrategy} from './strategies/google.strategy';
 import {ConfigService} from '@nestjs/config';
 import {JwtAuthStrategy} from './strategies/jwtauth.strategy';
+import {OrganizationService} from 'src/organization/organization.service';
+import {TeamService} from 'src/team/team.service';
+import {RoomService} from 'src/room/room.service';
+import {TaskService} from 'src/task/task.service';
 
 @Module({
   imports: [
@@ -22,6 +26,6 @@ import {JwtAuthStrategy} from './strategies/jwtauth.strategy';
     })
   ],
   controllers: [AuthController],
-  providers: [ConfigService, GoogleStrategy, JwtAuthStrategy, AuthService, UserService, ...drizzleProvider, JwtService]
+  providers: [ConfigService, GoogleStrategy, JwtAuthStrategy, AuthService, UserService, ...drizzleProvider, JwtService, OrganizationService, TeamService, RoomService, TaskService]
 })
 export class AuthModule { }

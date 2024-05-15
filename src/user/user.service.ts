@@ -33,9 +33,9 @@ export class UserService {
         return result[0]
     }
 
-    async getAllUser(search_text: string, offset: number, limit: number) {
-        search_text = search_text.toLowerCase()
+    async getAllUser(search_text?: string, offset?: number, limit?: number) {
 
+        search_text = search_text?.toLowerCase()
         return await this.db.select().from(users).where(
             or(
                 like(users.email, `%${search_text}%`),
