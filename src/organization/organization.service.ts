@@ -220,10 +220,10 @@ export class OrganizationService {
     }
 
     async createTask(org_id: number, team_name: string, createTaskDto: CreateTaskDto) {
-        console.log(org_id);
+
 
         const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
-        console.log(teamExistsInOrg);
+
 
         return await this.taskService.create(createTaskDto, teamExistsInOrg.id, teamExistsInOrg.org_id)
     }

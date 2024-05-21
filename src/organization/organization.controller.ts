@@ -85,8 +85,6 @@ export class OrganizationController {
     @UseGuards(RolesGuard)
     @Post(":org_id/teams")
     async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto, @Req() req: IGetUserAuthInfoRequest) {
-        console.log();
-
         return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name}, req.user.id)
     }
 
@@ -99,7 +97,7 @@ export class OrganizationController {
 
     @Get(":org_id/teams/:team_name")
     async getTeamMemberDetails(@Param("org_id") org_id: number, @Param("team_name") team_name: string) {
-        console.log(team_name);
+
         return this.orgService.getTeamMember(org_id, team_name)
     }
 
@@ -126,16 +124,12 @@ export class OrganizationController {
     @UseGuards(RolesGuard)
     @Post(":org_id/teams/:team_name/tasks")
     async createTask(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Body() createTaskDto: CreateTaskDto) {
-        console.log(createTaskDto);
-
         return this.orgService.createTask(org_id, team_name, createTaskDto)
     }
 
 
     @Get(":org_id/teams/:team_name/tasks")
     async getTasks(@Param("org_id") org_id: number, @Param("team_name") team_name: string) {
-        console.log(team_name);
-
         return this.orgService.getTasks(org_id, team_name)
     }
 
