@@ -6,6 +6,7 @@ import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {eq, and} from 'drizzle-orm';
 import {schema} from 'src/drizzle/schemas/schema';
 import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
+import {users} from 'src/drizzle/schemas/users.schema';
 
 
 
@@ -54,7 +55,16 @@ export class TaskService {
         eq(tasks.team_id, team_id),
         eq(tasks.id, task_id))
     ))[0]
-    return task_details;
+    const assigned_to = await this.db.select({
+      id: users.id,
+      picture: users.picture,
+      name: users.name,
+      email: users.email,
+    }).from(assignedTasks)
+      .innerJoin(tasks, eq(assignedTasks.task_id, tasks.id))
+      .innerJoin(users, eq(assignedTasks.user_id, users.id))
+      .where(eq(assignedTasks.task_id, task_details.id))
+    return {...task_details, assigned_to};
   }
 
   async assignTask(user_id: number, task_id: number) {

@@ -138,6 +138,11 @@ export class OrganizationController {
         return this.orgService.getTasks(org_id, team_name)
     }
 
+    @Get(":org_id/teams/:team_name/tasks/:task_id")
+    async getTasksById(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("task_id") task_id: number) {
+        return this.orgService.getTaskById(org_id, team_name, task_id)
+    }
+
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @Post(":org_id/teams/:team_name/tasks/:task_id")
     async assignTask(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("task_id") task_id: number, @Body() assigntaskdto: AssignTaskDto) {

@@ -253,6 +253,11 @@ export class OrganizationService {
         return await this.taskService.getAllTasksOfATeamInsideOrg(org_id, teamExistsInOrg.id)
     }
 
+    async getTaskById(org_id: number, team_name: string, task_id: number) {
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        return await this.taskService.getTaskOfATeamInsideOrg(org_id, teamExistsInOrg.id, task_id)
+    }
+
     async assignTask(org_id: number, team_name: string, task_id: number, assignee_id: number) {
 
         const {user_id} = await this.teamService.getUserinTeaminOrg(team_name, assignee_id, org_id)
