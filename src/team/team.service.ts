@@ -4,7 +4,9 @@ import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import type {schema} from 'src/drizzle/schemas/schema';
 import {CreateTeamDto} from './dto/team.dto';
 import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
-import {and, eq} from 'drizzle-orm';
+import {and, eq, like, or, sql} from 'drizzle-orm';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {organizations} from 'src/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TeamService {
@@ -37,8 +39,8 @@ export class TeamService {
         return result.map(data => data.team)
     }
 
-    async addMemberToTeam(team_id: number, user_id: number, org_id: number) {
-        const rowsAffected = (await this.db.insert(teamMember).values({team_id, user_id, org_id, is_admin: false})).rowsAffected
+    async addMemberToTeam(team_id: number, user_id: number, org_id: number, is_admin?: boolean) {
+        const rowsAffected = (await this.db.insert(teamMember).values({team_id, user_id, org_id, is_admin: is_admin || false})).rowsAffected
         if (!rowsAffected) throw new ConflictException("issue occured adding member to the team")
         return {"msg": "member added to the team successFully"}
     }
@@ -56,10 +58,11 @@ export class TeamService {
         return {"msg": "member removed from the team successFully"}
     }
 
-    async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
+    async getUserinTeaminOrg(team_name: string, user_id: number, org_id: number) {
+        const teamExists = await this.findATeamUnderOrg(org_id, team_name)
         const user = (await this.db.select().from(teamMember).where(
             and(
-                eq(teamMember.team_id, team_id),
+                eq(teamMember.team_id, teamExists.id),
                 eq(teamMember.user_id, user_id),
                 eq(teamMember.org_id, org_id)
             )
@@ -68,19 +71,35 @@ export class TeamService {
         return user
     }
 
-    async getUsersinTeamInOrg(team_id: number, org_id: number) {
-        const result = await this.db.query.teamMember.findMany({
-            where:
+    async getUsersinTeamInOrg(team_id: number, org_id: number, search_text: string, offset: number, limit: number) {
+        search_text = search_text?.toLowerCase()
+
+
+
+        const data = await this.db.select({
+            id: users.id,
+            isAdmin: teamMember.is_admin,
+            name: users.name,
+            email: users.email,
+            picture: users.picture
+        }).from(teamMember)
+            .innerJoin(users, eq(teamMember.user_id, users.id))
+            .innerJoin(organizations, eq(teamMember.org_id, organizations.id))
+            .innerJoin(teams, eq(teamMember.team_id, teams.id))
+            .where(
                 and(
-                    eq(teamMember.team_id, team_id),
-                    eq(teamMember.org_id, org_id)
-                ),
-            with: {
-                user: true
-            }
-        })
-        const users = result.map(data => data.user)
-        return users;
+                    eq(organizations.id, org_id),
+                    eq(teams.id, team_id),
+                    or(
+                        sql`${search_text === undefined}`,
+                        or(
+                            like(users.email, `%${search_text}%`),
+                            like(users.name, `%${search_text}%`))
+                    )
+                )
+            ).offset(offset).limit(limit).all()
+        return data
+
     }
 
     async makeUserAdminInsideTeam(user_id: number, team_id: number) {

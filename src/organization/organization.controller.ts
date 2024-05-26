@@ -9,6 +9,7 @@ import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
 import {Roles} from 'src/decorator/roles.decorator';
 import {Role} from 'src/enum/role.enum';
 import {RolesGuard} from 'src/auth/guards/role.guard';
+import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 
 @Controller('orgs')
 @UseGuards(JwtAuthGuard)
@@ -60,8 +61,8 @@ export class OrganizationController {
 
 
     @Get(":org_id/users")
-    async getMembers(@Param("org_id") orgId: number) {
-        return this.orgService.getMembers(orgId)
+    async getMembers(@Param("org_id") orgId: number, @Query("search") search_text?: string, @Query("offset") offset?: number, @Query("limit") limit?: number) {
+        return this.orgService.getMembers(orgId, search_text, offset, limit)
     }
 
     @Roles(Role.ORG_ADMIN)
@@ -95,24 +96,21 @@ export class OrganizationController {
     }
 
 
-    @Get(":org_id/teams/:team_name")
-    async getTeamMemberDetails(@Param("org_id") org_id: number, @Param("team_name") team_name: string) {
+    @Get(":org_id/teams/:team_name/users")
+    async getTeamMemberDetails(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Query("search") search_text?: string, @Query("offset") offset?: number, @Query("limit") limit?: number) {
+        return await this.orgService.getTeamMember(org_id, team_name, search_text, offset, limit)
+    }
 
-        return this.orgService.getTeamMember(org_id, team_name)
+    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
+    @Post(":org_id/teams/:team_name/users")
+    async addUserToATeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Body() addUserTeamDTO: AddUserToOrgDto) {
+        return this.orgService.addUserToATeam(org_id, team_name, addUserTeamDTO.user_id);
     }
 
 
-    @Roles(Role.ORG_ADMIN)
-    @UseGuards(RolesGuard)
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-    @Put(":org_id/teams/:team_name/users/:users_id")
-    async addUserToATeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
-        return this.orgService.addUserToATeam(org_id, team_name, users_id);
-    }
-
-    @Roles(Role.ORG_ADMIN)
     @UseGuards(RolesGuard)
-    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @Delete(":org_id/teams/:team_name/users/:users_id")
     async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
         return this.orgService.removeUserFromTeam(org_id, team_name, users_id);
@@ -125,6 +123,13 @@ export class OrganizationController {
     @Post(":org_id/teams/:team_name/tasks")
     async createTask(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Body() createTaskDto: CreateTaskDto) {
         return this.orgService.createTask(org_id, team_name, createTaskDto)
+    }
+
+    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
+    @Put(":org_id/teams/:team_name/tasks/:task_id")
+    async UpdateTask(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("task_id") task_id: number, @Body() updatetaskDto: UpdateTaskDto) {
+        return this.orgService.updateTask(org_id, team_name, task_id, updatetaskDto)
     }
 
 

@@ -17,3 +17,12 @@ export class CreateTaskDto {
     @IsString()
     taskDeadline: string;
 }
+
+export class UpdateTaskDto {
+    @IsString()
+    taskDescription?: string;
+    @IsEnum(ProgressState)
+    taskProgress?: ProgressState;
+    @IsString()
+    taskDeadline?: string;
+}

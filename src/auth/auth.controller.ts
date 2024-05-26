@@ -39,17 +39,18 @@ export class AuthController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    async getUserProfile(@Req() req: IGetUserAuthInfoRequest, @Res({passthrough: true}) res: Response, @Query('org_id') org_id?: number, @Query('team_id') team_id?: number, @Query('room_id') room_id?: number) {
+    async getUserProfile(@Req() req: IGetUserAuthInfoRequest, @Res({passthrough: true}) res: Response, @Query('org_id') org_id?: number, @Query('team_name') team_name?: string, @Query('room_id') room_id?: number) {
         let role_details = [];
         // check if user is admin inside org
+
         if (org_id) {
             const result = await this.orgService.getMemberInOrg(org_id, req.user.id)
             if (result?.is_admin) role_details.push(Role.ORG_ADMIN)
         }
 
         // check if user is admin inside team
-        if (team_id) {
-            const result = await this.teamService.getUserinTeaminOrg(org_id, req.user.id, team_id)
+        if (team_name) {
+            const result = await this.teamService.getUserinTeaminOrg(team_name, req.user.id, org_id)
             if (result?.is_admin) role_details.push(Role.TEAM_ADMIN)
         }
         // check if user is admin inside role
@@ -96,7 +97,7 @@ export class AuthController {
     }
 
     @Get('logout')
-    async logoutHandler(@Req() req: IGetUserAuthInfoRequest, @Res() res: Response) {
+    async logoutHandler(@Res() res: Response) {
         res.clearCookie('jwt')
         res.redirect("http://127.0.0.1:3000")
     }
