@@ -82,13 +82,17 @@ export class OrganizationController {
 
     //********************----TEAM-RELATED-QUERIES----*************************//
 
+    @Get(":org_id/teams/:team_name")
+    async getTeamDetails(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Req() req: IGetUserAuthInfoRequest) {
+        return this.orgService.getTeamDetails(org_id, team_name, req.user.id)
+    }
+
     @Roles(Role.ORG_ADMIN)
     @UseGuards(RolesGuard)
     @Post(":org_id/teams")
     async addTeamUnderOrg(@Param("org_id") org_id: number, @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto, @Req() req: IGetUserAuthInfoRequest) {
         return this.orgService.addTeamUnderOrg({org_id, team_name: createTeamUnderOrgDto.team_name}, req.user.id)
     }
-
 
     @Get(":org_id/teams")
     async getTeams(@Param("org_id") org_id: number, @Req() req: IGetUserAuthInfoRequest) {
@@ -108,12 +112,18 @@ export class OrganizationController {
         return this.orgService.addUserToATeam(org_id, team_name, addUserTeamDTO.user_id);
     }
 
+    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
+    @Put(":org_id/teams/:team_name/users/:user_id")
+    async grantAdminRoleToUserinTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("user_id") user_id: number) {
+        return this.orgService.grantAdminRoleToUserInTeam(org_id, team_name, user_id);
+    }
 
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @UseGuards(RolesGuard)
     @Delete(":org_id/teams/:team_name/users/:users_id")
-    async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("users_id") users_id: number) {
-        return this.orgService.removeUserFromTeam(org_id, team_name, users_id);
+    async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("user_id") user_id: number) {
+        return this.orgService.removeUserFromTeam(org_id, team_name, user_id);
     }
 
     //********************----TASK-RELATED-QUERIES----*************************//

@@ -35,13 +35,15 @@ export class TaskService {
         eq(tasks.team_id, team_id))
     )
     const result = Promise.all(task_details.map(async (task) => {
-      const assigned_to = await this.db.query.assignedTasks.findMany({
-        where: eq(assignedTasks.task_id, task.id),
-        columns: {},
-        with: {
-          user: true
-        }
-      })
+      const assigned_to = await this.db.select({
+        id: users.id,
+        picture: users.picture,
+        name: users.name,
+        email: users.email,
+      }).from(assignedTasks)
+        .innerJoin(tasks, eq(assignedTasks.task_id, tasks.id))
+        .innerJoin(users, eq(assignedTasks.user_id, users.id))
+        .where(eq(assignedTasks.task_id, task.id))
       return {...task, assigned_to}
 
     }))

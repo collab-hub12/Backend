@@ -1,4 +1,4 @@
-import {ConflictException, Inject, Injectable} from '@nestjs/common';
+import {ConflictException, ForbiddenException, Inject, Injectable} from '@nestjs/common';
 import {LibSQLDatabase} from 'drizzle-orm/libsql';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import type {schema} from 'src/drizzle/schemas/schema';
@@ -67,7 +67,7 @@ export class TeamService {
                 eq(teamMember.org_id, org_id)
             )
         ))[0]
-        if (!user) throw new ConflictException("user is not a part of Team inside Org")
+        if (!user) throw new ForbiddenException("user is not a part of Team inside Org")
         return user
     }
 

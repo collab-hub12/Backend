@@ -175,6 +175,10 @@ export class OrganizationService {
         return {"message": "organization deleted successfully"}
     }
 
+    async getTeamDetails(org_id: number, team_name: string, user_id: number) {
+        return await this.teamService.getUserinTeaminOrg(team_name, user_id, org_id);
+    }
+
     async addTeamUnderOrg(createTeamDto: CreateTeamDto, user_id: number) {
         const orgExists = await this.findOrgById(createTeamDto.org_id)
         if (!orgExists) {
@@ -192,6 +196,8 @@ export class OrganizationService {
         return teamDetails
     }
 
+
+
     async getTeamsThatUserIsPartOf(org_id: number, user_id: number) {
         return this.teamService.getAllTeamsThatUserIsPartOf(org_id, user_id)
     }
@@ -206,6 +212,15 @@ export class OrganizationService {
             throw new ConflictException('team doesnot exist inside org')
         }
         return teamExistsInOrg
+    }
+
+    async grantAdminRoleToUserInTeam(org_id: number, team_name: string, user_id: number) {
+        // check if Team and org exists
+        const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
+        // throws forbidden exception if user is not found inside team inside Org
+        await this.getTeamDetails(org_id, team_name, user_id);
+        await this.teamService.makeUserAdminInsideTeam(user_id, teamExistsInOrg.id)
+        return {"msg": "admin permission granted inside team"}
     }
 
     async addUserToATeam(org_id: number, team_name: string, user_id: number) {
