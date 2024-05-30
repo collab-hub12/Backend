@@ -121,7 +121,7 @@ export class OrganizationController {
 
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
     @UseGuards(RolesGuard)
-    @Delete(":org_id/teams/:team_name/users/:users_id")
+    @Delete(":org_id/teams/:team_name/users/:user_id")
     async removeUserFromTeam(@Param("org_id") org_id: number, @Param("team_name") team_name: string, @Param("user_id") user_id: number) {
         return this.orgService.removeUserFromTeam(org_id, team_name, user_id);
     }

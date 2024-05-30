@@ -28,7 +28,10 @@ export class OrganizationService {
         if (!founder) {
             throw new ConflictException('user not found')
         }
+        console.log(founder);
+
         const result = await this.db.insert(organizations).values({...dto, founder_id}).returning()
+        console.log(result);
         const org_id = result[0].id
         await this.db.insert(orgMembers).values({userId: founder_id, organizationId: org_id, is_admin: true})
         return result[0]
