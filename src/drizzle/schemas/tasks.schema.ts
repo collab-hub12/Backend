@@ -3,6 +3,7 @@ import {integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 import {users} from './users.schema';
 import {teams} from './teams.schema';
 import {organizations} from './organizations.schema';
+import {drawingBoards} from './boards.schema';
 
 export const tasks = sqliteTable("tasks", {
     id: integer("id").primaryKey({autoIncrement: true}),
@@ -11,9 +12,8 @@ export const tasks = sqliteTable("tasks", {
     org_id: integer("org_id").notNull().references(() => organizations.id, {onDelete: 'cascade'}),
     task_desc: text("task_description").notNull(),
     task_progress: text("task_progress").notNull(),
-    task_deadline: text("task_deadline").notNull()
+    task_deadline: text("task_deadline").notNull(),
 })
-
 
 export const tasksRelation = relations(tasks, ({one, many}) => ({
     assignedTasks: many(assignedTasks),
@@ -24,8 +24,8 @@ export const tasksRelation = relations(tasks, ({one, many}) => ({
     organization: one(organizations, {
         fields: [tasks.org_id],
         references: [organizations.id]
-    })
-
+    }),
+    drawingBoards: one(drawingBoards)
 }))
 
 //junction table to represent many-to-many relationship between users and tasks

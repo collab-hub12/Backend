@@ -1,0 +1,43 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    hostname: postgres
+    ports:
+      - '6543:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: TEST_SM
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - '5555:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+# insert into random_values
+# select 2, random() from generate_series(1,10000000);
+
+# select count(1) from random_values;
+
+# select id, avg(val),count(*) from random_values group by id;
+
+# create materialized view mv_random_values as
+# select id, avg(val),count(*) from random_values group by id;
+
+# select * from mv_random_values;
+
+# delete from random_values where id = 1;
+
+# refresh materialized view mv_random_values;

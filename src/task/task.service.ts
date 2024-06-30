@@ -7,13 +7,17 @@ import {eq, and} from 'drizzle-orm';
 import {schema} from 'src/drizzle/schemas/schema';
 import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
 import {users} from 'src/drizzle/schemas/users.schema';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 
 
 
 @Injectable()
 export class TaskService {
 
-  constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>) { }
+  constructor(
+    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    private readonly drawingBoardService: DrawingboardService
+  ) { }
 
   async create(createTaskDto: CreateTaskDto, team_id: number, org_id: number) {
     const task_detail = (await this.db.insert(tasks).values({
@@ -66,7 +70,10 @@ export class TaskService {
       .innerJoin(tasks, eq(assignedTasks.task_id, tasks.id))
       .innerJoin(users, eq(assignedTasks.user_id, users.id))
       .where(eq(assignedTasks.task_id, task_details.id))
-    return {...task_details, assigned_to};
+
+    const boardDetails = await this.drawingBoardService.GetBoardDetails(task_details.id)
+
+    return {...task_details, assigned_to, boardDetails};
   }
 
   async assignTask(user_id: number, task_id: number) {

@@ -15,11 +15,12 @@ async function bootstrap() {
     })
   )
   app.use(cookieParser())
+  //cross origin resource sharing 
   app.enableCors({
     credentials: true,
     origin: ["http://127.0.0.1:3000", "https://accounts.google.com/o/oauth2/v2/auth"],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
-  await app.listen(8000);
+  await app.listen(8000)
 }
 bootstrap();

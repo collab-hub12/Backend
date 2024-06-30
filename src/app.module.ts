@@ -9,11 +9,12 @@ import {OrganizationModule} from './organization/organization.module';
 import {TaskModule} from './task/task.module';
 import {TeamModule} from './team/team.module';
 import {RoomModule} from './room/room.module';
-import {SocketGateway} from './socket.gateway';
+import {SocketModule} from './socket/socket.module'
+import { DrawingboardModule } from './drawingboard/drawingboard.module';
 
 @Module({
-  imports: [DrizzleModule, AuthModule, ConfigModule.forRoot(), UserModule, OrganizationModule, TaskModule, TeamModule, RoomModule],
+  imports: [ConfigModule.forRoot(), DrizzleModule, AuthModule, UserModule, OrganizationModule, TaskModule, TeamModule, RoomModule, SocketModule, DrawingboardModule],
   controllers: [AppController],
-  providers: [AppService, SocketGateway],
+  providers: [AppService],
 })
 export class AppModule { }

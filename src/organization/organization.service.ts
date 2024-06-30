@@ -12,6 +12,7 @@ import {CreateTaskDto} from 'src/task/dto/create-task.dto';
 import {TaskService} from 'src/task/task.service';
 import {users} from 'src/drizzle/schemas/users.schema';
 import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 
 
 @Injectable()
@@ -20,7 +21,8 @@ export class OrganizationService {
     constructor(@Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
         private readonly userService: UserService,
         private readonly teamService: TeamService,
-        private readonly taskService: TaskService
+        private readonly taskService: TaskService,
+        private readonly drawingBoardService: DrawingboardService
     ) { }
 
     async createOrganization(dto: CreateOrgDto, founder_id: number) {
@@ -258,7 +260,9 @@ export class OrganizationService {
 
     async createTask(org_id: number, team_name: string, createTaskDto: CreateTaskDto) {
         const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_name)
-        return await this.taskService.create(createTaskDto, teamExistsInOrg.id, teamExistsInOrg.org_id)
+        const task = (await this.taskService.create(createTaskDto, teamExistsInOrg.id, teamExistsInOrg.org_id))
+        await this.drawingBoardService.create(task.id)
+        return task
     }
 
     async updateTask(org_id: number, team_name: string, task_id: number, updateTaskDto: UpdateTaskDto) {

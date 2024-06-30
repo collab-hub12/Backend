@@ -11,6 +11,7 @@ import {OrganizationService} from 'src/organization/organization.service';
 import {TeamService} from 'src/team/team.service';
 import {RoomService} from 'src/room/room.service';
 import {TaskService} from 'src/task/task.service';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import {TaskService} from 'src/task/task.service';
     })
   ],
   controllers: [AuthController],
-  providers: [ConfigService, GoogleStrategy, JwtAuthStrategy, AuthService, UserService, ...drizzleProvider, JwtService, OrganizationService, TeamService, RoomService, TaskService]
+  providers: [ConfigService, GoogleStrategy, JwtAuthStrategy, AuthService, UserService, ...drizzleProvider, JwtService, OrganizationService, DrawingboardService, TeamService, RoomService, TaskService]
 })
 export class AuthModule { }

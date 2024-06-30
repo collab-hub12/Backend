@@ -8,10 +8,11 @@ import {TaskService} from 'src/task/task.service';
 import {JwtAuthStrategy} from 'src/auth/strategies/jwtauth.strategy';
 import {JwtService} from '@nestjs/jwt';
 import {ConfigService} from '@nestjs/config';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 
 @Module({
   controllers: [OrganizationController],
   providers: [ConfigService, JwtAuthStrategy, UserService, ...drizzleProvider, JwtService,
-    OrganizationService, UserService, TeamService, TaskService]
+    OrganizationService, UserService, TeamService, TaskService, DrawingboardService]
 })
 export class OrganizationModule { }
