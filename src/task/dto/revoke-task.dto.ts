@@ -1,6 +1,6 @@
-import {IsNumber} from "class-validator";
+import { IsNumber } from 'class-validator';
 
 export class RevokeTaskDto {
-    @IsNumber()
-    revoked_from: number;
+  @IsNumber()
+  revoked_from: number;
 }

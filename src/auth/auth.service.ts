@@ -1,48 +1,46 @@
-import {Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import {UserService} from 'src/user/user.service';
-import {JwtService} from '@nestjs/jwt';
-import {CreateUserDto} from 'src/user/dto/user.dto';
-
-
+import { UserService } from 'src/user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UserService,
-        private readonly jwtService: JwtService
-    ) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-    generateJwt(payload: any) {
-        return this.jwtService.sign(payload, {secret: process.env.JWT_SECRET})
+  generateJwt(payload: any) {
+    return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+  }
+
+  async signIn(user: CreateUserDto) {
+    let userExists = await this.userService.findByEmail(user.email);
+
+    if (!userExists) {
+      userExists = await this.userService.create(user);
     }
 
-    async signIn(user: CreateUserDto) {
-        let userExists = await this.userService.findByEmail(user.email)
+    const token = this.generateJwt({
+      sub: userExists.id,
+      email: userExists.email,
+      name: userExists.name,
+      picture: userExists.picture,
+    });
 
-        if (!userExists) {
-            userExists = await this.userService.create(user);
-        }
+    return {
+      accessToken: token,
+    };
+  }
 
-        const token = this.generateJwt({
-            sub: userExists.id,
-            email: userExists.email,
-            name: userExists.name,
-            picture: userExists.picture
-        })
+  async validateUser(dto: CreateUserDto) {
+    const user = await this.userService.findByEmail(dto.email);
 
-        return {
-            accessToken: token
-        }
+    if (user) {
+      return user;
     }
-
-
-    async validateUser(dto: CreateUserDto) {
-        const user = await this.userService.findByEmail(dto.email)
-
-        if (user) {
-            return user
-        }
-        const NewUser = await this.userService.create(dto)
-        return NewUser
-    }
+    const NewUser = await this.userService.create(dto);
+    return NewUser;
+  }
 }

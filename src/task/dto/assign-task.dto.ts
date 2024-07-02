@@ -1,6 +1,6 @@
-import {IsNumber} from "class-validator";
+import { IsNumber } from 'class-validator';
 
 export class AssignTaskDto {
-    @IsNumber()
-    assignee_id: number;
+  @IsNumber()
+  assignee_id: number;
 }

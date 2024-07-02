@@ -1,17 +1,17 @@
-import {Module} from '@nestjs/common';
-import {AuthController} from './auth.controller';
-import {AuthService} from './auth.service';
-import {drizzleProvider} from 'src/drizzle/drizzle.provider';
-import {UserService} from 'src/user/user.service';
-import {JwtModule, JwtService} from '@nestjs/jwt';
-import {GoogleStrategy} from './strategies/google.strategy';
-import {ConfigService} from '@nestjs/config';
-import {JwtAuthStrategy} from './strategies/jwtauth.strategy';
-import {OrganizationService} from 'src/organization/organization.service';
-import {TeamService} from 'src/team/team.service';
-import {RoomService} from 'src/room/room.service';
-import {TaskService} from 'src/task/task.service';
-import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { drizzleProvider } from 'src/drizzle/drizzle.provider';
+import { UserService } from 'src/user/user.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { ConfigService } from '@nestjs/config';
+import { JwtAuthStrategy } from './strategies/jwtauth.strategy';
+import { OrganizationService } from 'src/organization/organization.service';
+import { TeamService } from 'src/team/team.service';
+import { RoomService } from 'src/room/room.service';
+import { TaskService } from 'src/task/task.service';
+import { DrawingboardService } from 'src/drawingboard/drawingboard.service';
 
 @Module({
   imports: [
@@ -23,10 +23,23 @@ import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
             expiresIn: process.env.JWT_EXPIRES_IN,
           },
         };
-      }
-    })
+      },
+    }),
   ],
   controllers: [AuthController],
-  providers: [ConfigService, GoogleStrategy, JwtAuthStrategy, AuthService, UserService, ...drizzleProvider, JwtService, OrganizationService, DrawingboardService, TeamService, RoomService, TaskService]
+  providers: [
+    ConfigService,
+    GoogleStrategy,
+    JwtAuthStrategy,
+    AuthService,
+    UserService,
+    ...drizzleProvider,
+    JwtService,
+    OrganizationService,
+    DrawingboardService,
+    TeamService,
+    RoomService,
+    TaskService,
+  ],
 })
-export class AuthModule { }
+export class AuthModule {}

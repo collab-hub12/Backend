@@ -6,7 +6,8 @@ export default {
         './src/drizzle/schemas/organizations.schema.ts',
         './src/drizzle/schemas/tasks.schema.ts',
         './src/drizzle/schemas/teams.schema.ts',
-        './src/drizzle/schemas/boards.schema.ts'
+        './src/drizzle/schemas/boards.schema.ts',
+        "./src/drizzle/schemas/invitations.schema.ts"
     ],
     out: './migrations',
     driver: 'turso',
