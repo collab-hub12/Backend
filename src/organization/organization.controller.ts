@@ -16,21 +16,21 @@ import {
   CreateOrgDto,
   CreateTeamUnderOrgDto,
 } from './dto/organization.dto';
-import { OrganizationService } from './organization.service';
-import { CreateTaskDto } from 'src/task/dto/create-task.dto';
-import { AssignTaskDto } from 'src/task/dto/assign-task.dto';
-import { RevokeTaskDto } from 'src/task/dto/revoke-task.dto';
-import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
-import { IGetUserAuthInfoRequest } from 'src/auth/auth.controller';
-import { Roles } from 'src/decorator/roles.decorator';
-import { Role } from 'src/enum/role.enum';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { UpdateTaskDto } from 'src/task/dto/update-task.dto';
+import {OrganizationService} from './organization.service';
+import {CreateTaskDto} from 'src/task/dto/create-task.dto';
+import {AssignTaskDto} from 'src/task/dto/assign-task.dto';
+import {RevokeTaskDto} from 'src/task/dto/revoke-task.dto';
+import {JwtAuthGuard} from 'src/auth/guards/auth.guard';
+import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
+import {Roles} from 'src/decorator/roles.decorator';
+import {Role} from 'src/enum/role.enum';
+import {RolesGuard} from 'src/auth/guards/role.guard';
+import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 
 @Controller('orgs')
 @UseGuards(JwtAuthGuard)
 export class OrganizationController {
-  constructor(private readonly orgService: OrganizationService) {}
+  constructor(private readonly orgService: OrganizationService) { }
 
   @Post()
   async createOrganization(
@@ -79,9 +79,9 @@ export class OrganizationController {
     @Param('org_id') org_id: number,
     @Body() dto: AddUserToOrgDto,
   ) {
-    await this.orgService.addMember(org_id, dto);
+    await this.orgService.SendInvitation(org_id, dto);
     return {
-      message: 'users added successfully',
+      message: 'Invitation sent to the user successfully',
     };
   }
 
@@ -103,7 +103,7 @@ export class OrganizationController {
     @Param('user_id') user_id: number,
   ) {
     await this.orgService.makeUserAdminInsideOrg(user_id, orgId);
-    return { message: 'operation successfull' };
+    return {message: 'operation successfull'};
   }
 
   @Roles(Role.ORG_ADMIN)
@@ -136,7 +136,7 @@ export class OrganizationController {
     @Req() req: IGetUserAuthInfoRequest,
   ) {
     return this.orgService.addTeamUnderOrg(
-      { org_id, team_name: createTeamUnderOrgDto.team_name },
+      {org_id, team_name: createTeamUnderOrgDto.team_name},
       req.user.id,
     );
   }
