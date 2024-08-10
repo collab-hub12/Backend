@@ -8,17 +8,17 @@ import {
   Res,
   Query,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/user/dto/user.dto';
-import { UserService } from 'src/user/user.service';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { Role } from 'src/enum/role.enum';
-import { JwtAuthGuard } from './guards/auth.guard';
-import { OrganizationService } from 'src/organization/organization.service';
-import { TeamService } from 'src/team/team.service';
-import { RoomService } from 'src/room/room.service';
-import { JwtService } from '@nestjs/jwt';
+import {Response} from 'express';
+import {AuthService} from './auth.service';
+import {CreateUserDto} from 'src/user/dto/user.dto';
+import {UserService} from 'src/user/user.service';
+import {GoogleOauthGuard} from './guards/google-oauth.guard';
+import {Role} from 'src/enum/role.enum';
+import {JwtAuthGuard} from './guards/auth.guard';
+import {OrganizationService} from 'src/organization/organization.service';
+import {TeamService} from 'src/team/team.service';
+import {RoomService} from 'src/room/room.service';
+import {JwtService} from '@nestjs/jwt';
 
 export interface IGetUserAuthInfoRequest extends Request {
   user: {
@@ -39,7 +39,7 @@ export class AuthController {
     private readonly teamService: TeamService,
     private readonly roomService: RoomService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Post('register')
   async registerUser(@Body() dto: CreateUserDto) {
@@ -50,9 +50,9 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async getUserProfile(
     @Req() req: IGetUserAuthInfoRequest,
-    @Res({ passthrough: true }) res: Response,
+    @Res({passthrough: true}) res: Response,
     @Query('org_id') org_id?: number,
-    @Query('team_name') team_name?: string,
+    @Query('team_id') team_id?: number,
     @Query('room_id') room_id?: number,
   ) {
     const role_details = [];
@@ -64,9 +64,9 @@ export class AuthController {
     }
 
     // check if user is admin inside team
-    if (team_name) {
+    if (team_id) {
       const result = await this.teamService.getUserinTeaminOrg(
-        team_name,
+        team_id,
         req.user.id,
         org_id,
       );
@@ -97,30 +97,30 @@ export class AuthController {
 
     req.user.roles = role_details;
 
-    return { ...req.user, token };
+    return {...req.user, token};
   }
 
   @Get('login')
   @UseGuards(GoogleOauthGuard)
-  async login() {}
+  async login() { }
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async handleRedirect(
-    @Res({ passthrough: true }) res: Response,
+    @Res({passthrough: true}) res: Response,
     @Req() req: IGetUserAuthInfoRequest,
   ) {
-    const { accessToken } = await this.authService.signIn(req.user);
+    const {accessToken} = await this.authService.signIn(req.user);
     res.cookie('jwt', accessToken, {
       httpOnly: true,
     });
 
-    return res.redirect('http://127.0.0.1:3000');
+    return res.redirect(process.env.FRONTEND_URL);
   }
 
   @Get('logout')
   async logoutHandler(@Res() res: Response) {
     res.clearCookie('jwt');
-    res.redirect('http://127.0.0.1:3000');
+    res.redirect(process.env.FRONTEND_URL);
   }
 }

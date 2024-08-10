@@ -121,10 +121,10 @@ export class OrganizationController {
   @Get(':org_id/teams/:team_name')
   async getTeamDetails(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Req() req: IGetUserAuthInfoRequest,
   ) {
-    return this.orgService.getTeamDetails(org_id, team_name, req.user.id);
+    return this.orgService.getTeamDetails(org_id, team_id, req.user.id);
   }
 
   @Roles(Role.ORG_ADMIN)
@@ -149,17 +149,18 @@ export class OrganizationController {
     return this.orgService.getTeamsThatUserIsPartOf(org_id, req.user.id);
   }
 
-  @Get(':org_id/teams/:team_name/users')
+  @Get(':org_id/teams/:team_id/users')
   async getTeamMemberDetails(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Query('search') search_text?: string,
     @Query('offset') offset?: number,
     @Query('limit') limit?: number,
   ) {
+
     return await this.orgService.getTeamMember(
       org_id,
-      team_name,
+      team_id,
       search_text,
       offset,
       limit,
@@ -168,119 +169,119 @@ export class OrganizationController {
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Post(':org_id/teams/:team_name/users')
+  @Post(':org_id/teams/:team_id/users')
   async addUserToATeam(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Body() addUserTeamDTO: AddUserToOrgDto,
   ) {
     return this.orgService.addUserToATeam(
       org_id,
-      team_name,
+      team_id,
       addUserTeamDTO.user_id,
     );
   }
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/teams/:team_name/users/:user_id')
+  @Put(':org_id/teams/:team_id/users/:user_id')
   async grantAdminRoleToUserinTeam(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('user_id') user_id: number,
   ) {
     return this.orgService.grantAdminRoleToUserInTeam(
       org_id,
-      team_name,
+      team_id,
       user_id,
     );
   }
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Delete(':org_id/teams/:team_name/users/:user_id')
+  @Delete(':org_id/teams/:team_id/users/:user_id')
   async removeUserFromTeam(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('user_id') user_id: number,
   ) {
-    return this.orgService.removeUserFromTeam(org_id, team_name, user_id);
+    return this.orgService.removeUserFromTeam(org_id, team_id, user_id);
   }
 
   //********************----TASK-RELATED-QUERIES----*************************//
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Post(':org_id/teams/:team_name/tasks')
+  @Post(':org_id/teams/:team_id/tasks')
   async createTask(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Body() createTaskDto: CreateTaskDto,
   ) {
-    return this.orgService.createTask(org_id, team_name, createTaskDto);
+    return this.orgService.createTask(org_id, team_id, createTaskDto);
   }
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/teams/:team_name/tasks/:task_id')
+  @Put(':org_id/teams/:team_id/tasks/:task_id')
   async UpdateTask(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('task_id') task_id: number,
     @Body() updatetaskDto: UpdateTaskDto,
   ) {
     return this.orgService.updateTask(
       org_id,
-      team_name,
+      team_id,
       task_id,
       updatetaskDto,
     );
   }
 
-  @Get(':org_id/teams/:team_name/tasks')
+  @Get(':org_id/teams/:team_id/tasks')
   async getTasks(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
   ) {
-    return this.orgService.getTasks(org_id, team_name);
+    return this.orgService.getTasks(org_id, team_id);
   }
 
-  @Get(':org_id/teams/:team_name/tasks/:task_id')
+  @Get(':org_id/teams/:team_id/tasks/:task_id')
   async getTasksById(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('task_id') task_id: number,
   ) {
-    return this.orgService.getTaskById(org_id, team_name, task_id);
+    return this.orgService.getTaskById(org_id, team_id, task_id);
   }
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @Post(':org_id/teams/:team_name/tasks/:task_id')
+  @Post(':org_id/teams/:team_id/tasks/:task_id')
   async assignTask(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('task_id') task_id: number,
     @Body() assigntaskdto: AssignTaskDto,
   ) {
     return this.orgService.assignTask(
       org_id,
-      team_name,
+      team_id,
       task_id,
       assigntaskdto.assignee_id,
     );
   }
 
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @Put(':org_id/teams/:team_name/tasks/:task_id')
+  @Put(':org_id/teams/:team_id/tasks/:task_id')
   async revokeTask(
     @Param('org_id') org_id: number,
-    @Param('team_name') team_name: string,
+    @Param('team_id') team_id: number,
     @Param('task_id') task_id: number,
     @Body() revoketaskdto: RevokeTaskDto,
   ) {
     return this.orgService.revokeTask(
       org_id,
-      team_name,
+      team_id,
       task_id,
       revoketaskdto.revoked_from,
     );

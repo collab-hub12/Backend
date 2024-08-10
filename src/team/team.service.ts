@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Inject,
@@ -30,14 +31,29 @@ export class TeamService {
         .returning()
     )[0];
   }
-
-  async findATeamUnderOrg(org_id: number, team_name: string) {
-    return (
-      await this.db
+  
+  // by team_id
+  async findATeamUnderOrgById(org_id: number, team_id: number) {
+    const team= (await this.db
+        .select()
+        .from(teams)
+        .where(and(eq(teams.org_id, org_id), eq(teams.id, team_id)))
+    )[0];
+    if (!team){
+       throw new BadRequestException('team doesn\'t exists under org')
+    }
+    return team;
+  }
+  
+  // by team_name
+  async findATeamUnderOrgByName(org_id: number, team_name: string) {
+    const team= (await this.db
         .select()
         .from(teams)
         .where(and(eq(teams.org_id, org_id), eq(teams.name, team_name)))
     )[0];
+  
+    return team;
   }
 
   async getAllTeamsThatUserIsPartOf(org_id: number, user_id: number) {
@@ -89,20 +105,23 @@ export class TeamService {
     return { msg: 'member removed from the team successFully' };
   }
 
-  async getUserinTeaminOrg(team_name: string, user_id: number, org_id: number) {
-    const teamExists = await this.findATeamUnderOrg(org_id, team_name);
+  async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
+    // check if team exists
+    await this.findATeamUnderOrgById(org_id, team_id);
+    
     const user = (
       await this.db
         .select()
         .from(teamMember)
         .where(
           and(
-            eq(teamMember.team_id, teamExists.id),
+            eq(teamMember.team_id, team_id),
             eq(teamMember.user_id, user_id),
             eq(teamMember.org_id, org_id),
           ),
         )
     )[0];
+
     if (!user)
       throw new ForbiddenException('user is not a part of Team inside Org');
     return user;
