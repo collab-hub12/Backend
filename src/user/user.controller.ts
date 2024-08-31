@@ -1,6 +1,7 @@
-import {Controller, Get, Param, Query, Req} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req} from '@nestjs/common';
 import {UserService} from './user.service';
 import {IGetUserAuthInfoRequest} from 'src/auth/auth.controller';
+import {InvitationDto} from './dto/user.dto';
 
 @Controller('users')
 export class UserController {
@@ -21,5 +22,14 @@ export class UserController {
   ) {
     return this.userService.getInvitaions(user_id)
   }
+
+  @Post(":user_id/invitations")
+  async respondToInvitation(
+    @Param("user_id") user_id: number,
+    @Body() dto: InvitationDto
+  ) {
+    return this.userService.respondToInvitaion(dto.status, user_id, dto.org_id)
+  }
+
 
 }

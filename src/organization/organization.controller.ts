@@ -85,6 +85,8 @@ export class OrganizationController {
     };
   }
 
+
+
   @Get(':org_id/users')
   async getMembers(
     @Param('org_id') orgId: number,
@@ -230,6 +232,7 @@ export class OrganizationController {
     @Param('task_id') task_id: number,
     @Body() updatetaskDto: UpdateTaskDto,
   ) {
+    console.log(updatetaskDto);
     return this.orgService.updateTask(
       org_id,
       team_id,

@@ -63,12 +63,13 @@ export class UserService {
     return await this.invitationService.getAllInvites(user_id)
   }
 
-  async respondToInvitaion(invitationAccepted: boolean, user_id: number, org_id: number) {
+  async respondToInvitaion(status: string, user_id: number, org_id: number) {
     await this.invitationService.remove(org_id, user_id)
 
-    if (invitationAccepted) {
+    if (status === "accept") {
       await this.orgService.addMemberToOrg(org_id, {user_id})
     }
+    return {message: "Invitation Responded"}
   }
 
 }
