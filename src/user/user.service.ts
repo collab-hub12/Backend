@@ -7,6 +7,7 @@ import {eq, count, or, like} from 'drizzle-orm';
 import {schema} from 'src/drizzle/schemas/schema';
 import {InvitationsService} from 'src/invitations/invitations.service';
 import {OrganizationService} from 'src/organization/organization.service';
+import {assignedTasks} from 'src/drizzle/schemas/tasks.schema';
 
 @Injectable()
 export class UserService {
@@ -70,6 +71,17 @@ export class UserService {
       await this.orgService.addMemberToOrg(org_id, {user_id})
     }
     return {message: "Invitation Responded"}
+  }
+
+  async getUserTasks(user_id: number, offset?: number, limit?: number) {
+    return await this.db.query.assignedTasks.findMany({
+      with: {
+        task: true
+      },
+      where: eq(assignedTasks.user_id, user_id),
+      offset,
+      limit
+    })
   }
 
 }

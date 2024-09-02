@@ -31,5 +31,13 @@ export class UserController {
     return this.userService.respondToInvitaion(dto.status, user_id, dto.org_id)
   }
 
+  @Get(":user_id/tasks")
+  async getUserTasks(
+    @Param("user_id") user_id: number,
+    @Query("offset") offset?: number,
+    @Query("limit") limit?: number,
+  ) {
+    return this.userService.getUserTasks(user_id, offset, limit)
+  }
 
 }

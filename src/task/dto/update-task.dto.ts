@@ -1,5 +1,6 @@
-import { PartialType, PickType } from '@nestjs/mapped-types';
-import { CreateTaskDto } from './create-task.dto';
+import {PartialType, PickType} from '@nestjs/mapped-types';
+import {CreateTaskDto} from './create-task.dto';
+import {IsNumber, IsOptional} from 'class-validator';
 
 export class UpdateTaskDto extends PartialType(
   PickType(CreateTaskDto, [
@@ -7,4 +8,8 @@ export class UpdateTaskDto extends PartialType(
     'taskDescription',
     'taskProgress',
   ] as const),
-) {}
+) {
+  @IsOptional()
+  @IsNumber()
+  position?: number;
+}

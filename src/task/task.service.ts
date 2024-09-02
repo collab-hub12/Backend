@@ -1,22 +1,39 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { eq, and } from 'drizzle-orm';
-import { schema } from 'src/drizzle/schemas/schema';
-import { assignedTasks, tasks } from 'src/drizzle/schemas/tasks.schema';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { DrawingboardService } from 'src/drawingboard/drawingboard.service';
+import {ConflictException, Inject, Injectable} from '@nestjs/common';
+import {CreateTaskDto} from './dto/create-task.dto';
+import {UpdateTaskDto} from './dto/update-task.dto';
+import {LibSQLDatabase} from 'drizzle-orm/libsql';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {eq, and, desc, gte, lte, gt} from 'drizzle-orm';
+import {schema} from 'src/drizzle/schemas/schema';
+import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 
 @Injectable()
 export class TaskService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
     private readonly drawingBoardService: DrawingboardService,
-  ) {}
+  ) { }
 
   async create(createTaskDto: CreateTaskDto, team_id: number, org_id: number) {
+    // get last task's position
+    const last_task = (
+      await this.db
+        .select()
+        .from(tasks)
+        .where(
+          and(
+            eq(tasks.task_progress, createTaskDto.taskProgress),
+            eq(tasks.team_id, team_id),
+            eq(tasks.org_id, org_id),
+          ),
+        )
+        .orderBy(desc(tasks.position))
+        .limit(1)
+    )[0];
+
+
     const task_detail = (
       await this.db
         .insert(tasks)
@@ -27,6 +44,7 @@ export class TaskService {
           task_progress: createTaskDto.taskProgress,
           team_id,
           org_id,
+          position: last_task?.position ? last_task.position + 1 : 1,
         })
         .returning()
     )[0];
@@ -52,7 +70,7 @@ export class TaskService {
           .innerJoin(tasks, eq(assignedTasks.task_id, tasks.id))
           .innerJoin(users, eq(assignedTasks.user_id, users.id))
           .where(eq(assignedTasks.task_id, task.id));
-        return { ...task, assigned_to };
+        return {...task, assigned_to};
       }),
     );
     return result;
@@ -91,7 +109,7 @@ export class TaskService {
       task_details.id,
     );
 
-    return { ...task_details, assigned_to, boardDetails };
+    return {...task_details, assigned_to, boardDetails};
   }
 
   async assignTask(user_id: number, task_id: number) {
@@ -112,7 +130,7 @@ export class TaskService {
         'This user has already been assigned to the task.',
       );
 
-    await this.db.insert(assignedTasks).values({ user_id, task_id });
+    await this.db.insert(assignedTasks).values({user_id, task_id});
   }
 
   async revokeTask(user_id: number, task_id: number) {
@@ -137,22 +155,42 @@ export class TaskService {
     const rowsAffected = (await this.db.delete(tasks).where(eq(tasks.id, id)))
       .rowsAffected;
     if (!rowsAffected) throw new ConflictException('task didnt get deleted');
-    return { msg: 'task deleted successfully' };
+    return {msg: 'task deleted successfully'};
   }
 
   async updateTask(id: number, updatetaskdto: UpdateTaskDto) {
-    const updatedTask = (
-      await this.db
-        .update(tasks)
-        .set({
-          task_desc: updatetaskdto.taskDescription,
-          task_deadline: updatetaskdto.taskDeadline,
-          task_progress: updatetaskdto.taskProgress,
-        })
-        .where(eq(tasks.id, id))
-        .returning()
-    )[0];
+    await this.db.transaction(async (tx) => {
 
-    return updatedTask;
+      if (updatetaskdto.position) {
+        const task_detail = (await tx.select().from(tasks).where(eq(tasks.id, id)))[0]
+
+        if (task_detail.task_progress === updatetaskdto.taskProgress) {
+
+          await tx.update(tasks).set({position: - 1})
+            .where(and(
+              gte(tasks.position, task_detail.position),
+              lte(tasks.position, updatetaskdto.position),
+              eq(tasks.task_progress, task_detail.task_progress)
+            ))
+
+        } else if (task_detail.task_progress !== updatetaskdto.taskProgress) {
+
+          await tx.update(tasks).set({position: - 1})
+            .where(and(
+              gt(tasks.position, task_detail.position),
+              eq(tasks.task_progress, task_detail.task_progress)
+            ))
+
+          await tx.update(tasks).set({position: + 1})
+            .where(and(
+              gte(tasks.position, task_detail.position),
+              eq(tasks.task_progress, updatetaskdto.taskProgress)
+            ))
+        }
+      }
+
+      await tx.update(tasks).set(updatetaskdto).where(eq(tasks.id, id))
+
+    })
   }
 }
