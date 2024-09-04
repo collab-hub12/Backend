@@ -28,7 +28,7 @@ import {RolesGuard} from 'src/auth/guards/role.guard';
 import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 
 @Controller('orgs')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class OrganizationController {
   constructor(private readonly orgService: OrganizationService) { }
 
@@ -212,8 +212,8 @@ export class OrganizationController {
 
   //********************----TASK-RELATED-QUERIES----*************************//
 
-  @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+  // @UseGuards(RolesGuard)
   @Post(':org_id/teams/:team_id/tasks')
   async createTask(
     @Param('org_id') org_id: number,
@@ -223,8 +223,8 @@ export class OrganizationController {
     return this.orgService.createTask(org_id, team_id, createTaskDto);
   }
 
-  @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+  // @UseGuards(RolesGuard)
   @Put(':org_id/teams/:team_id/tasks/:task_id')
   async UpdateTask(
     @Param('org_id') org_id: number,
