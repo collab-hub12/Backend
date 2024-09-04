@@ -232,7 +232,6 @@ export class OrganizationController {
     @Param('task_id') task_id: number,
     @Body() updatetaskDto: UpdateTaskDto,
   ) {
-    console.log(updatetaskDto);
     return this.orgService.updateTask(
       org_id,
       team_id,

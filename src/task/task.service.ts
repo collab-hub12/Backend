@@ -3,7 +3,7 @@ import {CreateTaskDto} from './dto/create-task.dto';
 import {UpdateTaskDto} from './dto/update-task.dto';
 import {LibSQLDatabase} from 'drizzle-orm/libsql';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {eq, and, desc, gte, lte, gt} from 'drizzle-orm';
+import {eq, and, desc, gte, lte, gt, sql} from 'drizzle-orm';
 import {schema} from 'src/drizzle/schemas/schema';
 import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
 import {users} from 'src/drizzle/schemas/users.schema';
@@ -159,38 +159,61 @@ export class TaskService {
   }
 
   async updateTask(id: number, updatetaskdto: UpdateTaskDto) {
+
     await this.db.transaction(async (tx) => {
+      try {
+        if (updatetaskdto.position) {
+          const task_detail = (await tx.select().from(tasks).where(eq(tasks.id, id)))[0]
 
-      if (updatetaskdto.position) {
-        const task_detail = (await tx.select().from(tasks).where(eq(tasks.id, id)))[0]
+          //if task is in the same progress
+          if (task_detail.task_progress === updatetaskdto.taskProgress) {
+            if (task_detail.position < updatetaskdto.position) {
+              await tx.update(tasks).set({position: sql`${tasks.position} - 1`})
+                .where(and(
+                  gte(tasks.position, task_detail.position),
+                  lte(tasks.position, updatetaskdto.position),
+                  eq(tasks.task_progress, task_detail.task_progress)
+                ))
+            } else {
+              await tx.update(tasks).set({position: sql`${tasks.position} + 1`})
+                .where(and(
+                  gte(tasks.position, updatetaskdto.position),
+                  lte(tasks.position, task_detail.position),
+                  eq(tasks.task_progress, task_detail.task_progress)
+                ))
+            }
+            //if task is in the different progress
+          } else if (task_detail.task_progress !== updatetaskdto.taskProgress) {
 
-        if (task_detail.task_progress === updatetaskdto.taskProgress) {
+            await tx.update(tasks).set({position: sql`${tasks.position} - 1`})
+              .where(and(
+                gt(tasks.position, task_detail.position),
+                eq(tasks.task_progress, task_detail.task_progress)
+              ))
 
-          await tx.update(tasks).set({position: - 1})
-            .where(and(
-              gte(tasks.position, task_detail.position),
-              lte(tasks.position, updatetaskdto.position),
-              eq(tasks.task_progress, task_detail.task_progress)
-            ))
-
-        } else if (task_detail.task_progress !== updatetaskdto.taskProgress) {
-
-          await tx.update(tasks).set({position: - 1})
-            .where(and(
-              gt(tasks.position, task_detail.position),
-              eq(tasks.task_progress, task_detail.task_progress)
-            ))
-
-          await tx.update(tasks).set({position: + 1})
-            .where(and(
-              gte(tasks.position, task_detail.position),
-              eq(tasks.task_progress, updatetaskdto.taskProgress)
-            ))
+            await tx.update(tasks).set({position: sql`${tasks.position} + 1`})
+              .where(and(
+                gte(tasks.position, updatetaskdto.position),
+                eq(tasks.task_progress, updatetaskdto.taskProgress)
+              ))
+          }
         }
+
+        await tx.update(tasks).set({
+          position: updatetaskdto.position,
+          task_desc: updatetaskdto.taskDescription,
+          task_deadline: updatetaskdto.taskDeadline,
+          task_progress: updatetaskdto.taskProgress
+        }).where(eq(tasks.id, id))
+
+
+      } catch (err) {
+        tx.rollback()
+        throw new ConflictException('task didnt get updated')
       }
 
-      await tx.update(tasks).set(updatetaskdto).where(eq(tasks.id, id))
-
     })
+
+    return {msg: 'task updated successfully'}
   }
 }
