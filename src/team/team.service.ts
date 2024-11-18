@@ -31,28 +31,30 @@ export class TeamService {
         .returning()
     )[0];
   }
-  
+
   // by team_id
   async findATeamUnderOrgById(org_id: number, team_id: number) {
-    const team= (await this.db
+    const team = (
+      await this.db
         .select()
         .from(teams)
         .where(and(eq(teams.org_id, org_id), eq(teams.id, team_id)))
     )[0];
-    if (!team){
-       throw new BadRequestException('team doesn\'t exists under org')
+    if (!team) {
+      throw new BadRequestException("team doesn't exists under org");
     }
     return team;
   }
-  
+
   // by team_name
   async findATeamUnderOrgByName(org_id: number, team_name: string) {
-    const team= (await this.db
+    const team = (
+      await this.db
         .select()
         .from(teams)
         .where(and(eq(teams.org_id, org_id), eq(teams.name, team_name)))
     )[0];
-  
+
     return team;
   }
 
@@ -108,7 +110,7 @@ export class TeamService {
   async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
     // check if team exists
     await this.findATeamUnderOrgById(org_id, team_id);
-    
+
     const user = (
       await this.db
         .select()

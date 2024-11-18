@@ -4,6 +4,4 @@ import { InvitationsService } from './invitations.service';
 @Controller('invitations')
 export class InvitationsController {
   constructor(private readonly invitationsService: InvitationsService) {}
-
-  
 }
