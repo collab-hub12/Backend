@@ -12,6 +12,7 @@ import { RoomModule } from './room/room.module';
 import { SocketModule } from './socket/socket.module';
 import { DrawingboardModule } from './drawingboard/drawingboard.module';
 import { InvitationsModule } from './invitations/invitations.module';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { InvitationsModule } from './invitations/invitations.module';
     SocketModule,
     DrawingboardModule,
     InvitationsModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,17 +8,23 @@ import {
   Res,
   Query,
 } from '@nestjs/common';
-import {Response} from 'express';
-import {AuthService} from './auth.service';
-import {CreateUserDto} from 'src/user/dto/user.dto';
-import {UserService} from 'src/user/user.service';
-import {GoogleOauthGuard} from './guards/google-oauth.guard';
-import {Role} from 'src/enum/role.enum';
-import {JwtAuthGuard} from './guards/auth.guard';
-import {OrganizationService} from 'src/organization/organization.service';
-import {TeamService} from 'src/team/team.service';
-import {RoomService} from 'src/room/room.service';
-import {JwtService} from '@nestjs/jwt';
+import { Response } from 'express';
+import { AuthService } from './auth.service';
+import { CreateUserDto } from 'src/user/dto/user.dto';
+import { UserService } from 'src/user/user.service';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { Role } from 'src/enum/role.enum';
+import { JwtAuthGuard } from './guards/auth.guard';
+import { OrganizationService } from 'src/organization/organization.service';
+import { TeamService } from 'src/team/team.service';
+import { RoomService } from 'src/room/room.service';
+import { JwtService } from '@nestjs/jwt';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 
 export interface IGetUserAuthInfoRequest extends Request {
   user: {
@@ -30,6 +36,7 @@ export interface IGetUserAuthInfoRequest extends Request {
   };
 }
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -39,18 +46,28 @@ export class AuthController {
     private readonly teamService: TeamService,
     private readonly roomService: RoomService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
+  @ApiOperation({ summary: 'Register a user' })
   @Post('register')
   async registerUser(@Body() dto: CreateUserDto) {
     return this.userService.create(dto);
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Get user profile with roles',
+    description:
+      'First login with google, then you will get the jwt token, put the token in the authorization header to get user profile with roles',
+  })
+  @ApiParam({ name: 'org_id', description: 'Organization ID', required: false })
+  @ApiParam({ name: 'team_id', description: 'Team ID', required: false })
+  @ApiParam({ name: 'room_id', description: 'Room ID', required: false })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getUserProfile(
     @Req() req: IGetUserAuthInfoRequest,
-    @Res({passthrough: true}) res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Query('org_id') org_id?: number,
     @Query('team_id') team_id?: number,
     @Query('room_id') room_id?: number,
@@ -97,20 +114,22 @@ export class AuthController {
 
     req.user.roles = role_details;
 
-    return {...req.user, token};
+    return { ...req.user, token };
   }
 
+  @ApiOperation({ summary: 'Login with Google' })
   @Get('login')
   @UseGuards(GoogleOauthGuard)
-  async login() { }
+  async login() {}
 
+  @ApiOperation({ summary: 'Handle Google callback' })
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async handleRedirect(
-    @Res({passthrough: true}) res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Req() req: IGetUserAuthInfoRequest,
   ) {
-    const {accessToken} = await this.authService.signIn(req.user);
+    const { accessToken } = await this.authService.signIn(req.user);
     res.cookie('jwt', accessToken, {
       httpOnly: true,
     });
@@ -118,6 +137,7 @@ export class AuthController {
     return res.redirect(process.env.FRONTEND_URL);
   }
 
+  @ApiOperation({ summary: 'Logout' })
   @Get('logout')
   async logoutHandler(@Res() res: Response) {
     res.clearCookie('jwt');
