@@ -19,6 +19,7 @@ import {OrganizationService} from 'src/organization/organization.service';
 import {TeamService} from 'src/team/team.service';
 import {RoomService} from 'src/room/room.service';
 import {JwtService} from '@nestjs/jwt';
+import {ApiBearerAuth, ApiOperation, ApiParam, ApiTags} from '@nestjs/swagger';
 
 export interface IGetUserAuthInfoRequest extends Request {
   user: {
@@ -30,6 +31,7 @@ export interface IGetUserAuthInfoRequest extends Request {
   };
 }
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -41,12 +43,18 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) { }
 
+  @ApiOperation({summary: 'Register a user'})
   @Post('register')
   async registerUser(@Body() dto: CreateUserDto) {
     return this.userService.create(dto);
   }
 
   @Get()
+  @ApiOperation({summary: 'Get user profile with roles'})
+  @ApiParam({name: 'org_id', description: 'Organization ID', required: false})
+  @ApiParam({name: 'team_id', description: 'Team ID', required: false})
+  @ApiParam({name: 'room_id', description: 'Room ID', required: false})
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getUserProfile(
     @Req() req: IGetUserAuthInfoRequest,
@@ -100,10 +108,12 @@ export class AuthController {
     return {...req.user, token};
   }
 
+  @ApiOperation({summary: 'Login with Google'})
   @Get('login')
   @UseGuards(GoogleOauthGuard)
   async login() { }
 
+  @ApiOperation({summary: 'Handle Google callback'})
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async handleRedirect(
@@ -118,6 +128,7 @@ export class AuthController {
     return res.redirect(process.env.FRONTEND_URL);
   }
 
+  @ApiOperation({summary: 'Logout'})
   @Get('logout')
   async logoutHandler(@Res() res: Response) {
     res.clearCookie('jwt');
