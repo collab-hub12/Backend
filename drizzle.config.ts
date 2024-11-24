@@ -8,7 +8,8 @@ export default {
         "./src/drizzle/schemas/teams.schema.ts",
         "./src/drizzle/schemas/boards.schema.ts",
         "./src/drizzle/schemas/invitations.schema.ts",
-        "./src/drizzle/schemas/notification.schema.ts"
+        "./src/drizzle/schemas/notification.schema.ts",
+        "./src/drizzle/schemas/refreshtoken.ts",
     ],
     out: './migrations',
     driver: 'turso',
@@ -18,5 +19,4 @@ export default {
     },
     verbose: true,
     strict: true,
-
 } satisfies Config;

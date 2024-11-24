@@ -1,10 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Role } from 'src/enum/role.enum';
+import {CanActivate, ExecutionContext, ForbiddenException, Injectable} from '@nestjs/common';
+import {Reflector} from '@nestjs/core';
+import {Role} from 'src/enum/role.enum';
+import {RoleService} from 'src/role/role.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private readonly roleService: RoleService,
+  ) { }
 
   matchRoles(roles: string[], userRole: string) {
     return roles.some((role) => role === userRole);
@@ -19,7 +23,15 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const { user } = context.switchToHttp().getRequest();
-    return requiredRoles.some((role) => user?.roles?.includes(role));
+    const {user, params} = context.switchToHttp().getRequest();
+
+    if (params.org_id && requiredRoles.includes(Role.ORG_ADMIN) && !(await this.roleService.isOrgAdmin(Number(params.org_id), user.id))) {
+      throw new ForbiddenException('You are not authorized to access this Organization resource');
+    }
+    if (params.team_id && requiredRoles.includes(Role.TEAM_ADMIN) && !(await this.roleService.isTeamAdmin(Number(params.team_id), user.id))) {
+      throw new ForbiddenException('You are not authorized to access this Team resource');
+    }
+
+    return true;
   }
 }

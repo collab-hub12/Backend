@@ -1,46 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/user.dto';
+import { AuthRefreshTokenService } from './auth-refresh-token.service';
+import { LoginUserDto } from './dto/auth.dto';
+import { Response } from 'express';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private readonly authRefreshTokenService: AuthRefreshTokenService,
   ) {}
 
-  generateJwt(payload: any) {
-    return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+  async login(res: Response, user?: Express.User) {
+    if (!user) {
+      throw new InternalServerErrorException('User not set in request');
+    }
+    return this.authRefreshTokenService.generateTokenPair(user, res);
   }
 
-  async signIn(user: CreateUserDto) {
-    let userExists = await this.userService.findByEmail(user.email);
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.findByEmail(email);
 
-    if (!userExists) {
-      userExists = await this.userService.create(user);
+    if (!user) {
+      return null;
     }
 
-    const token = this.generateJwt({
-      sub: userExists.id,
-      email: userExists.email,
-      name: userExists.name,
-      picture: userExists.picture,
-    });
+    const isMatch = await compare(password, user.password);
 
-    return {
-      accessToken: token,
-    };
-  }
-
-  async validateUser(dto: CreateUserDto) {
-    const user = await this.userService.findByEmail(dto.email);
-
-    if (user) {
-      return user;
+    if (!isMatch) {
+      return null;
     }
-    const NewUser = await this.userService.create(dto);
-    return NewUser;
+
+    return user;
   }
 }

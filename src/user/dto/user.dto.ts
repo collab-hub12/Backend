@@ -11,6 +11,9 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   picture: string;
+  @ApiProperty()
+  @IsString()
+  password: string;
 }
 
 export class InvitationDto {

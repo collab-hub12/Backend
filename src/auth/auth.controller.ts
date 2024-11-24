@@ -1,146 +1,80 @@
 import {
-  Body,
+  ClassSerializerInterceptor,
   Controller,
-  Req,
-  Post,
   Get,
-  UseGuards,
+  InternalServerErrorException,
+  Post,
+  Req,
   Res,
-  Query,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/user/dto/user.dto';
-import { UserService } from 'src/user/user.service';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { Role } from 'src/enum/role.enum';
-import { JwtAuthGuard } from './guards/auth.guard';
-import { OrganizationService } from 'src/organization/organization.service';
-import { TeamService } from 'src/team/team.service';
-import { RoomService } from 'src/room/room.service';
-import { JwtService } from '@nestjs/jwt';
+import {UserService} from 'src/user/user.service';
+import {ApiBearerAuth, ApiBody, ApiTags} from '@nestjs/swagger';
+import {AuthService} from './auth.service';
+import {AuthRefreshTokenService} from './auth-refresh-token.service';
+import {LoginUserDto} from './dto/auth.dto';
+import {Response, Request} from 'express';
 import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
-
-export interface IGetUserAuthInfoRequest extends Request {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    picture: string;
-    roles: Role[];
-  };
-}
+  cookieConfig,
+  extractRefreshTokenFromCookies,
+} from 'src/constants/cookies';
+import {LocalAuthGuard} from './guards/local-auth.guard';
+import {Public} from 'src/decorator/public.decorator';
+import {User} from 'src/decorator/user.decorator';
+import {RefreshTokenGuard} from './guards/refresh_token.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly userService: UserService,
-    private readonly authService: AuthService,
-    private readonly orgService: OrganizationService,
-    private readonly teamService: TeamService,
-    private readonly roomService: RoomService,
-    private readonly jwtService: JwtService,
-  ) {}
+    private userService: UserService,
+    private authenticationService: AuthService,
+    private authRefreshTokenService: AuthRefreshTokenService,
+  ) { }
 
-  @ApiOperation({ summary: 'Register a user' })
-  @Post('register')
-  async registerUser(@Body() dto: CreateUserDto) {
-    return this.userService.create(dto);
+  @ApiBody({type: LoginUserDto})
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  login(@Req() req: Request, @Res({passthrough: true}) res: Response) {
+    return this.authenticationService.login(res, req.user);
   }
 
-  @Get()
-  @ApiOperation({
-    summary: 'Get user profile with roles',
-    description:
-      'First login with google, then you will get the jwt token, put the token in the authorization header to get user profile with roles',
-  })
-  @ApiParam({ name: 'org_id', description: 'Organization ID', required: false })
-  @ApiParam({ name: 'team_id', description: 'Team ID', required: false })
-  @ApiParam({ name: 'room_id', description: 'Room ID', required: false })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async getUserProfile(
-    @Req() req: IGetUserAuthInfoRequest,
-    @Res({ passthrough: true }) res: Response,
-    @Query('org_id') org_id?: number,
-    @Query('team_id') team_id?: number,
-    @Query('room_id') room_id?: number,
+  @Get('me')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async me(
+    @User() authUser: Express.User,
+    @Res({passthrough: true}) res: Response,
   ) {
-    const role_details = [];
-    // check if user is admin inside org
-
-    if (org_id) {
-      const result = await this.orgService.getMemberInOrg(org_id, req.user.id);
-      if (result?.is_admin) role_details.push(Role.ORG_ADMIN);
-    }
-
-    // check if user is admin inside team
-    if (team_id) {
-      const result = await this.teamService.getUserinTeaminOrg(
-        team_id,
-        req.user.id,
-        org_id,
-      );
-      if (result?.is_admin) role_details.push(Role.TEAM_ADMIN);
-    }
-    // check if user is admin inside role
-    if (room_id) {
-      const result = await this.roomService.getUsersinRoom(
-        req.user.id,
-        room_id,
-      );
-      if (result?.is_admin) role_details.push(Role.ROOM_ADMIN);
-    }
-    const jwtPayload = {
-      sub: req.user.id,
-      picture: req.user.picture,
-      name: req.user.name,
-      email: req.user.email,
-      roles: role_details,
-    };
-    const token = this.jwtService.sign(jwtPayload, {
-      secret: process.env.JWT_SECRET,
-    });
-
-    res.cookie('jwt', token, {
-      httpOnly: true,
-    });
-
-    req.user.roles = role_details;
-
-    return { ...req.user, token };
+    res.header('Cache-Control', 'no-store');
+    return this.userService.findOne(authUser.id);
   }
 
-  @ApiOperation({ summary: 'Login with Google' })
-  @Get('login')
-  @UseGuards(GoogleOauthGuard)
-  async login() {}
-
-  @ApiOperation({ summary: 'Handle Google callback' })
-  @Get('google/callback')
-  @UseGuards(GoogleOauthGuard)
-  async handleRedirect(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: IGetUserAuthInfoRequest,
+  @ApiBearerAuth()
+  @Public()
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh-tokens')
+  refreshTokens(
+    @Req() req: Request,
+    @Res({passthrough: true}) res: Response,
   ) {
-    const { accessToken } = await this.authService.signIn(req.user);
-    res.cookie('jwt', accessToken, {
-      httpOnly: true,
-    });
+    if (!req.user) {
+      throw new InternalServerErrorException();
+    }
 
-    return res.redirect(process.env.FRONTEND_URL);
+    return this.authRefreshTokenService.generateTokenPair(
+      (req.user as any).attributes,
+      res,
+      extractRefreshTokenFromCookies(req) as string,
+      (req.user as any).refreshTokenExpiresAt,
+    );
   }
 
-  @ApiOperation({ summary: 'Logout' })
-  @Get('logout')
-  async logoutHandler(@Res() res: Response) {
-    res.clearCookie('jwt');
-    res.redirect(process.env.FRONTEND_URL);
+  @Public()
+  @Post('clear-auth-cookie')
+  clearAuthCookie(@Res({passthrough: true}) res: Response) {
+    res.clearCookie(cookieConfig.refreshToken.name);
   }
 }
