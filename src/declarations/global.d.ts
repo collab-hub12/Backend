@@ -1,4 +1,3 @@
-import Role from '../../modules/authorization/constants/role.enum';
 
 export { };
 

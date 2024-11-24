@@ -1,8 +1,8 @@
-import {Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {and, eq} from 'drizzle-orm';
 import {LibSQLDatabase} from 'drizzle-orm/libsql';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {organizations, orgMembers} from 'src/drizzle/schemas/organizations.schema';
+import {orgMembers} from 'src/drizzle/schemas/organizations.schema';
 import {schema} from 'src/drizzle/schemas/schema';
 import {teamMember} from 'src/drizzle/schemas/teams.schema';
 
