@@ -6,7 +6,6 @@ import {JwtStrategy} from 'src/auth/strategies/jwtauth.strategy';
 import {JwtService} from '@nestjs/jwt';
 import {ConfigService} from '@nestjs/config';
 import {InvitationsService} from 'src/invitations/invitations.service';
-import {OrganizationModule} from 'src/organization/organization.module';
 import {OrganizationService} from 'src/organization/organization.service';
 import {TeamService} from 'src/team/team.service';
 import {TaskService} from 'src/task/task.service';

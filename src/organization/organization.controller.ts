@@ -20,7 +20,6 @@ import {OrganizationService} from './organization.service';
 import {CreateTaskDto} from 'src/task/dto/create-task.dto';
 import {AssignTaskDto} from 'src/task/dto/assign-task.dto';
 import {RevokeTaskDto} from 'src/task/dto/revoke-task.dto';
-import {JwtAuthGuard} from 'src/auth/guards/access_token.guard';
 import {Request} from 'express';
 import {Roles} from 'src/decorator/roles.decorator';
 import {Role} from 'src/enum/role.enum';
