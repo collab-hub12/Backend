@@ -6,7 +6,7 @@ export const cookieConfig = {
     options: {
       path: '/', // should set /auth/api/refresh-tokens path in production, we use / so it works on localhost on Chrome
       httpOnly: true,
-      sameSite: 'strict' as const,
+      sameSite: 'none' as const,
       secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days, must match jwt expiration
     },
