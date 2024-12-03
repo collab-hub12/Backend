@@ -63,18 +63,25 @@ export class UserService {
 
   async getAllUser(search_text?: string, offset?: number, limit?: number) {
     search_text = search_text?.toLowerCase();
-    return await this.db
+    const query = this.db
       .select()
       .from(users)
-      .where(
+      .offset(offset)
+      .limit(limit);
+
+    if (search_text) {
+      return query.where(
         or(
           like(users.email, `%${search_text}%`),
           like(users.name, `%${search_text}%`),
         ),
-      )
-      .offset(offset)
-      .limit(limit);
+      );
+    }
+
+    const result = await query;
+    return result;
   }
+
 
   async getInvitaions(user_id: number) {
     return await this.invitationService.getAllInvites(user_id);
