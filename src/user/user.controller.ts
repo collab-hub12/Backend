@@ -1,7 +1,7 @@
-import {Body, Controller, Get, Param, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, SetMetadata} from '@nestjs/common';
 import {UserService} from './user.service';
 import {CreateUserDto, InvitationDto} from './dto/user.dto';
-import {ApiOperation, ApiParam, ApiQuery, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags} from '@nestjs/swagger';
 import {Public} from 'src/decorator/public.decorator';
 
 @ApiTags('User')
@@ -9,14 +9,14 @@ import {Public} from 'src/decorator/public.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
-  @Public()
   @ApiOperation({summary: 'Create a user'})
+  @Public()
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
     return this.userService.create(dto);
   }
 
-  @Public()
+  @ApiBearerAuth()
   @ApiOperation({summary: 'Get all users'})
   @ApiQuery({
     name: 'search',
@@ -42,6 +42,7 @@ export class UserController {
     return this.userService.getAllUser(search_text, offset, limit);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({summary: 'Get all invitations for a user'})
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Get(':user_id/invitations')
@@ -49,6 +50,7 @@ export class UserController {
     return this.userService.getInvitaions(user_id);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({summary: 'Respond to an invitation'})
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Post(':user_id/invitations')
@@ -59,6 +61,7 @@ export class UserController {
     return this.userService.respondToInvitaion(dto.status, user_id, dto.org_id);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({summary: 'Get all tasks for a user'})
   @ApiParam({name: 'user_id', description: 'User ID'})
   @ApiQuery({
