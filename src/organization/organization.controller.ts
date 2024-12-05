@@ -75,7 +75,7 @@ export class OrganizationController {
     @Query('limit') limit: number,
     @Req() req: Request,
   ) {
-    return this.orgService.findOrgsThatUserIsPartOf(req.user.id, offset, limit);
+    return this.orgService.findOrgsThatUserIsPartOf(req.user.id, limit, offset);
   }
 
   @ApiOperation({summary: 'Delete an organization'})
