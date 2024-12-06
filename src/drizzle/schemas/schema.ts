@@ -6,7 +6,6 @@ import * as boardSchema from './boards.schema';
 import * as notificationSchema from './notification.schema';
 import * as refreshTokenSchema from './refreshtoken';
 
-
 export type schema = typeof userschema &
   typeof orgschema &
   typeof taskschema &

@@ -1,9 +1,9 @@
-import {Module} from '@nestjs/common';
-import {RoleService} from './role.service';
-import {RoleController} from './role.controller';
-import {OrganizationModule} from 'src/organization/organization.module';
-import {TeamModule} from 'src/team/team.module';
-import {drizzleProvider} from 'src/drizzle/drizzle.provider';
+import { Module } from '@nestjs/common';
+import { RoleService } from './role.service';
+import { RoleController } from './role.controller';
+import { OrganizationModule } from 'src/organization/organization.module';
+import { TeamModule } from 'src/team/team.module';
+import { drizzleProvider } from 'src/drizzle/drizzle.provider';
 
 @Module({
   imports: [OrganizationModule, TeamModule],
@@ -11,4 +11,4 @@ import {drizzleProvider} from 'src/drizzle/drizzle.provider';
   providers: [RoleService, ...drizzleProvider],
   exports: [RoleService],
 })
-export class RoleModule { }
+export class RoleModule {}

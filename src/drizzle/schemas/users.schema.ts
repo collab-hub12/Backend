@@ -1,10 +1,10 @@
-import {relations, sql} from 'drizzle-orm';
-import {integer, pgTable, serial, text} from 'drizzle-orm/pg-core';
-import {orgMembers, organizations} from './organizations.schema';
-import {assignedTasks} from './tasks.schema';
-import {teamMember} from './teams.schema';
-import {invitations} from './invitations.schema';
-import {refreshTokens} from './refreshtoken';
+import { relations, sql } from 'drizzle-orm';
+import { pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { orgMembers, organizations } from './organizations.schema';
+import { assignedTasks } from './tasks.schema';
+import { teamMember } from './teams.schema';
+import { invitations } from './invitations.schema';
+import { refreshTokens } from './refreshtoken';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -17,7 +17,7 @@ export const users = pgTable('users', {
     .notNull(),
 });
 
-export const usersRelations = relations(users, ({many}) => ({
+export const usersRelations = relations(users, ({ many }) => ({
   organizations: many(organizations),
   orgMember: many(orgMembers),
   assignedTask: many(assignedTasks),

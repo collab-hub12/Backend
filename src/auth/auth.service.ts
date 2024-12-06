@@ -1,19 +1,16 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
-import {UserService} from 'src/user/user.service';
-import {AuthRefreshTokenService} from './auth-refresh-token.service';
-import {Response} from 'express';
-import {compare} from 'bcrypt';
+import { UserService } from 'src/user/user.service';
+import { AuthRefreshTokenService } from './auth-refresh-token.service';
+import { Response } from 'express';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly authRefreshTokenService: AuthRefreshTokenService,
-  ) { }
+  ) {}
 
   async login(res: Response, user?: Express.User) {
     if (!user) {

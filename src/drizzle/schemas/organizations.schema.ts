@@ -1,4 +1,4 @@
-import {relations, sql} from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   serial,
   integer,
@@ -7,11 +7,10 @@ import {
   text,
   boolean,
 } from 'drizzle-orm/pg-core';
-import {users} from './users.schema';
-import {teamMember} from './teams.schema';
-import {tasks} from './tasks.schema';
-import {invitations} from './invitations.schema';
-
+import { users } from './users.schema';
+import { teamMember } from './teams.schema';
+import { tasks } from './tasks.schema';
+import { invitations } from './invitations.schema';
 
 export const organizations = pgTable('organizations', {
   id: serial('id').primaryKey(),
@@ -19,7 +18,7 @@ export const organizations = pgTable('organizations', {
   org_desc: text('org_description').notNull(),
   founder_id: integer('founder_id')
     .notNull()
-    .references(() => users.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   location: text('location').notNull(),
   createdAt: text('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
@@ -27,7 +26,7 @@ export const organizations = pgTable('organizations', {
 });
 
 // founder of org relation
-export const orgRelations = relations(organizations, ({one, many}) => ({
+export const orgRelations = relations(organizations, ({ one, many }) => ({
   founder: one(users, {
     fields: [organizations.founder_id],
     references: [users.id],
@@ -44,18 +43,21 @@ export const orgMembers = pgTable(
   {
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     organizationId: integer('organization_id')
       .notNull()
-      .references(() => organizations.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
+      .references(() => organizations.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
     is_admin: boolean('is_admin').notNull(),
   },
   (t) => ({
-    pk: primaryKey({columns: [t.organizationId, t.userId]}),
+    pk: primaryKey({ columns: [t.organizationId, t.userId] }),
   }),
 );
 
-export const orgMemberRelations = relations(orgMembers, ({one}) => ({
+export const orgMemberRelations = relations(orgMembers, ({ one }) => ({
   organization: one(organizations, {
     fields: [orgMembers.organizationId],
     references: [organizations.id],

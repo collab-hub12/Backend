@@ -1,9 +1,9 @@
-import {ExtractJwt, Strategy} from 'passport-jwt';
-import {PassportStrategy} from '@nestjs/passport';
-import {Injectable, UnauthorizedException} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import {Request} from 'express';
-import {extractRefreshTokenFromCookies} from 'src/constants/cookies';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
+import { extractRefreshTokenFromCookies } from 'src/constants/cookies';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,7 +26,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     return {
-      attributes: {id: payload.sub, role: payload.role},
+      attributes: { id: payload.sub, role: payload.role },
       refreshTokenExpiresAt: new Date(payload.exp * 1000),
     };
   }
