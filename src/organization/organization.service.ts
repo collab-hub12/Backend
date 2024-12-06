@@ -5,24 +5,24 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { UserService } from 'src/user/user.service';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { AddUserToOrgDto, CreateOrgDto } from './dto/organization.dto';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {UserService} from 'src/user/user.service';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {AddUserToOrgDto, CreateOrgDto} from './dto/organization.dto';
 import {
   orgMembers,
   organizations,
 } from 'src/drizzle/schemas/organizations.schema';
-import { and, count, eq, getTableColumns, like, or } from 'drizzle-orm';
-import type { schema } from 'src/drizzle/schemas/schema';
-import { TeamService } from 'src/team/team.service';
-import { CreateTeamDto } from 'src/team/dto/team.dto';
-import { CreateTaskDto } from 'src/task/dto/create-task.dto';
-import { TaskService } from 'src/task/task.service';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { UpdateTaskDto } from 'src/task/dto/update-task.dto';
-import { DrawingboardService } from 'src/drawingboard/drawingboard.service';
-import { InvitationsService } from 'src/invitations/invitations.service';
+import {and, count, eq, getTableColumns, like, or} from 'drizzle-orm';
+import type {schema} from 'src/drizzle/schemas/schema';
+import {TeamService} from 'src/team/team.service';
+import {CreateTeamDto} from 'src/team/dto/team.dto';
+import {CreateTaskDto} from 'src/task/dto/create-task.dto';
+import {TaskService} from 'src/task/task.service';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
+import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
+import {InvitationsService} from 'src/invitations/invitations.service';
 
 @Injectable()
 export class OrganizationService {
@@ -35,7 +35,7 @@ export class OrganizationService {
     private readonly drawingBoardService: DrawingboardService,
     @Inject(forwardRef(() => InvitationsService))
     private readonly inviationService: InvitationsService,
-  ) {}
+  ) { }
 
   async createOrganization(dto: CreateOrgDto, founder_id: number) {
     const founder = await this.userService.findById(founder_id);
@@ -45,13 +45,13 @@ export class OrganizationService {
 
     const result = await this.db
       .insert(organizations)
-      .values({ ...dto, founder_id })
+      .values({...dto, founder_id})
       .returning();
 
     const org_id = result[0].id;
     await this.db
       .insert(orgMembers)
-      .values({ userId: founder_id, organizationId: org_id, is_admin: true });
+      .values({userId: founder_id, organizationId: org_id, is_admin: true});
     return result[0];
   }
 
@@ -84,25 +84,27 @@ export class OrganizationService {
   ) {
     console.log(offset, limit);
 
-    // Fetch total count of organizations related to the user
+    //Fetch total count of organizations related to the user
     const TotalOrgCountResponse = this.db
-      .select({ count: count(orgMembers.organizationId) })
+      .select({count: count(orgMembers.organizationId)})
       .from(orgMembers)
       .where(eq(orgMembers.userId, user_id));
 
-    // Fetch paginated organizations
+    //Fetch paginated organizations
     const paginatedOrgs = this.db
-      .select({ ...getTableColumns(organizations) })
+      .select({...getTableColumns(organizations)})
       .from(organizations)
-      .innerJoin(orgMembers, eq(organizations.id, orgMembers.organizationId))
+      .innerJoin(orgMembers, eq(orgMembers.organizationId, organizations.id))
       .where(eq(orgMembers.userId, user_id))
       .limit(limit)
       .offset(offset);
 
-    const [[resultTotalOrgCount], paginatedOrgsResponse] = await Promise.all([
-      TotalOrgCountResponse,
-      paginatedOrgs,
-    ]);
+    const [
+      [resultTotalOrgCount],
+      paginatedOrgsResponse] = await Promise.all([
+        TotalOrgCountResponse,
+        paginatedOrgs,
+      ]);
 
     return {
       page: Math.floor(offset / limit) + 1,
@@ -131,7 +133,7 @@ export class OrganizationService {
     const rowsAffected = (
       await this.db
         .update(orgMembers)
-        .set({ is_admin: true })
+        .set({is_admin: true})
         .where(
           and(
             eq(orgMembers.userId, user_id),
@@ -164,7 +166,7 @@ export class OrganizationService {
   async addMemberToOrg(org_id: number, dto: AddUserToOrgDto) {
     return await this.db
       .insert(orgMembers)
-      .values({ userId: dto.user_id, organizationId: org_id, is_admin: false });
+      .values({userId: dto.user_id, organizationId: org_id, is_admin: false});
   }
 
   async getMembers(
@@ -174,10 +176,12 @@ export class OrganizationService {
     limit: number,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...columns } = getTableColumns(users);
+    const {password, ...columns} = getTableColumns(users);
+    const {is_admin} = getTableColumns(orgMembers);
 
+    // get org member details 
     const query = this.db
-      .select(columns)
+      .select({...columns, is_admin})
       .from(orgMembers)
       .leftJoin(users, eq(orgMembers.userId, users.id))
       .offset(offset)
@@ -200,8 +204,8 @@ export class OrganizationService {
     }
 
     const totalUserCount = this.db
-      .select({ count: count(users.id) })
-      .from(users)
+      .select({count: count(orgMembers.userId)})
+      .from(orgMembers)
       .where(eq(orgMembers.organizationId, org_id));
 
     const [[resultTotalUserCount], result] = await Promise.all([
@@ -255,8 +259,8 @@ export class OrganizationService {
     if (result.rowCount === 0) {
       throw new NotFoundException('User not found in the Organization');
     }
-    return { message: 'user removed from org succcessfully' };
-    return { message: 'user removed from org succcessfully' };
+    return {message: 'user removed from org succcessfully'};
+    return {message: 'user removed from org succcessfully'};
   }
 
   async deleteOrganization(org_id: number) {
@@ -266,8 +270,8 @@ export class OrganizationService {
     if (result.rowCount === 0) {
       throw new NotFoundException('Organization not found');
     }
-    return { message: 'organization deleted successfully' };
-    return { message: 'organization deleted successfully' };
+    return {message: 'organization deleted successfully'};
+    return {message: 'organization deleted successfully'};
   }
 
   async getTeamDetails(org_id: number, team_id: number, user_id: number) {
@@ -328,7 +332,7 @@ export class OrganizationService {
     // throws forbidden exception if user is not found inside team inside Org
     await this.getTeamDetails(org_id, team_id, user_id);
     await this.teamService.makeUserAdminInsideTeam(user_id, teamExistsInOrg.id);
-    return { msg: 'admin permission granted inside team' };
+    return {msg: 'admin permission granted inside team'};
   }
 
   async addUserToATeam(org_id: number, team_id: number, user_id: number) {
@@ -433,13 +437,13 @@ export class OrganizationService {
     task_id: number,
     assignee_id: number,
   ) {
-    const { user_id } = await this.teamService.getUserinTeaminOrg(
+    const {user_id} = await this.teamService.getUserinTeaminOrg(
       team_id,
       assignee_id,
       org_id,
     );
     await this.taskService.assignTask(user_id, task_id);
-    return { msg: 'task assigned to the user successfully' };
+    return {msg: 'task assigned to the user successfully'};
   }
 
   async revokeTask(
@@ -448,12 +452,12 @@ export class OrganizationService {
     task_id: number,
     revoked_from: number,
   ) {
-    const { user_id } = await this.teamService.getUserinTeaminOrg(
+    const {user_id} = await this.teamService.getUserinTeaminOrg(
       team_id,
       revoked_from,
       org_id,
     );
     await this.taskService.revokeTask(user_id, task_id);
-    return { msg: 'task revoked from user successfully' };
+    return {msg: 'task revoked from user successfully'};
   }
 }
