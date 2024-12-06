@@ -35,7 +35,6 @@ export const drizzleProvider = [
 
         Logger.log('Connected to database');
 
-
         return db;
 
       } catch (error) {

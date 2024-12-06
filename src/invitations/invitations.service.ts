@@ -1,5 +1,5 @@
-import {BadRequestException, Inject, Injectable} from '@nestjs/common';
-import {and, eq} from 'drizzle-orm';
+import {BadRequestException, Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {and, eq, getTableColumns} from 'drizzle-orm';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {invitations} from 'src/drizzle/schemas/invitations.schema';
@@ -32,7 +32,7 @@ export class InvitationsService {
 
   async getAllInvites(user_id: number) {
     return await this.db
-      .select({org_name: organizations.org_name, org_id: organizations.id})
+      .select({...getTableColumns(invitations)})
       .from(invitations)
       .innerJoin(
         organizations,
@@ -53,12 +53,39 @@ export class InvitationsService {
   }
 
   async acceptInvitation(user_id: number, org_id: number, invitation_id: number) {
+    try {
+      // Fetch the invitation details
+      const [invitation] = await this.db
+        .select()
+        .from(invitations)
+        .where(and(
+          eq(invitations.user_id, user_id),
+          eq(invitations.invitation_from, org_id),
+          eq(invitations.id, invitation_id),
+        ));
 
-    await this.orgService.addMemberToOrg(org_id, {user_id});
+      // Check if the invitation is expired
+      const currentTime = new Date().toISOString();
 
-    await this.db
-      .delete(invitations)
-      .where(and(eq(invitations.user_id, user_id), eq(invitations.invitation_from, org_id)));
+      if (invitation.expiresAt < currentTime) {
+        throw new BadRequestException('Invitation has expired');
+      }
 
+      // Add the user to the organization
+      await this.orgService.addMemberToOrg(org_id, {user_id});
+
+      // Expire the invitation
+      await this.db
+        .update(invitations)
+        .set({expiresAt: new Date().toISOString()})
+        .where(eq(invitations.id, invitation_id));
+
+      return {message: 'User accepted invitation successfully'};
+
+    } catch (error) {
+
+      throw new BadRequestException('Invitation has expired or already been used');
+
+    }
   }
 }

@@ -13,7 +13,7 @@ import {
   orgMembers,
   organizations,
 } from 'src/drizzle/schemas/organizations.schema';
-import {and, count, eq, getTableColumns, like, or, sql} from 'drizzle-orm';
+import {and, count, eq, getTableColumns, like, or} from 'drizzle-orm';
 import type {schema} from 'src/drizzle/schemas/schema';
 import {TeamService} from 'src/team/team.service';
 import {CreateTeamDto} from 'src/team/dto/team.dto';
