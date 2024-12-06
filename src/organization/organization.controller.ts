@@ -91,7 +91,7 @@ export class OrganizationController {
 
   @ApiOperation({summary: 'Add a member to an organization'})
   @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @Post(':org_id/users')
+  @Post(':org_id/members/invite')
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   async addMemberToOrganization(
@@ -121,7 +121,7 @@ export class OrganizationController {
     description: 'Limit for pagination',
     required: false,
   })
-  @Get(':org_id/users')
+  @Get(':org_id/members')
   async getMembers(
     @Param('org_id') orgId: number,
     @Query('search') search_text?: string,
@@ -136,7 +136,7 @@ export class OrganizationController {
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/users/:user_id')
+  @Put(':org_id/members/:user_id')
   async makeUserAdminInOrg(
     @Param('org_id') orgId: number,
     @Param('user_id') user_id: number,
@@ -150,7 +150,7 @@ export class OrganizationController {
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
-  @Delete(':org_id/users/:user_id')
+  @Delete(':org_id/members/:user_id')
   async removeMemberFromOrganization(
     @Param('org_id') orgId: number,
     @Param('user_id') user_id: number,
@@ -213,7 +213,7 @@ export class OrganizationController {
     description: 'Limit for pagination',
     required: false,
   })
-  @Get(':org_id/teams/:team_id/users')
+  @Get(':org_id/teams/:team_id/members')
   async getTeamMemberDetails(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -235,7 +235,7 @@ export class OrganizationController {
   @ApiParam({name: 'team_id', description: 'Team ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Post(':org_id/teams/:team_id/users')
+  @Post(':org_id/teams/:team_id/members')
   async addUserToATeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -254,7 +254,7 @@ export class OrganizationController {
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/teams/:team_id/users/:user_id')
+  @Put(':org_id/teams/:team_id/members/:user_id')
   async grantAdminRoleToUserinTeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -269,7 +269,7 @@ export class OrganizationController {
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Delete(':org_id/teams/:team_id/users/:user_id')
+  @Delete(':org_id/teams/:team_id/members/:user_id')
   async removeUserFromTeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,

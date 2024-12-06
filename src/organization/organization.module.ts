@@ -32,7 +32,7 @@ import {RoleService} from 'src/role/role.service';
     DrawingboardService,
     RoleService,
     InvitationsService,
-
   ],
+  exports: [OrganizationService],
 })
 export class OrganizationModule { }

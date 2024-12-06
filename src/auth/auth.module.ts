@@ -8,7 +8,6 @@ import {JwtStrategy} from './strategies/jwtauth.strategy';
 import {LocalStrategy} from './strategies/local.strategy';
 import {OrganizationService} from 'src/organization/organization.service';
 import {TeamService} from 'src/team/team.service';
-import {RoomService} from 'src/room/room.service';
 import {TaskService} from 'src/task/task.service';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 import {InvitationsService} from 'src/invitations/invitations.service';
@@ -46,7 +45,6 @@ import {JwtAuthGuard} from './guards/access_token.guard';
     JwtRefreshStrategy,
     DrawingboardService,
     TeamService,
-    RoomService,
     UserService,
     TaskService,
     InvitationsService,

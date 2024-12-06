@@ -3,7 +3,7 @@ import {ConfigService} from '@nestjs/config';
 import {JwtService} from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import {and, eq, lte} from 'drizzle-orm';
-import {LibSQLDatabase} from 'drizzle-orm/libsql';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {Response} from 'express';
 import {cookieConfig} from 'src/constants/cookies';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
@@ -16,7 +16,7 @@ export class AuthRefreshTokenService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
   ) { }
 
   async generateRefreshToken(

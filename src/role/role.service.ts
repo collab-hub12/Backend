@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@nestjs/common';
 import {and, eq} from 'drizzle-orm';
-import {LibSQLDatabase} from 'drizzle-orm/libsql';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {orgMembers} from 'src/drizzle/schemas/organizations.schema';
 import {schema} from 'src/drizzle/schemas/schema';
@@ -10,7 +10,7 @@ import {teamMember} from 'src/drizzle/schemas/teams.schema';
 @Injectable()
 export class RoleService {
     constructor(
-        @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+        @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     ) { }
 
     async isOrgAdmin(org_id: number, user_id: number) {

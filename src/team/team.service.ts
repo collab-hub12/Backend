@@ -5,20 +5,20 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import type { schema } from 'src/drizzle/schemas/schema';
-import { CreateTeamDto } from './dto/team.dto';
-import { teamMember, teams } from 'src/drizzle/schemas/teams.schema';
-import { and, eq, like, or, sql } from 'drizzle-orm';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { organizations } from 'src/drizzle/schemas/organizations.schema';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import type {schema} from 'src/drizzle/schemas/schema';
+import {CreateTeamDto} from './dto/team.dto';
+import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
+import {and, eq, like, or, sql} from 'drizzle-orm';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {organizations} from 'src/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TeamService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
-  ) {}
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
+  ) { }
 
   async createTeam(createTeamDto: CreateTeamDto) {
     return (
@@ -80,11 +80,11 @@ export class TeamService {
     const rowsAffected = (
       await this.db
         .insert(teamMember)
-        .values({ team_id, user_id, org_id, is_admin: is_admin || false })
-    ).rowsAffected;
+        .values({team_id, user_id, org_id, is_admin: is_admin || false})
+    ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured adding member to the team');
-    return { msg: 'member added to the team successFully' };
+    return {msg: 'member added to the team successFully'};
   }
 
   async removeMemberFromTeam(team_id: number, user_id: number, org_id: number) {
@@ -98,13 +98,13 @@ export class TeamService {
             eq(teamMember.org_id, org_id),
           ),
         )
-    ).rowsAffected;
+    ).rowCount;
 
     if (!rowsAffected)
       throw new ConflictException(
         'issue occured removing member from the team',
       );
-    return { msg: 'member removed from the team successFully' };
+    return {msg: 'member removed from the team successFully'};
   }
 
   async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
@@ -165,7 +165,7 @@ export class TeamService {
       )
       .offset(offset)
       .limit(limit)
-      .all();
+
     return data;
   }
 
@@ -173,11 +173,11 @@ export class TeamService {
     const rowsAffected = (
       await this.db
         .update(teamMember)
-        .set({ is_admin: true })
+        .set({is_admin: true})
         .where(
           and(eq(teamMember.user_id, user_id), eq(teamMember.team_id, team_id)),
         )
-    ).rowsAffected;
+    ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured while making an user admin');
   }

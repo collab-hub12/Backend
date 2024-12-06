@@ -4,7 +4,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import {LibSQLDatabase} from 'drizzle-orm/libsql';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {CreateUserDto} from './dto/user.dto';
 import {users} from 'src/drizzle/schemas/users.schema';
@@ -18,7 +18,7 @@ import {hash} from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     private readonly invitationService: InvitationsService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,

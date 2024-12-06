@@ -43,25 +43,6 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all invitations for a user'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
-  @Get(':user_id/invitations')
-  async getOrgInvitations(@Param('user_id') user_id: number) {
-    return this.userService.getInvitaions(user_id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Respond to an invitation'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
-  @Post(':user_id/invitations')
-  async respondToInvitation(
-    @Param('user_id') user_id: number,
-    @Body() dto: InvitationDto,
-  ) {
-    return this.userService.respondToInvitaion(dto.status, user_id, dto.org_id);
-  }
-
-  @ApiBearerAuth()
   @ApiOperation({summary: 'Get all tasks for a user'})
   @ApiParam({name: 'user_id', description: 'User ID'})
   @ApiQuery({
