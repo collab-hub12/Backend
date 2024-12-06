@@ -1,30 +1,24 @@
-import {
-  integer,
-  primaryKey,
-  sqliteTable,
-  text,
-} from 'drizzle-orm/sqlite-core';
 import { organizations } from './organizations.schema';
 import { users } from './users.schema';
 import { relations, sql } from 'drizzle-orm';
+import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
 
-export const invitations = sqliteTable(
-  'invitations',
-  {
-    user_id: integer('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    invitation_from: integer('invitation_from')
-      .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    createdAt: text('created_at')
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.user_id, t.invitation_from] }),
-  }),
-);
+export const invitations = pgTable('invitations', {
+  id: serial('id').primaryKey(),
+  user_id: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+  invitation_from: integer('invitation_from')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  createdAt: text('created_at')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  expiresAt: text('expires_at').notNull(),
+});
 
 export const invitationRelations = relations(invitations, ({ one }) => ({
   user: one(users, {

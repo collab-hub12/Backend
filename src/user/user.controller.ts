@@ -1,15 +1,21 @@
-import {Body, Controller, Get, Param, Post, Query, SetMetadata} from '@nestjs/common';
-import {UserService} from './user.service';
-import {CreateUserDto, InvitationDto} from './dto/user.dto';
-import {ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags} from '@nestjs/swagger';
-import {Public} from 'src/decorator/public.decorator';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/user.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Public } from 'src/decorator/public.decorator';
 
 @ApiTags('User')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({summary: 'Create a user'})
+  @ApiOperation({ summary: 'Create a user' })
   @Public()
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
@@ -17,7 +23,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all users'})
+  @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({
     name: 'search',
     description: 'Search for a user',
@@ -43,27 +49,8 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all invitations for a user'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
-  @Get(':user_id/invitations')
-  async getOrgInvitations(@Param('user_id') user_id: number) {
-    return this.userService.getInvitaions(user_id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Respond to an invitation'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
-  @Post(':user_id/invitations')
-  async respondToInvitation(
-    @Param('user_id') user_id: number,
-    @Body() dto: InvitationDto,
-  ) {
-    return this.userService.respondToInvitaion(dto.status, user_id, dto.org_id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all tasks for a user'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
+  @ApiOperation({ summary: 'Get all tasks for a user' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
   @ApiQuery({
     name: 'offset',
     description: 'Offset for pagination',

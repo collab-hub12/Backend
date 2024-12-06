@@ -1,14 +1,13 @@
 import { relations, sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { pgTable, serial, text } from 'drizzle-orm/pg-core';
 import { orgMembers, organizations } from './organizations.schema';
 import { assignedTasks } from './tasks.schema';
 import { teamMember } from './teams.schema';
-import { roomMembers } from './room.schema';
 import { invitations } from './invitations.schema';
 import { refreshTokens } from './refreshtoken';
 
-export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
@@ -23,7 +22,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   orgMember: many(orgMembers),
   assignedTask: many(assignedTasks),
   teamMember: many(teamMember),
-  roomMember: many(roomMembers),
   invitations: many(invitations),
   refreshToken: many(refreshTokens),
 }));

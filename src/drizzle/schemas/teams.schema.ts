@@ -1,19 +1,24 @@
 import {
   integer,
   primaryKey,
-  sqliteTable,
   text,
-} from 'drizzle-orm/sqlite-core';
+  pgTable,
+  serial,
+  boolean,
+} from 'drizzle-orm/pg-core';
 import { organizations } from './organizations.schema';
 import { users } from './users.schema';
 import { relations } from 'drizzle-orm';
 
-export const teams = sqliteTable('teams', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const teams = pgTable('teams', {
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   org_id: integer('org_id')
     .notNull()
-    .references(() => organizations.id, { onDelete: 'cascade' }),
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
 });
 
 export const teamRelation = relations(teams, ({ one, many }) => ({
@@ -24,19 +29,22 @@ export const teamRelation = relations(teams, ({ one, many }) => ({
   }),
 }));
 
-export const teamMember = sqliteTable(
+export const teamMember = pgTable(
   'team_member_details',
   {
     user_id: integer('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     team_id: integer('team_id')
       .notNull()
-      .references(() => teams.id, { onDelete: 'cascade' }),
+      .references(() => teams.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     org_id: integer('org_id')
       .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    is_admin: integer('is_admin', { mode: 'boolean' }).notNull(),
+      .references(() => organizations.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    is_admin: boolean('is_admin').notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.user_id, t.team_id, t.org_id] }),

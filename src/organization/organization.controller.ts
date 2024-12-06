@@ -16,15 +16,15 @@ import {
   CreateOrgDto,
   CreateTeamUnderOrgDto,
 } from './dto/organization.dto';
-import {OrganizationService} from './organization.service';
-import {CreateTaskDto} from 'src/task/dto/create-task.dto';
-import {AssignTaskDto} from 'src/task/dto/assign-task.dto';
-import {RevokeTaskDto} from 'src/task/dto/revoke-task.dto';
-import {Request} from 'express';
-import {Roles} from 'src/decorator/roles.decorator';
-import {Role} from 'src/enum/role.enum';
-import {RolesGuard} from 'src/auth/guards/role.guard';
-import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
+import { OrganizationService } from './organization.service';
+import { CreateTaskDto } from 'src/task/dto/create-task.dto';
+import { AssignTaskDto } from 'src/task/dto/assign-task.dto';
+import { RevokeTaskDto } from 'src/task/dto/revoke-task.dto';
+import { Request } from 'express';
+import { Roles } from 'src/decorator/roles.decorator';
+import { Role } from 'src/enum/role.enum';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { UpdateTaskDto } from 'src/task/dto/update-task.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -37,16 +37,16 @@ import {
 @ApiBearerAuth()
 @Controller('orgs')
 export class OrganizationController {
-  constructor(private readonly orgService: OrganizationService) { }
+  constructor(private readonly orgService: OrganizationService) {}
 
-  @ApiOperation({summary: 'Create a new organization'})
+  @ApiOperation({ summary: 'Create a new organization' })
   @Post()
   async createOrganization(@Body() dto: CreateOrgDto, @Req() req: Request) {
     return this.orgService.createOrganization(dto, req.user.id);
   }
 
-  @ApiOperation({summary: 'Get organization by id'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Get organization by id' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Get(':org_id')
   async getOrgById(@Param('org_id') org_id: number, @Req() req: Request) {
     const user = await this.orgService.getMemberInOrg(org_id, req.user.id);
@@ -58,7 +58,7 @@ export class OrganizationController {
     }
   }
 
-  @ApiOperation({summary: 'Get all organizations that the user is part of'})
+  @ApiOperation({ summary: 'Get all organizations that the user is part of' })
   @ApiQuery({
     name: 'offset',
     description: 'Offset for pagination',
@@ -78,8 +78,8 @@ export class OrganizationController {
     return this.orgService.findOrgsThatUserIsPartOf(req.user.id, limit, offset);
   }
 
-  @ApiOperation({summary: 'Delete an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Delete an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':org_id')
@@ -89,9 +89,9 @@ export class OrganizationController {
 
   //********************----USER-RELATED-QUERIES----*************************//
 
-  @ApiOperation({summary: 'Add a member to an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @Post(':org_id/users')
+  @ApiOperation({ summary: 'Add a member to an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @Post(':org_id/members/invite')
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   async addMemberToOrganization(
@@ -104,8 +104,8 @@ export class OrganizationController {
     };
   }
 
-  @ApiOperation({summary: 'Get all members of an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Get all members of an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @ApiQuery({
     name: 'search',
     description: 'Search for a member',
@@ -121,7 +121,7 @@ export class OrganizationController {
     description: 'Limit for pagination',
     required: false,
   })
-  @Get(':org_id/users')
+  @Get(':org_id/members')
   async getMembers(
     @Param('org_id') orgId: number,
     @Query('search') search_text?: string,
@@ -131,26 +131,26 @@ export class OrganizationController {
     return this.orgService.getMembers(orgId, search_text, offset, limit);
   }
 
-  @ApiOperation({summary: 'Make a user admin in an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
+  @ApiOperation({ summary: 'Make a user admin in an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/users/:user_id')
+  @Put(':org_id/members/:user_id')
   async makeUserAdminInOrg(
     @Param('org_id') orgId: number,
     @Param('user_id') user_id: number,
   ) {
     await this.orgService.makeUserAdminInsideOrg(user_id, orgId);
-    return {message: 'operation successfull'};
+    return { message: 'operation successfull' };
   }
 
-  @ApiOperation({summary: 'Remove a member from an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
+  @ApiOperation({ summary: 'Remove a member from an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
-  @Delete(':org_id/users/:user_id')
+  @Delete(':org_id/members/:user_id')
   async removeMemberFromOrganization(
     @Param('org_id') orgId: number,
     @Param('user_id') user_id: number,
@@ -160,9 +160,9 @@ export class OrganizationController {
 
   //********************----TEAM-RELATED-QUERIES----*************************//
 
-  @ApiOperation({summary: 'Get team details'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
+  @ApiOperation({ summary: 'Get team details' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
   @Get(':org_id/teams/:team_id')
   async getTeamDetails(
     @Param('org_id') org_id: number,
@@ -172,8 +172,8 @@ export class OrganizationController {
     return this.orgService.getTeamDetails(org_id, team_id, req.user.id);
   }
 
-  @ApiOperation({summary: 'Add a team under an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Add a team under an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
   @Post(':org_id/teams')
@@ -183,21 +183,21 @@ export class OrganizationController {
     @Req() req: Request,
   ) {
     return this.orgService.addTeamUnderOrg(
-      {org_id, team_name: createTeamUnderOrgDto.team_name},
+      { org_id, team_name: createTeamUnderOrgDto.team_name },
       req.user.id,
     );
   }
 
-  @ApiOperation({summary: 'Get all teams that the user is part of'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Get all teams that the user is part of' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Get(':org_id/teams')
   async getTeams(@Param('org_id') org_id: number, @Req() req: Request) {
     return this.orgService.getTeamsThatUserIsPartOf(org_id, req.user.id);
   }
 
-  @ApiOperation({summary: 'Get all members of a team'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
+  @ApiOperation({ summary: 'Get all members of a team' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
   @ApiQuery({
     name: 'search',
     description: 'Search for a member',
@@ -213,7 +213,7 @@ export class OrganizationController {
     description: 'Limit for pagination',
     required: false,
   })
-  @Get(':org_id/teams/:team_id/users')
+  @Get(':org_id/teams/:team_id/members')
   async getTeamMemberDetails(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -230,12 +230,12 @@ export class OrganizationController {
     );
   }
 
-  @ApiOperation({summary: 'Add a user to a team'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
+  @ApiOperation({ summary: 'Add a user to a team' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Post(':org_id/teams/:team_id/users')
+  @Post(':org_id/teams/:team_id/members')
   async addUserToATeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -248,13 +248,13 @@ export class OrganizationController {
     );
   }
 
-  @ApiOperation({summary: 'Grant admin role to a user in a team'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
+  @ApiOperation({ summary: 'Grant admin role to a user in a team' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/teams/:team_id/users/:user_id')
+  @Put(':org_id/teams/:team_id/members/:user_id')
   async grantAdminRoleToUserinTeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -263,13 +263,13 @@ export class OrganizationController {
     return this.orgService.grantAdminRoleToUserInTeam(org_id, team_id, user_id);
   }
 
-  @ApiOperation({summary: 'Remove a user from a team'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
+  @ApiOperation({ summary: 'Remove a user from a team' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Delete(':org_id/teams/:team_id/users/:user_id')
+  @Delete(':org_id/teams/:team_id/members/:user_id')
   async removeUserFromTeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -280,9 +280,9 @@ export class OrganizationController {
 
   //********************----TASK-RELATED-QUERIES----*************************//
 
-  @ApiOperation({summary: 'Create a task'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
+  @ApiOperation({ summary: 'Create a task' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
   @Post(':org_id/teams/:team_id/tasks')
@@ -294,10 +294,10 @@ export class OrganizationController {
     return this.orgService.createTask(org_id, team_id, createTaskDto);
   }
 
-  @ApiOperation({summary: 'Update a task'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'task_id', description: 'Task ID'})
+  @ApiOperation({ summary: 'Update a task' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'task_id', description: 'Task ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
   @Put(':org_id/teams/:team_id/tasks/:task_id')
@@ -310,9 +310,9 @@ export class OrganizationController {
     return this.orgService.updateTask(org_id, team_id, task_id, updatetaskDto);
   }
 
-  @ApiOperation({summary: 'Get all tasks of a team'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
+  @ApiOperation({ summary: 'Get all tasks of a team' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
   @Get(':org_id/teams/:team_id/tasks')
   async getTasks(
     @Param('org_id') org_id: number,
@@ -321,10 +321,10 @@ export class OrganizationController {
     return this.orgService.getTasks(org_id, team_id);
   }
 
-  @ApiOperation({summary: 'Get a task by id'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'task_id', description: 'Task ID'})
+  @ApiOperation({ summary: 'Get a task by id' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'task_id', description: 'Task ID' })
   @Get(':org_id/teams/:team_id/tasks/:task_id')
   async getTasksById(
     @Param('org_id') org_id: number,
@@ -334,10 +334,10 @@ export class OrganizationController {
     return this.orgService.getTaskById(org_id, team_id, task_id);
   }
 
-  @ApiOperation({summary: 'Assign a task to a user'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'task_id', description: 'Task ID'})
+  @ApiOperation({ summary: 'Assign a task to a user' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'task_id', description: 'Task ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @Post(':org_id/teams/:team_id/tasks/:task_id')
   async assignTask(
@@ -354,10 +354,10 @@ export class OrganizationController {
     );
   }
 
-  @ApiOperation({summary: 'Revoke a task from a user'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
-  @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiParam({name: 'task_id', description: 'Task ID'})
+  @ApiOperation({ summary: 'Revoke a task from a user' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
+  @ApiParam({ name: 'team_id', description: 'Team ID' })
+  @ApiParam({ name: 'task_id', description: 'Task ID' })
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @Put(':org_id/teams/:team_id/tasks/:task_id')
   async revokeTask(

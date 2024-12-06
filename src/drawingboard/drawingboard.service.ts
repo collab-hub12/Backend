@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { LibSQLDatabase } from 'drizzle-orm/libsql';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
 import { drawingBoards } from 'src/drizzle/schemas/boards.schema';
 import { schema } from 'src/drizzle/schemas/schema';
@@ -8,7 +8,7 @@ import { schema } from 'src/drizzle/schemas/schema';
 @Injectable()
 export class DrawingboardService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
   ) {}
 
   async create(task_id: number) {
@@ -42,7 +42,7 @@ export class DrawingboardService {
         .update(drawingBoards)
         .set({ nodes: nodesChanges })
         .where(eq(drawingBoards.task_id, task_id))
-    ).rowsAffected;
+    ).rowCount;
     if (res === 0)
       throw new BadRequestException('Error Occured while updating nodes');
   }
@@ -52,7 +52,7 @@ export class DrawingboardService {
         .update(drawingBoards)
         .set({ edges: edgesChanges })
         .where(eq(drawingBoards.task_id, task_id))
-    ).rowsAffected;
+    ).rowCount;
     if (res === 0)
       throw new BadRequestException('Error Occured while updating nodes');
   }

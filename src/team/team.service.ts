@@ -5,7 +5,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { LibSQLDatabase } from 'drizzle-orm/libsql';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
 import type { schema } from 'src/drizzle/schemas/schema';
 import { CreateTeamDto } from './dto/team.dto';
@@ -17,7 +17,7 @@ import { organizations } from 'src/drizzle/schemas/organizations.schema';
 @Injectable()
 export class TeamService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
   ) {}
 
   async createTeam(createTeamDto: CreateTeamDto) {
@@ -81,7 +81,7 @@ export class TeamService {
       await this.db
         .insert(teamMember)
         .values({ team_id, user_id, org_id, is_admin: is_admin || false })
-    ).rowsAffected;
+    ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured adding member to the team');
     return { msg: 'member added to the team successFully' };
@@ -98,7 +98,7 @@ export class TeamService {
             eq(teamMember.org_id, org_id),
           ),
         )
-    ).rowsAffected;
+    ).rowCount;
 
     if (!rowsAffected)
       throw new ConflictException(
@@ -164,8 +164,8 @@ export class TeamService {
         ),
       )
       .offset(offset)
-      .limit(limit)
-      .all();
+      .limit(limit);
+
     return data;
   }
 
@@ -177,7 +177,7 @@ export class TeamService {
         .where(
           and(eq(teamMember.user_id, user_id), eq(teamMember.team_id, team_id)),
         )
-    ).rowsAffected;
+    ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured while making an user admin');
   }

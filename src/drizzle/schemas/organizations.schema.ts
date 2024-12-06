@@ -1,23 +1,24 @@
 import { relations, sql } from 'drizzle-orm';
 import {
+  serial,
   integer,
   primaryKey,
-  sqliteTable,
+  pgTable,
   text,
-} from 'drizzle-orm/sqlite-core';
+  boolean,
+} from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
 import { teamMember } from './teams.schema';
 import { tasks } from './tasks.schema';
-import { roomMembers } from './room.schema';
 import { invitations } from './invitations.schema';
 
-export const organizations = sqliteTable('organizations', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const organizations = pgTable('organizations', {
+  id: serial('id').primaryKey(),
   org_name: text('org_name').notNull(),
   org_desc: text('org_description').notNull(),
   founder_id: integer('founder_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   location: text('location').notNull(),
   createdAt: text('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
@@ -32,22 +33,24 @@ export const orgRelations = relations(organizations, ({ one, many }) => ({
   }),
   member: many(orgMembers),
   teamMember: many(teamMember),
-  roomMember: many(roomMembers),
   task: many(tasks),
   invitations: many(invitations),
 }));
 
 // many users can be part of many organizations
-export const orgMembers = sqliteTable(
+export const orgMembers = pgTable(
   'organization_members',
   {
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     organizationId: integer('organization_id')
       .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    is_admin: integer('is_admin', { mode: 'boolean' }).notNull(),
+      .references(() => organizations.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    is_admin: boolean('is_admin').notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.organizationId, t.userId] }),

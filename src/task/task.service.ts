@@ -1,7 +1,7 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { LibSQLDatabase } from 'drizzle-orm/libsql';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
 import { eq, and, desc, gte, lte, gt, sql } from 'drizzle-orm';
 import { schema } from 'src/drizzle/schemas/schema';
@@ -12,7 +12,7 @@ import { DrawingboardService } from 'src/drawingboard/drawingboard.service';
 @Injectable()
 export class TaskService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: LibSQLDatabase<schema>,
+    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     private readonly drawingBoardService: DrawingboardService,
   ) {}
 
@@ -152,7 +152,7 @@ export class TaskService {
 
   async deleteTask(id: number) {
     const rowsAffected = (await this.db.delete(tasks).where(eq(tasks.id, id)))
-      .rowsAffected;
+      .rowCount;
     if (!rowsAffected) throw new ConflictException('task didnt get deleted');
     return { msg: 'task deleted successfully' };
   }

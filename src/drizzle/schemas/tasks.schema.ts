@@ -2,24 +2,28 @@ import { relations } from 'drizzle-orm';
 import {
   integer,
   primaryKey,
-  sqliteTable,
+  serial,
+  pgTable,
   text,
-} from 'drizzle-orm/sqlite-core';
+} from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
 import { teams } from './teams.schema';
 import { organizations } from './organizations.schema';
 import { drawingBoards } from './boards.schema';
 
-export const tasks = sqliteTable('tasks', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const tasks = pgTable('tasks', {
+  id: serial('id').primaryKey(),
   position: integer('position').notNull(),
   title: text('title').notNull(),
   team_id: integer('team_id')
     .notNull()
-    .references(() => teams.id, { onDelete: 'cascade' }),
+    .references(() => teams.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   org_id: integer('org_id')
     .notNull()
-    .references(() => organizations.id, { onDelete: 'cascade' }),
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
   task_desc: text('task_description').notNull(),
   task_progress: text('task_progress').notNull(),
   task_deadline: text('task_deadline').notNull(),
@@ -39,7 +43,7 @@ export const tasksRelation = relations(tasks, ({ one, many }) => ({
 }));
 
 //junction table to represent many-to-many relationship between users and tasks
-export const assignedTasks = sqliteTable(
+export const assignedTasks = pgTable(
   'assigned_task_details',
   {
     user_id: integer('user_id')

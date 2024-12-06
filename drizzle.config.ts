@@ -1,22 +1,8 @@
-import 'dotenv/config';
-import type {Config} from 'drizzle-kit';
-export default {
-    schema: [
-        "./src/drizzle/schemas/users.schema.ts",
-        "./src/drizzle/schemas/organizations.schema.ts",
-        "./src/drizzle/schemas/tasks.schema.ts",
-        "./src/drizzle/schemas/teams.schema.ts",
-        "./src/drizzle/schemas/boards.schema.ts",
-        "./src/drizzle/schemas/invitations.schema.ts",
-        "./src/drizzle/schemas/notification.schema.ts",
-        "./src/drizzle/schemas/refreshtoken.ts",
-    ],
-    out: './migrations',
-    driver: 'turso',
+import {defineConfig} from "drizzle-kit";
+export default defineConfig({
+    schema: "./src/drizzle/schemas/*",
     dbCredentials: {
-        url: process.env.TURSO_CONNECTION_URL!,
-        authToken: process.env.TURSO_AUTH_TOKEN!,
+        url: process.env.POSTGRES_CONNECTION_STRING!,
     },
-    verbose: true,
-    strict: true,
-} satisfies Config;
+    out: "./src/drizzle/migrations",
+});
