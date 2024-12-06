@@ -6,14 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {UserService} from 'src/user/user.service';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {AddUserToOrgDto, CreateOrgDto} from './dto/organization.dto';
-import {UserService} from 'src/user/user.service';
 import {
   orgMembers,
   organizations,
 } from 'src/drizzle/schemas/organizations.schema';
-import {and, eq, like, or, sql} from 'drizzle-orm';
+import {and, count, eq, getTableColumns, like, or, sql} from 'drizzle-orm';
 import type {schema} from 'src/drizzle/schemas/schema';
 import {TeamService} from 'src/team/team.service';
 import {CreateTeamDto} from 'src/team/dto/team.dto';
@@ -82,16 +82,34 @@ export class OrganizationService {
     limit: number,
     offset: number,
   ) {
-    return (
-      await this.db.query.orgMembers.findMany({
-        where: eq(orgMembers.userId, user_id),
-        with: {
-          organization: true,
-        },
-        limit,
-        offset,
-      })
-    ).map((data) => data.organization);
+    console.log(offset, limit);
+
+    // Fetch total count of organizations related to the user
+    const TotalOrgCountResponse = this.db
+      .select({count: count(orgMembers.organizationId)})
+      .from(orgMembers)
+      .where(eq(orgMembers.userId, user_id));
+
+    // Fetch paginated organizations
+    const paginatedOrgs = this.db
+      .select({...getTableColumns(organizations)})
+      .from(organizations)
+      .innerJoin(orgMembers, eq(organizations.id, orgMembers.organizationId))
+      .where(eq(orgMembers.userId, user_id))
+      .limit(limit)
+      .offset(offset);
+
+    const [[resultTotalOrgCount], paginatedOrgsResponse] = await Promise.all([
+      TotalOrgCountResponse,
+      paginatedOrgs,
+    ]);
+
+    return {
+      page: Math.floor(offset / limit) + 1,
+      totalElements: resultTotalOrgCount.count,
+      totalPages: Math.ceil(resultTotalOrgCount.count / limit),
+      data: paginatedOrgsResponse,
+    };
   }
 
   async getMemberInOrg(org_id: number, user_id: number) {
@@ -155,38 +173,47 @@ export class OrganizationService {
     offset: number,
     limit: number,
   ) {
-    const orgExists = await this.findOrgById(org_id);
-    if (!orgExists) {
-      throw new ConflictException('org doesnt exists');
-    }
+    const {password, ...columns} = getTableColumns(users)
+
+    const query = this.db
+      .select(columns)
+      .from(orgMembers)
+      .leftJoin(users, eq(orgMembers.userId, users.id))
+      .offset(offset)
+      .limit(limit)
 
     search_text = search_text?.toLowerCase();
 
-    return await this.db
-      .select({
-        id: users.id,
-        isAdmin: orgMembers.is_admin,
-        name: users.name,
-        email: users.email,
-        picture: users.picture,
-      })
-      .from(orgMembers)
-      .leftJoin(users, eq(orgMembers.userId, users.id))
-      .leftJoin(organizations, eq(orgMembers.organizationId, org_id))
-      .where(
+    if (search_text) {
+      query.where(
         and(
           eq(organizations.id, org_id),
           or(
-            sql`${search_text === undefined}`,
-            or(
-              like(users.email, `%${search_text}%`),
-              like(users.name, `%${search_text}%`),
-            ),
+            like(users.email, `%${search_text}%`),
+            like(users.name, `%${search_text}%`),
           ),
         ),
-      )
-      .offset(offset)
-      .limit(limit)
+      );
+    } else {
+      query.where(eq(orgMembers.organizationId, org_id));
+    }
+
+    const totalUserCount = this.db
+      .select({count: count(users.id)})
+      .from(users)
+      .where(eq(orgMembers.organizationId, org_id));
+
+    const [[resultTotalUserCount], result] = await Promise.all([
+      totalUserCount,
+      query,
+    ]);
+
+    return {
+      page: Math.floor(offset / limit) + 1,
+      totalElements: resultTotalUserCount.count,
+      totalPages: Math.ceil(resultTotalUserCount.count / limit),
+      data: result,
+    };
   }
 
   async CheckFounderorNot(org_id: number, user_id: number): Promise<boolean> {
@@ -228,6 +255,7 @@ export class OrganizationService {
       throw new NotFoundException('User not found in the Organization');
     }
     return {message: 'user removed from org succcessfully'};
+    return {message: 'user removed from org succcessfully'};
   }
 
   async deleteOrganization(org_id: number) {
@@ -237,6 +265,7 @@ export class OrganizationService {
     if (result.rowCount === 0) {
       throw new NotFoundException('Organization not found');
     }
+    return {message: 'organization deleted successfully'};
     return {message: 'organization deleted successfully'};
   }
 
