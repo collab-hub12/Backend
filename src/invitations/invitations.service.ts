@@ -5,6 +5,7 @@ import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
 import {invitations} from 'src/drizzle/schemas/invitations.schema';
 import {organizations} from 'src/drizzle/schemas/organizations.schema';
 import {schema} from 'src/drizzle/schemas/schema';
+import {users} from 'src/drizzle/schemas/users.schema';
 import {OrganizationService} from 'src/organization/organization.service';
 import {UserService} from 'src/user/user.service';
 
@@ -13,11 +14,10 @@ export class InvitationsService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     private readonly orgService: OrganizationService,
-    private readonly userService: UserService,
   ) { }
 
   async invite(org_id: number, user_email: string) {
-    const user = await this.userService.findByEmail(user_email);
+    const [user] = await this.db.select().from(users).where(eq(users.email, user_email));
     if (!user) {
       throw new BadRequestException('user with this email does not exist');
     }
