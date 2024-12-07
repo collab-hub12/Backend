@@ -5,20 +5,20 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import type { schema } from 'src/drizzle/schemas/schema';
-import { CreateTeamDto } from './dto/team.dto';
-import { teamMember, teams } from 'src/drizzle/schemas/teams.schema';
-import { and, eq, like, or, sql } from 'drizzle-orm';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { organizations } from 'src/drizzle/schemas/organizations.schema';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import type {schema} from 'src/drizzle/schemas/schema';
+import {CreateTeamDto} from './dto/team.dto';
+import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
+import {and, count, eq, getTableColumns, like, or, sql} from 'drizzle-orm';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {organizations} from 'src/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TeamService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
-  ) {}
+  ) { }
 
   async createTeam(createTeamDto: CreateTeamDto) {
     return (
@@ -58,17 +58,32 @@ export class TeamService {
     return team;
   }
 
-  async getAllTeamsThatUserIsPartOf(org_id: number, user_id: number) {
-    const result = await this.db.query.teamMember.findMany({
-      where: and(
-        eq(teamMember.org_id, org_id),
-        eq(teamMember.user_id, user_id),
-      ),
-      with: {
-        team: true,
-      },
-    });
-    return result.map((data) => data.team);
+  async getAllTeamsThatUserIsPartOf(org_id: number, user_id: number, offset: number, limit: number) {
+    try {
+      const [total_team_count_response] = await this.db
+        .select({count: count(teamMember.team_id)})
+        .from(teamMember)
+        .where(and(eq(teamMember.org_id, org_id), eq(teamMember.user_id, user_id)));
+
+      const result = await this.db
+        .select({...getTableColumns(teams)})
+        .from(teamMember)
+        .innerJoin(teams, eq(teamMember.team_id, teams.id))
+        .where(and(eq(teamMember.org_id, org_id), eq(teamMember.user_id, user_id)))
+        .offset(offset)
+        .limit(limit);
+
+      return {
+        page: Math.floor(offset / limit) + 1,
+        totalElements: total_team_count_response.count,
+        totalPages: Math.ceil(total_team_count_response.count / limit),
+        data: result,
+      };
+
+    } catch {
+      throw new BadRequestException("issue occured while fetching teams that user is part of");
+    }
+
   }
 
   async addMemberToTeam(
@@ -80,11 +95,11 @@ export class TeamService {
     const rowsAffected = (
       await this.db
         .insert(teamMember)
-        .values({ team_id, user_id, org_id, is_admin: is_admin || false })
+        .values({team_id, user_id, org_id, is_admin: is_admin || false})
     ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured adding member to the team');
-    return { msg: 'member added to the team successFully' };
+    return {msg: 'member added to the team successFully'};
   }
 
   async removeMemberFromTeam(team_id: number, user_id: number, org_id: number) {
@@ -104,7 +119,7 @@ export class TeamService {
       throw new ConflictException(
         'issue occured removing member from the team',
       );
-    return { msg: 'member removed from the team successFully' };
+    return {msg: 'member removed from the team successFully'};
   }
 
   async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
@@ -173,7 +188,7 @@ export class TeamService {
     const rowsAffected = (
       await this.db
         .update(teamMember)
-        .set({ is_admin: true })
+        .set({is_admin: true})
         .where(
           and(eq(teamMember.user_id, user_id), eq(teamMember.team_id, team_id)),
         )

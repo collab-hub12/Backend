@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import {
   AddUserToOrgDto,
+  AddUserToTeamDto,
   CreateOrgDto,
   CreateTeamUnderOrgDto,
 } from './dto/organization.dto';
@@ -100,7 +101,7 @@ export class OrganizationController {
     @Param('org_id') org_id: number,
     @Body() dto: AddUserToOrgDto,
   ) {
-    await this.orgService.SendInvitation(org_id, dto);
+    await this.orgService.SendInvitation(org_id, dto.user_email);
     return {
       message: 'Invitation sent to the user successfully',
     };
@@ -195,8 +196,10 @@ export class OrganizationController {
   @ApiOperation({summary: 'Get all teams that the user is part of'})
   @ApiParam({name: 'org_id', description: 'Organization ID'})
   @Get(':org_id/teams')
-  async getTeams(@Param('org_id') org_id: number, @Req() req: Request) {
-    return this.orgService.getTeamsThatUserIsPartOf(org_id, req.user.id);
+  async getTeams(@Param('org_id') org_id: number, @Req() req: Request, @Query('page') page?: number, @Query('per_page') per_page?: number) {
+    const offset = (page - 1) * per_page;
+    const limit = per_page;
+    return this.orgService.getTeamsThatUserIsPartOf(org_id, req.user.id, offset, limit);
   }
 
   @ApiOperation({summary: 'Get all members of a team'})
@@ -245,7 +248,7 @@ export class OrganizationController {
   async addUserToATeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
-    @Body() addUserTeamDTO: AddUserToOrgDto,
+    @Body() addUserTeamDTO: AddUserToTeamDto,
   ) {
     return this.orgService.addUserToATeam(
       org_id,

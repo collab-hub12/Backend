@@ -100,7 +100,7 @@ export class UserService {
     await this.invitationService.remove(org_id, user_id);
 
     if (status === 'accept') {
-      await this.orgService.addMemberToOrg(org_id, {user_id});
+      await this.orgService.addMemberToOrg(org_id, user_id);
     }
     return {message: 'Invitation Responded'};
   }
