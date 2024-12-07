@@ -260,7 +260,7 @@ export class OrganizationController {
   @ApiParam({name: 'user_id', description: 'User ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
   @UseGuards(RolesGuard)
-  @Put(':org_id/teams/:team_id/members/:user_id')
+  @Put(':org_id/teams/:team_id/members/:user_id/roles')
   async grantAdminRoleToUserinTeam(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -345,7 +345,7 @@ export class OrganizationController {
   @ApiParam({name: 'team_id', description: 'Team ID'})
   @ApiParam({name: 'task_id', description: 'Task ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @Post(':org_id/teams/:team_id/tasks/:task_id')
+  @Put(':org_id/teams/:team_id/tasks/:task_id/assign')
   async assignTask(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -356,7 +356,7 @@ export class OrganizationController {
       org_id,
       team_id,
       task_id,
-      assigntaskdto.assignee_id,
+      assigntaskdto.assign_to,
     );
   }
 
@@ -365,7 +365,7 @@ export class OrganizationController {
   @ApiParam({name: 'team_id', description: 'Team ID'})
   @ApiParam({name: 'task_id', description: 'Task ID'})
   @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
-  @Put(':org_id/teams/:team_id/tasks/:task_id')
+  @Put(':org_id/teams/:team_id/tasks/:task_id/revoke')
   async revokeTask(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
@@ -376,7 +376,7 @@ export class OrganizationController {
       org_id,
       team_id,
       task_id,
-      revoketaskdto.revoked_from,
+      revoketaskdto.revoke_from,
     );
   }
 }
