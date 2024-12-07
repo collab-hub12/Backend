@@ -145,28 +145,31 @@ export class OrganizationService {
       throw new ConflictException('issue occured while making an user admin');
   }
 
-  async SendInvitation(org_id: number, dto: AddUserToOrgDto) {
-    await this.userService.findById(dto.user_id);
+  async SendInvitation(org_id: number, user_email: string) {
+    const user = await this.userService.findByEmail(user_email);
+    if (!user) {
+      throw new ConflictException('user with this email does not exist');
+    }
     const result = await this.findOrgById(org_id);
     if (!result) {
       throw new ConflictException('org doesnt exists');
     }
 
     //checking if user already exists or not
-    const isAlreadyInOrg = await this.getMemberInOrg(org_id, dto.user_id);
+    const isAlreadyInOrg = await this.getMemberInOrg(org_id, user.id);
 
     if (isAlreadyInOrg) {
       throw new ConflictException('user is already added in Org');
     }
 
     // send invitaion to user
-    return await this.inviationService.invite(org_id, dto.user_id);
+    return await this.inviationService.invite(org_id, user_email);
   }
 
-  async addMemberToOrg(org_id: number, dto: AddUserToOrgDto) {
+  async addMemberToOrg(org_id: number, user_id: number) {
     return await this.db
       .insert(orgMembers)
-      .values({userId: dto.user_id, organizationId: org_id, is_admin: false});
+      .values({userId: user_id, organizationId: org_id, is_admin: false});
   }
 
   async getMembers(
@@ -303,8 +306,8 @@ export class OrganizationService {
     return teamDetails;
   }
 
-  async getTeamsThatUserIsPartOf(org_id: number, user_id: number) {
-    return this.teamService.getAllTeamsThatUserIsPartOf(org_id, user_id);
+  async getTeamsThatUserIsPartOf(org_id: number, user_id: number, offset: number, limit: number) {
+    return this.teamService.getAllTeamsThatUserIsPartOf(org_id, user_id, offset, limit);
   }
 
   async getTeamInsideOrg(org_id: number, team_id: number) {

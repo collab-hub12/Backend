@@ -1,25 +1,31 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { and, eq, getTableColumns } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { invitations } from 'src/drizzle/schemas/invitations.schema';
-import { organizations } from 'src/drizzle/schemas/organizations.schema';
-import { schema } from 'src/drizzle/schemas/schema';
-import { OrganizationService } from 'src/organization/organization.service';
+import {BadRequestException, Inject, Injectable} from '@nestjs/common';
+import {and, eq, getTableColumns} from 'drizzle-orm';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {invitations} from 'src/drizzle/schemas/invitations.schema';
+import {organizations} from 'src/drizzle/schemas/organizations.schema';
+import {schema} from 'src/drizzle/schemas/schema';
+import {OrganizationService} from 'src/organization/organization.service';
+import {UserService} from 'src/user/user.service';
 
 @Injectable()
 export class InvitationsService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     private readonly orgService: OrganizationService,
-  ) {}
+    private readonly userService: UserService,
+  ) { }
 
-  async invite(org_id: number, user_id: number) {
+  async invite(org_id: number, user_email: string) {
+    const user = await this.userService.findByEmail(user_email);
+    if (!user) {
+      throw new BadRequestException('user with this email does not exist');
+    }
     const [invitaiton] = await this.db
       .insert(invitations)
       .values({
         invitation_from: org_id,
-        user_id,
+        user_id: user.id,
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
       })
       .returning();
@@ -30,7 +36,7 @@ export class InvitationsService {
 
   async getAllInvites(user_id: number) {
     return await this.db
-      .select({ ...getTableColumns(invitations) })
+      .select({...getTableColumns(invitations)})
       .from(invitations)
       .innerJoin(
         organizations,
@@ -76,15 +82,15 @@ export class InvitationsService {
       }
 
       // Add the user to the organization
-      await this.orgService.addMemberToOrg(org_id, { user_id });
+      await this.orgService.addMemberToOrg(org_id, user_id);
 
       // Expire the invitation
       await this.db
         .update(invitations)
-        .set({ expiresAt: new Date().toISOString() })
+        .set({expiresAt: new Date().toISOString()})
         .where(eq(invitations.id, invitation_id));
 
-      return { message: 'User accepted invitation successfully' };
+      return {message: 'User accepted invitation successfully'};
     } catch (error) {
       throw new BadRequestException(
         'Invitation has expired or already been used',
