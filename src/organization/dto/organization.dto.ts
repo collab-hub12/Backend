@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import {ApiProperty} from '@nestjs/swagger';
+import {IsNumber, IsString} from 'class-validator';
 
 export class CreateOrgDto {
   @ApiProperty()
@@ -14,6 +14,12 @@ export class CreateOrgDto {
 }
 
 export class AddUserToOrgDto {
+  @ApiProperty()
+  @IsString()
+  user_email: string;
+}
+
+export class AddUserToTeamDto {
   @ApiProperty()
   @IsNumber()
   user_id: number;
