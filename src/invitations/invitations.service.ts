@@ -36,7 +36,7 @@ export class InvitationsService {
 
   async getAllInvites(user_id: number) {
     return await this.db
-      .select({...getTableColumns(invitations)})
+      .select({...getTableColumns(invitations), invitation_from: organizations.org_name, org_id: organizations.id})
       .from(invitations)
       .innerJoin(
         organizations,
