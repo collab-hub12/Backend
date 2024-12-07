@@ -92,7 +92,7 @@ export class OrganizationService {
 
     //Fetch paginated organizations
     const paginatedOrgs = this.db
-      .select({...getTableColumns(organizations)})
+      .select({...getTableColumns(organizations), is_admin: orgMembers.is_admin})
       .from(organizations)
       .innerJoin(orgMembers, eq(orgMembers.organizationId, organizations.id))
       .where(eq(orgMembers.userId, user_id))
@@ -262,7 +262,6 @@ export class OrganizationService {
     if (result.rowCount === 0) {
       throw new NotFoundException('User not found in the Organization');
     }
-    return {message: 'user removed from org succcessfully'};
     return {message: 'user removed from org succcessfully'};
   }
 

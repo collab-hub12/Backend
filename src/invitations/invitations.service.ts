@@ -7,7 +7,7 @@ import {organizations} from 'src/drizzle/schemas/organizations.schema';
 import {schema} from 'src/drizzle/schemas/schema';
 import {users} from 'src/drizzle/schemas/users.schema';
 import {OrganizationService} from 'src/organization/organization.service';
-import {UserService} from 'src/user/user.service';
+
 
 @Injectable()
 export class InvitationsService {
