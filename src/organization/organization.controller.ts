@@ -253,7 +253,7 @@ export class OrganizationController {
     return this.orgService.addUserToATeam(
       org_id,
       team_id,
-      addUserTeamDTO.user_email,
+      addUserTeamDTO.user_id,
     );
   }
 
