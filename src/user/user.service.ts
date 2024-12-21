@@ -4,29 +4,29 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {CreateUserDto} from './dto/user.dto';
-import {users} from 'src/drizzle/schemas/users.schema';
-import {eq, count, or, like, getTableColumns} from 'drizzle-orm';
-import {schema} from 'src/drizzle/schemas/schema';
-import {InvitationsService} from 'src/invitations/invitations.service';
-import {OrganizationService} from 'src/organization/organization.service';
-import {assignedTasks} from 'src/drizzle/schemas/tasks.schema';
-import {hash} from 'bcrypt';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
+import { CreateUserDto } from './dto/user.dto';
+import { users } from 'src/drizzle/schemas/users.schema';
+import { eq, count, or, like, getTableColumns } from 'drizzle-orm';
+import { schema } from 'src/drizzle/schemas/schema';
+import { InvitationsService } from 'src/invitations/invitations.service';
+import { OrganizationService } from 'src/organization/organization.service';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
+    @Inject(forwardRef(() => InvitationsService))
     private readonly invitationService: InvitationsService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,
-  ) { }
+  ) {}
 
   async create(dto: CreateUserDto) {
     const [query] = await this.db
-      .select({value: count()})
+      .select({ value: count() })
       .from(users)
       .where(eq(users.email, dto.email));
     const countUser = query.value;
@@ -68,9 +68,13 @@ export class UserService {
     search_text = search_text?.toLowerCase();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {password, ...columns} = getTableColumns(users);
+    const { password, ...columns } = getTableColumns(users);
     // fetch all users
-    const query = this.db.select(columns).from(users).offset(offset).limit(limit);
+    const query = this.db
+      .select(columns)
+      .from(users)
+      .offset(offset)
+      .limit(limit);
     // search by email or name
     if (search_text) {
       return query.where(
@@ -81,7 +85,9 @@ export class UserService {
       );
     }
     //count total users
-    const [resultTotalUserCount] = await this.db.select({count: count(users.id)}).from(users);
+    const [resultTotalUserCount] = await this.db
+      .select({ count: count(users.id) })
+      .from(users);
     const result = await query;
 
     return {
@@ -102,17 +108,6 @@ export class UserService {
     if (status === 'accept') {
       await this.orgService.addMemberToOrg(org_id, user_id);
     }
-    return {message: 'Invitation Responded'};
-  }
-
-  async getUserTasks(user_id: number, offset?: number, limit?: number) {
-    return await this.db.query.assignedTasks.findMany({
-      with: {
-        task: true,
-      },
-      where: eq(assignedTasks.user_id, user_id),
-      offset,
-      limit,
-    });
+    return { message: 'Invitation Responded' };
   }
 }

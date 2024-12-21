@@ -8,7 +8,7 @@ import {
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {UserService} from 'src/user/user.service';
 import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {AddUserToOrgDto, CreateOrgDto} from './dto/organization.dto';
+import {CreateOrgDto} from './dto/organization.dto';
 import {
   orgMembers,
   organizations,
@@ -82,8 +82,6 @@ export class OrganizationService {
     limit: number,
     offset: number,
   ) {
-    console.log(offset, limit);
-
     //Fetch total count of organizations related to the user
     const TotalOrgCountResponse = this.db
       .select({count: count(orgMembers.organizationId)})
@@ -92,19 +90,20 @@ export class OrganizationService {
 
     //Fetch paginated organizations
     const paginatedOrgs = this.db
-      .select({...getTableColumns(organizations), is_admin: orgMembers.is_admin})
+      .select({
+        ...getTableColumns(organizations),
+        is_admin: orgMembers.is_admin,
+      })
       .from(organizations)
       .innerJoin(orgMembers, eq(orgMembers.organizationId, organizations.id))
       .where(eq(orgMembers.userId, user_id))
       .limit(limit)
       .offset(offset);
 
-    const [
-      [resultTotalOrgCount],
-      paginatedOrgsResponse] = await Promise.all([
-        TotalOrgCountResponse,
-        paginatedOrgs,
-      ]);
+    const [[resultTotalOrgCount], paginatedOrgsResponse] = await Promise.all([
+      TotalOrgCountResponse,
+      paginatedOrgs,
+    ]);
 
     return {
       page: Math.floor(offset / limit) + 1,
@@ -182,7 +181,7 @@ export class OrganizationService {
     const {password, ...columns} = getTableColumns(users);
     const {is_admin} = getTableColumns(orgMembers);
 
-    // get org member details 
+    // get org member details
     const query = this.db
       .select({...columns, is_admin})
       .from(orgMembers)
@@ -273,11 +272,10 @@ export class OrganizationService {
       throw new NotFoundException('Organization not found');
     }
     return {message: 'organization deleted successfully'};
-    return {message: 'organization deleted successfully'};
   }
 
   async getTeamDetails(org_id: number, team_id: number, user_id: number) {
-    return await this.teamService.getUserinTeaminOrg(team_id, user_id, org_id);
+    return await this.teamService.getTeamDetails(team_id, user_id, org_id);
   }
 
   async addTeamUnderOrg(createTeamDto: CreateTeamDto, user_id: number) {
@@ -305,8 +303,18 @@ export class OrganizationService {
     return teamDetails;
   }
 
-  async getTeamsThatUserIsPartOf(org_id: number, user_id: number, offset: number, limit: number) {
-    return this.teamService.getAllTeamsThatUserIsPartOf(org_id, user_id, offset, limit);
+  async getTeamsThatUserIsPartOf(
+    org_id: number,
+    user_id: number,
+    offset: number,
+    limit: number,
+  ) {
+    return this.teamService.getAllTeamsThatUserIsPartOf(
+      org_id,
+      user_id,
+      offset,
+      limit,
+    );
   }
 
   async getTeamInsideOrg(org_id: number, team_id: number) {
