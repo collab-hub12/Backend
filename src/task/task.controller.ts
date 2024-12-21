@@ -1,4 +1,12 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TaskService } from './task.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import {
@@ -6,7 +14,9 @@ import {
   ApiParam,
   ApiTags,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { User } from 'src/decorator/user.decorator';
 
 @ApiTags('Task')
 @ApiBearerAuth()
@@ -36,5 +46,29 @@ export class TaskController {
     @Body() updatetaskdto: UpdateTaskDto,
   ) {
     return await this.taskService.updateTask(id, updatetaskdto);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all tasks for a user' })
+  @ApiParam({ name: 'user_id', description: 'User ID' })
+  @ApiQuery({
+    name: 'page',
+    description: 'Page number',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'per_page',
+    description: 'Number of elements per page',
+    required: false,
+  })
+  @Get('/tasks')
+  async getUserTasks(
+    @User() authUser: Express.User,
+    @Query('page') page?: number,
+    @Query('per_page') per_page?: number,
+  ) {
+    const offset = (page - 1) * per_page;
+    const limit = per_page;
+    return this.taskService.getUserTasks(authUser.id, offset, limit);
   }
 }

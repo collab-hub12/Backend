@@ -1,13 +1,12 @@
-import {Module} from '@nestjs/common';
-import {InvitationsService} from './invitations.service';
-import {InvitationsController} from './invitations.controller';
-import {drizzleProvider} from 'src/drizzle/drizzle.provider';
-import {OrganizationModule} from 'src/organization/organization.module';
-
+import { Module, forwardRef } from '@nestjs/common';
+import { InvitationsService } from './invitations.service';
+import { InvitationsController } from './invitations.controller';
+import { OrganizationModule } from 'src/organization/organization.module';
 
 @Module({
-  imports: [OrganizationModule],
+  imports: [forwardRef(() => OrganizationModule)],
   controllers: [InvitationsController],
-  providers: [InvitationsService, ...drizzleProvider],
+  providers: [InvitationsService],
+  exports: [InvitationsService],
 })
-export class InvitationsModule { }
+export class InvitationsModule {}

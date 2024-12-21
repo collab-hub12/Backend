@@ -1,21 +1,20 @@
-import {Body, Controller, Get, Param, Post, Query} from '@nestjs/common';
-import {UserService} from './user.service';
-import {CreateUserDto} from './dto/user.dto';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/user.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import {Public} from 'src/decorator/public.decorator';
+import { Public } from 'src/decorator/public.decorator';
 
 @ApiTags('User')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({summary: 'Create a user'})
+  @ApiOperation({ summary: 'Create a user' })
   @Public()
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
@@ -23,7 +22,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all users'})
+  @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({
     name: 'search',
     description: 'Search for a user',
@@ -48,29 +47,5 @@ export class UserController {
     const offset = (page - 1) * per_page;
     const limit = per_page;
     return this.userService.getAllUser(search_text, offset, limit);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all tasks for a user'})
-  @ApiParam({name: 'user_id', description: 'User ID'})
-  @ApiQuery({
-    name: 'page',
-    description: 'Page number',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    description: 'Number of elements per page',
-    required: false,
-  })
-  @Get(':user_id/tasks')
-  async getUserTasks(
-    @Param('user_id') user_id: number,
-    @Query('page') page?: number,
-    @Query('per_page') per_page?: number,
-  ) {
-    const offset = (page - 1) * per_page;
-    const limit = per_page;
-    return this.userService.getUserTasks(user_id, offset, limit);
   }
 }
