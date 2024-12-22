@@ -50,7 +50,10 @@ export class TaskController {
 
   @ApiBearerAuth()
   @ApiOperation({summary: 'Get all tasks for a user'})
+<<<<<<< HEAD
   @ApiParam({name: 'user_id', description: 'User ID'})
+=======
+>>>>>>> 5e11ba60690ab8e850b13f3133530afa66c1a616
   @ApiQuery({
     name: 'page',
     description: 'Page number',
@@ -61,7 +64,8 @@ export class TaskController {
     description: 'Number of elements per page',
     required: false,
   })
-  @Get('/')
+
+  @Get()
   async getUserTasks(
     @User() authUser: Express.User,
     @Query('page') page?: number,
@@ -69,6 +73,6 @@ export class TaskController {
   ) {
     const offset = (page - 1) * per_page;
     const limit = per_page;
-    return this.taskService.getUserTasks(authUser.id, offset, limit);
+    return this.taskService.getUserTasks(authUser.id, limit, offset);
   }
 }
