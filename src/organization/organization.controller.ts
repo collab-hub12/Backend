@@ -333,12 +333,12 @@ export class OrganizationController {
   @ApiOperation({summary: 'Get all tasks of a team'})
   @ApiParam({name: 'org_id', description: 'Organization ID'})
   @ApiParam({name: 'team_id', description: 'Team ID'})
-  @ApiQuery({name: 'user_ids', description: 'User IDs'})
+  @ApiQuery({name: 'user_ids', description: 'User IDs', required: false})
   @Get(':org_id/teams/:team_id/tasks')
   async getTasks(
     @Param('org_id') org_id: number,
     @Param('team_id') team_id: number,
-    @Query('user_ids', ParseUserIdsPipe) userIDs: number[]
+    @Query('user_ids', ParseUserIdsPipe) userIDs?: number[]
   ) {
     return this.orgService.getTasks(org_id, team_id, userIDs);
   }

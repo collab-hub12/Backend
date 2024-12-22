@@ -54,14 +54,23 @@ export class TaskService {
   }
 
   async getAllTasksOfATeamInsideOrg(org_id: number, team_id: number, user_ids: number[]) {
+
+    const filter = [
+      eq(tasks.org_id, org_id),
+      eq(tasks.team_id, team_id)
+    ]
+
+    if (user_ids.length !== 0) {
+      filter.push(inArray(assignedTasks.user_id, user_ids))
+    }
+
+
     const task_details = await this.db
       .select({...getTableColumns(tasks)})
       .from(tasks)
-      .innerJoin(assignedTasks, eq(assignedTasks.task_id, tasks.id))
+      .leftJoin(assignedTasks, eq(assignedTasks.task_id, tasks.id))
       .where(and(
-        eq(tasks.org_id, org_id),
-        eq(tasks.team_id, team_id),
-        inArray(assignedTasks.user_id, user_ids)
+        ...filter
       ));
 
     const result = Promise.all(
