@@ -16,7 +16,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { User } from 'src/decorator/user.decorator';
+import { User } from 'src/common/decorator/user.decorator';
 
 @ApiTags('Task')
 @ApiBearerAuth()

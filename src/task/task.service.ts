@@ -3,7 +3,17 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { eq, and, desc, gte, lte, gt, sql, getTableColumns } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  desc,
+  gte,
+  lte,
+  gt,
+  sql,
+  getTableColumns,
+  inArray,
+} from 'drizzle-orm';
 import { schema } from 'src/drizzle/schemas/schema';
 import { assignedTasks, tasks } from 'src/drizzle/schemas/tasks.schema';
 import { users } from 'src/drizzle/schemas/users.schema';
@@ -53,13 +63,25 @@ export class TaskService {
     return task_detail;
   }
 
-  async getAllTasksOfATeamInsideOrg(org_id: number, team_id: number) {
+  async getAllTasksOfATeamInsideOrg(
+    org_id: number,
+    team_id: number,
+    user_ids: number[],
+  ) {
     const task_details = await this.db
       .select()
       .from(tasks)
       .where(and(eq(tasks.org_id, org_id), eq(tasks.team_id, team_id)));
     const result = Promise.all(
       task_details.map(async (task) => {
+        const filter =
+          user_ids.length !== 0
+            ? and(
+                eq(assignedTasks.task_id, task.id),
+                inArray(assignedTasks.user_id, user_ids),
+              )
+            : eq(assignedTasks.task_id, task.id);
+
         const assigned_to = await this.db
           .select({
             id: users.id,
@@ -70,7 +92,7 @@ export class TaskService {
           .from(assignedTasks)
           .innerJoin(tasks, eq(assignedTasks.task_id, tasks.id))
           .innerJoin(users, eq(assignedTasks.user_id, users.id))
-          .where(eq(assignedTasks.task_id, task.id));
+          .where(filter);
         return { ...task, assigned_to };
       }),
     );
