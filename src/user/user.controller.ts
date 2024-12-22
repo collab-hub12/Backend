@@ -1,20 +1,20 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/user.dto';
+import {Body, Controller, Get, Post, Query} from '@nestjs/common';
+import {UserService} from './user.service';
+import {CreateUserDto} from './dto/user.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'src/decorator/public.decorator';
+import {Public} from 'src/common/decorator/public.decorator';
 
 @ApiTags('User')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
-  @ApiOperation({ summary: 'Create a user' })
+  @ApiOperation({summary: 'Create a user'})
   @Public()
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
@@ -22,7 +22,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all users' })
+  @ApiOperation({summary: 'Get all users'})
   @ApiQuery({
     name: 'search',
     description: 'Search for a user',

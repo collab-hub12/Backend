@@ -424,11 +424,12 @@ export class OrganizationService {
     return await this.taskService.updateTask(task_id, updateTaskDto);
   }
 
-  async getTasks(org_id: number, team_id: number) {
+  async getTasks(org_id: number, team_id: number, userIds: number[]) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
     return await this.taskService.getAllTasksOfATeamInsideOrg(
       org_id,
       teamExistsInOrg.id,
+      userIds
     );
   }
 
