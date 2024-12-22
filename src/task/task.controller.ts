@@ -7,8 +7,8 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { TaskService } from './task.service';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import {TaskService} from './task.service';
+import {UpdateTaskDto} from './dto/update-task.dto';
 import {
   ApiOperation,
   ApiParam,
@@ -16,30 +16,30 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { User } from 'src/decorator/user.decorator';
+import {User} from 'src/decorator/user.decorator';
 
 @ApiTags('Task')
 @ApiBearerAuth()
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
-  @ApiOperation({ summary: 'Get a task by id' })
-  @ApiParam({ name: 'task_id', description: 'Task ID' })
+  @ApiOperation({summary: 'Get a task by id'})
+  @ApiParam({name: 'task_id', description: 'Task ID'})
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.taskService.findOne(id);
   }
 
-  @ApiOperation({ summary: 'Delete a task by id' })
-  @ApiParam({ name: 'task_id', description: 'Task ID' })
+  @ApiOperation({summary: 'Delete a task by id'})
+  @ApiParam({name: 'task_id', description: 'Task ID'})
   @Delete(':task_id')
   async Delete(@Param('task_id') id: number) {
     return await this.taskService.deleteTask(id);
   }
 
-  @ApiOperation({ summary: 'Update a task' })
-  @ApiParam({ name: 'task_id', description: 'Task ID' })
+  @ApiOperation({summary: 'Update a task'})
+  @ApiParam({name: 'task_id', description: 'Task ID'})
   @Patch(':task_id')
   async Update(
     @Param('task_id') id: number,
@@ -49,8 +49,8 @@ export class TaskController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all tasks for a user' })
-  @ApiParam({ name: 'user_id', description: 'User ID' })
+  @ApiOperation({summary: 'Get all tasks for a user'})
+  @ApiParam({name: 'user_id', description: 'User ID'})
   @ApiQuery({
     name: 'page',
     description: 'Page number',
@@ -61,7 +61,7 @@ export class TaskController {
     description: 'Number of elements per page',
     required: false,
   })
-  @Get('/tasks')
+  @Get('/')
   async getUserTasks(
     @User() authUser: Express.User,
     @Query('page') page?: number,
