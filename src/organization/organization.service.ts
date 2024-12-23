@@ -144,6 +144,22 @@ export class OrganizationService {
       throw new ConflictException('issue occured while making an user admin');
   }
 
+  async revokeAdminRoleInsideOrg(user_id: number, org_id: number) {
+    const rowsAffected = (
+      await this.db
+        .update(orgMembers)
+        .set({is_admin: false})
+        .where(
+          and(
+            eq(orgMembers.userId, user_id),
+            eq(orgMembers.organizationId, org_id),
+          ),
+        )
+    ).rowCount;
+    if (!rowsAffected)
+      throw new ConflictException('issue occured while making an user admin');
+  }
+
   async SendInvitation(org_id: number, user_email: string) {
     const user = await this.userService.findByEmail(user_email);
     if (!user) {
@@ -343,6 +359,19 @@ export class OrganizationService {
     await this.getTeamDetails(org_id, team_id, user_id);
     await this.teamService.makeUserAdminInsideTeam(user_id, teamExistsInOrg.id);
     return {msg: 'admin permission granted inside team'};
+  }
+
+  async revokeAdminRoleInTeam(
+    org_id: number,
+    team_id: number,
+    user_id: number,
+  ) {
+    // check if Team and org exists
+    const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
+    // throws forbidden exception if user is not found inside team inside Org
+    await this.getTeamDetails(org_id, team_id, user_id);
+    await this.teamService.revokeAdminRoleInTeam(user_id, teamExistsInOrg.id);
+    return {msg: 'admin permission revoked inside team'};
   }
 
   async addUserToATeam(org_id: number, team_id: number, user_id: number) {
