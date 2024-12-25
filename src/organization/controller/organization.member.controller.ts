@@ -21,12 +21,15 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import {AddUserToOrgDto} from '../dto/organization.dto';
+import {MailService} from 'src/mailer/mailer.service';
 
 @ApiTags('Organization')
 @ApiBearerAuth()
 @Controller('orgs')
 export class OrganizationMemberController {
-    constructor(private readonly orgService: OrganizationService) { }
+    constructor(
+        private readonly orgService: OrganizationService,
+    ) { }
 
     //********************----Member-RELATED-QUERIES----*************************//
 
@@ -40,6 +43,7 @@ export class OrganizationMemberController {
         @Body() dto: AddUserToOrgDto,
     ) {
         await this.orgService.SendInvitation(org_id, dto.user_email);
+
         return {
             message: 'Invitation sent to the user successfully',
         };

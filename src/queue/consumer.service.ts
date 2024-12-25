@@ -1,7 +1,7 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import amqp, { ChannelWrapper } from 'amqp-connection-manager';
-import { ConfirmChannel } from 'amqplib';
+import {Injectable, OnModuleInit, Logger} from '@nestjs/common';
+import {ConfigService} from '@nestjs/config';
+import amqp, {ChannelWrapper} from 'amqp-connection-manager';
+import {ConfirmChannel} from 'amqplib';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {

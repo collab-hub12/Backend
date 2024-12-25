@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { SocketGateway } from './socket.gateway';
-import { DrawingboardService } from 'src/drawingboard/drawingboard.service';
+import {Module} from '@nestjs/common';
+import {SocketGateway} from './socket.gateway';
+import {DrawingboardModule} from 'src/drawingboard/drawingboard.module';
 
 @Module({
-  providers: [DrawingboardService, SocketGateway],
+  imports: [DrawingboardModule],
+  providers: [SocketGateway],
 })
-export class SocketModule {}
+export class SocketModule { }

@@ -23,18 +23,23 @@ import {users} from 'src/drizzle/schemas/users.schema';
 import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 import {InvitationsService} from 'src/invitations/invitations.service';
+import {MailService} from 'src/mailer/mailer.service';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export class OrganizationService {
   constructor(
-    @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
+    @Inject(DrizzleAsyncProvider)
+    private readonly db: NodePgDatabase<schema>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => InvitationsService))
+    private readonly inviationService: InvitationsService,
     private readonly teamService: TeamService,
     private readonly taskService: TaskService,
     private readonly drawingBoardService: DrawingboardService,
-    @Inject(forwardRef(() => InvitationsService))
-    private readonly inviationService: InvitationsService,
+    private readonly emailService: MailService,
+    private readonly configService: ConfigService
   ) { }
 
   async createOrganization(dto: CreateOrgDto, founder_id: number) {
@@ -161,12 +166,13 @@ export class OrganizationService {
   }
 
   async SendInvitation(org_id: number, user_email: string) {
+
     const user = await this.userService.findByEmail(user_email);
     if (!user) {
       throw new ConflictException('user with this email does not exist');
     }
-    const result = await this.findOrgById(org_id);
-    if (!result) {
+    const org_details = await this.findOrgById(org_id);
+    if (!org_details) {
       throw new ConflictException('org doesnt exists');
     }
 
@@ -178,7 +184,11 @@ export class OrganizationService {
     }
 
     // send invitaion to user
-    return await this.inviationService.invite(org_id, user_email);
+    const invitation_details = await this.inviationService.invite(org_id, user_email);
+
+    const invitation_url = `${this.configService.get("FRONTEND_URL")}/invitation?org_id=${org_id}&inviation_id=${invitation_details.id}`;
+
+    await this.emailService.sendInvitation(user_email, user.name, invitation_url, org_details.org_name);
   }
 
   async addMemberToOrg(org_id: number, user_id: number) {

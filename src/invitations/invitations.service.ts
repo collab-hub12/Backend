@@ -4,14 +4,14 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { and, eq, getTableColumns } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { invitations } from 'src/drizzle/schemas/invitations.schema';
-import { organizations } from 'src/drizzle/schemas/organizations.schema';
-import { schema } from 'src/drizzle/schemas/schema';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { OrganizationService } from 'src/organization/organization.service';
+import {and, eq, getTableColumns} from 'drizzle-orm';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {invitations} from 'src/drizzle/schemas/invitations.schema';
+import {organizations} from 'src/drizzle/schemas/organizations.schema';
+import {schema} from 'src/drizzle/schemas/schema';
+import {users} from 'src/drizzle/schemas/users.schema';
+import {OrganizationService} from 'src/organization/organization.service';
 
 @Injectable()
 export class InvitationsService {
@@ -19,7 +19,7 @@ export class InvitationsService {
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,
-  ) {}
+  ) { }
 
   async invite(org_id: number, user_email: string) {
     const [user] = await this.db
@@ -40,6 +40,7 @@ export class InvitationsService {
     if (!invitaiton) {
       throw new BadRequestException('failed to sent invitaion');
     }
+    return invitaiton;
   }
 
   async getAllInvites(user_id: number) {
@@ -99,10 +100,10 @@ export class InvitationsService {
       // Expire the invitation
       await this.db
         .update(invitations)
-        .set({ expiresAt: new Date().toISOString() })
+        .set({expiresAt: new Date().toISOString()})
         .where(eq(invitations.id, invitation_id));
 
-      return { message: 'User accepted invitation successfully' };
+      return {message: 'User accepted invitation successfully'};
     } catch (error) {
       throw new BadRequestException(
         'Invitation has expired or already been used',
