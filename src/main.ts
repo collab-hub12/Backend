@@ -28,7 +28,7 @@ async function bootstrap() {
   //cross origin resource sharing
   app.enableCors({
     credentials: true,
-    origin: [
+    origin: process.env.FRONTEND_URL?.split(',') || [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'https://accounts.google.com/o/oauth2/v2/auth',
