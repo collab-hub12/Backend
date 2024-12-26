@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
+import {ApiProperty} from '@nestjs/swagger';
+import {IsEnum, IsString} from 'class-validator';
 
 export enum ProgressState {
   InProgress = 'InProgress',
@@ -23,14 +23,4 @@ export class CreateTaskDto {
   deadline: string;
 }
 
-export class UpdateTaskDto {
-  @ApiProperty()
-  @IsString()
-  description?: string;
-  @ApiProperty()
-  @IsEnum(ProgressState)
-  progress?: ProgressState;
-  @ApiProperty()
-  @IsString()
-  deadline?: string;
-}
+

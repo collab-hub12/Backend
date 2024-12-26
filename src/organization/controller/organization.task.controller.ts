@@ -19,7 +19,8 @@ import {
     ApiQuery,
     ApiTags,
 } from '@nestjs/swagger';
-import {CreateTaskDto, UpdateTaskDto} from 'src/task/dto/create-task.dto';
+import {CreateTaskDto} from 'src/task/dto/create-task.dto';
+import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 import {ParseUserIdsPipe} from 'src/common/pipes/userIDpipe';
 import {AssignTaskDto} from 'src/task/dto/assign-task.dto';
 import {RevokeTaskDto} from 'src/task/dto/revoke-task.dto';
