@@ -4,15 +4,15 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { CreateUserDto } from './dto/user.dto';
-import { users } from 'src/drizzle/schemas/users.schema';
-import { eq, count, or, like, getTableColumns } from 'drizzle-orm';
-import { schema } from 'src/drizzle/schemas/schema';
-import { InvitationsService } from 'src/invitations/invitations.service';
-import { OrganizationService } from 'src/organization/organization.service';
-import { hash } from 'bcrypt';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import {CreateUserDto} from './dto/user.dto';
+import {users} from '@app/drizzle/schemas/users.schema';
+import {eq, count, or, like, getTableColumns} from 'drizzle-orm';
+import {schema} from '@app/drizzle/schemas/schema';
+import {InvitationsService} from 'src/invitations/invitations.service';
+import {OrganizationService} from 'src/organization/organization.service';
+import {hash} from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -22,11 +22,11 @@ export class UserService {
     private readonly invitationService: InvitationsService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,
-  ) {}
+  ) { }
 
   async create(dto: CreateUserDto) {
     const [query] = await this.db
-      .select({ value: count() })
+      .select({value: count()})
       .from(users)
       .where(eq(users.email, dto.email));
     const countUser = query.value;
@@ -68,7 +68,7 @@ export class UserService {
     search_text = search_text?.toLowerCase();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...columns } = getTableColumns(users);
+    const {password, ...columns} = getTableColumns(users);
     // fetch all users
     const query = this.db
       .select(columns)
@@ -86,7 +86,7 @@ export class UserService {
     }
     //count total users
     const [resultTotalUserCount] = await this.db
-      .select({ count: count(users.id) })
+      .select({count: count(users.id)})
       .from(users);
     const result = await query;
 
@@ -108,6 +108,6 @@ export class UserService {
     if (status === 'accept') {
       await this.orgService.addMemberToOrg(org_id, user_id);
     }
-    return { message: 'Invitation Responded' };
+    return {message: 'Invitation Responded'};
   }
 }

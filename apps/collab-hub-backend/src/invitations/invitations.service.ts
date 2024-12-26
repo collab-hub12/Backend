@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import {and, eq, getTableColumns} from 'drizzle-orm';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {invitations} from 'src/drizzle/schemas/invitations.schema';
-import {organizations} from 'src/drizzle/schemas/organizations.schema';
-import {schema} from 'src/drizzle/schemas/schema';
-import {users} from 'src/drizzle/schemas/users.schema';
-import {OrganizationService} from 'src/organization/organization.service';
+
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import {invitations} from '@app/drizzle/schemas/invitations.schema';
+import {organizations} from '@app/drizzle/schemas/organizations.schema';
+import {schema} from '@app/drizzle/schemas/schema';
+import {users} from '@app/drizzle/schemas/users.schema';
+import {OrganizationService} from "../organization/organization.service";
 
 @Injectable()
 export class InvitationsService {

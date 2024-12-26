@@ -6,9 +6,9 @@ import {and, eq, lte} from 'drizzle-orm';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {Response} from 'express';
 import {cookieConfig} from 'src/common/constants/cookies';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import {refreshTokens} from 'src/drizzle/schemas/refreshtoken';
-import {schema} from 'src/drizzle/schemas/schema';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import {refreshTokens} from '@app/drizzle/schemas/refreshtoken';
+import {schema} from '@app/drizzle/schemas/schema';
 import {Cron, CronExpression} from '@nestjs/schedule';
 
 @Injectable()

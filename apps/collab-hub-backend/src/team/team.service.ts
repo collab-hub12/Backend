@@ -6,13 +6,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
-import type {schema} from 'src/drizzle/schemas/schema';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import type {schema} from '@app/drizzle/schemas/schema';
 import {CreateTeamDto} from './dto/team.dto';
-import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
+import {teamMember, teams} from '@app/drizzle/schemas/teams.schema';
 import {and, count, eq, getTableColumns, like, or, sql} from 'drizzle-orm';
-import {users} from 'src/drizzle/schemas/users.schema';
-import {organizations} from 'src/drizzle/schemas/organizations.schema';
+import {users} from '@app/drizzle/schemas/users.schema';
+import {organizations} from '@app/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TeamService {

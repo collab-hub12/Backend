@@ -7,19 +7,19 @@ import {
 } from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {UserService} from 'src/user/user.service';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
 import {CreateOrgDto} from './dto/organization.dto';
 import {
   orgMembers,
   organizations,
-} from 'src/drizzle/schemas/organizations.schema';
+} from '@app/drizzle/schemas/organizations.schema';
 import {and, count, eq, getTableColumns, like, or} from 'drizzle-orm';
-import type {schema} from 'src/drizzle/schemas/schema';
+import type {schema} from '@app/drizzle/schemas/schema';
 import {TeamService} from 'src/team/team.service';
 import {CreateTeamDto} from 'src/team/dto/team.dto';
 import {CreateTaskDto} from 'src/task/dto/create-task.dto';
 import {TaskService} from 'src/task/task.service';
-import {users} from 'src/drizzle/schemas/users.schema';
+import {users} from '@app/drizzle/schemas/users.schema';
 import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 import {InvitationsService} from 'src/invitations/invitations.service';

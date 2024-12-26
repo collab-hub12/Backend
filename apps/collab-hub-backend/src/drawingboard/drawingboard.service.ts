@@ -1,15 +1,15 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { drawingBoards } from 'src/drizzle/schemas/boards.schema';
-import { schema } from 'src/drizzle/schemas/schema';
+import {BadRequestException, Inject, Injectable} from '@nestjs/common';
+import {eq} from 'drizzle-orm';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import {drawingBoards} from '@app/drizzle/schemas/boards.schema';
+import {schema} from '@app/drizzle/schemas/schema';
 
 @Injectable()
 export class DrawingboardService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
-  ) {}
+  ) { }
 
   async create(task_id: number) {
     const board = (
@@ -40,7 +40,7 @@ export class DrawingboardService {
     const res = (
       await this.db
         .update(drawingBoards)
-        .set({ nodes: nodesChanges })
+        .set({nodes: nodesChanges})
         .where(eq(drawingBoards.task_id, task_id))
     ).rowCount;
     if (res === 0)
@@ -50,7 +50,7 @@ export class DrawingboardService {
     const res = (
       await this.db
         .update(drawingBoards)
-        .set({ edges: edgesChanges })
+        .set({edges: edgesChanges})
         .where(eq(drawingBoards.task_id, task_id))
     ).rowCount;
     if (res === 0)

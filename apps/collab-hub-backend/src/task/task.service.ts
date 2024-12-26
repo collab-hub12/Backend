@@ -2,14 +2,14 @@ import {ConflictException, Inject, Injectable} from '@nestjs/common';
 import {CreateTaskDto} from './dto/create-task.dto';
 import {UpdateTaskDto} from './dto/update-task.dto';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from 'src/drizzle/drizzle.provider';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
 import {eq, and, desc, gte, lte, gt, sql, getTableColumns, inArray} from 'drizzle-orm';
-import {schema} from 'src/drizzle/schemas/schema';
-import {assignedTasks, tasks} from 'src/drizzle/schemas/tasks.schema';
-import {users} from 'src/drizzle/schemas/users.schema';
+import {schema} from '@app/drizzle/schemas/schema';
+import {assignedTasks, tasks} from '@app/drizzle/schemas/tasks.schema';
+import {users} from '@app/drizzle/schemas/users.schema';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
-import {teamMember, teams} from 'src/drizzle/schemas/teams.schema';
-import {organizations} from 'src/drizzle/schemas/organizations.schema';
+import {teamMember, teams} from '@app/drizzle/schemas/teams.schema';
+import {organizations} from '@app/drizzle/schemas/organizations.schema';
 
 @Injectable()
 export class TaskService {

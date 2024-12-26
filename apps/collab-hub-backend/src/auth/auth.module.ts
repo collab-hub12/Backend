@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
 import {AuthService} from './auth.service';
-import {drizzleProvider} from 'src/drizzle/drizzle.provider';
+import {drizzleProvider} from '@app/drizzle/drizzle.provider';
 import {JwtModule, JwtService} from '@nestjs/jwt';
 import {ConfigModule} from '@nestjs/config';
 import {JwtStrategy} from './strategies/jwtauth.strategy';

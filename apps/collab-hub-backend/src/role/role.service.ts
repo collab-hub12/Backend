@@ -1,16 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
-import { orgMembers } from 'src/drizzle/schemas/organizations.schema';
-import { schema } from 'src/drizzle/schemas/schema';
-import { teamMember } from 'src/drizzle/schemas/teams.schema';
+import {Inject, Injectable} from '@nestjs/common';
+import {and, eq} from 'drizzle-orm';
+import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
+import {orgMembers} from '@app/drizzle/schemas/organizations.schema';
+import {schema} from '@app/drizzle/schemas/schema';
+import {teamMember} from '@app/drizzle/schemas/teams.schema';
 
 @Injectable()
 export class RoleService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
-  ) {}
+  ) { }
 
   async isOrgAdmin(org_id: number, user_id: number) {
     const [result] = await this.db
