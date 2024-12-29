@@ -9,8 +9,8 @@ import {OrganizationModule} from './organization/organization.module';
 import {UserModule} from './user/user.module';
 import {AuthModule} from './auth/auth.module';
 import {TeamModule} from './team/team.module';
-import {MailModule} from './mailer/mailer.module';
 import {TaskModule} from './task/task.module';
+import {NotifyModule} from './notify/notify.module';
 
 @Module({
   imports: [
@@ -18,10 +18,10 @@ import {TaskModule} from './task/task.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    NotifyModule,
     SocketModule,
     QueueModule,
     TeamModule,
-    MailModule,
     TaskModule,
     DrizzleModule,
     UserModule,

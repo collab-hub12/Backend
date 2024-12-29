@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/notification"
+    "outDir": "../../dist/apps/notification",
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"],
+      "@app/drizzle/*": ["../../libs/drizzle/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { NotificationModule } from './notification.module';
+import {NestFactory} from '@nestjs/core';
+import {NotificationModule} from './notification.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(NotificationModule);
-  await app.listen(3000);
+  await app.listen(9000);
 }
 bootstrap();

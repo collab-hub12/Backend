@@ -15,7 +15,7 @@ import {
 } from '../dto/organization.dto';
 import {Request} from 'express';
 import {Roles} from 'src/common/decorator/roles.decorator';
-import {Role} from 'src/enum/role.enum';
+import {Role} from 'src/common/enum/role.enum';
 import {RolesGuard} from 'src/auth/guards/role.guard';
 import {
   ApiBearerAuth,
