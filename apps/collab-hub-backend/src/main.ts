@@ -22,7 +22,7 @@ async function bootstrap() {
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+  SwaggerModule.setup('api/v1/docs', app, documentFactory);
 
   app.use(cookieParser());
   //cross origin resource sharing

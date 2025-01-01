@@ -47,7 +47,6 @@ export class NotifyService {
             await this.mailservice.sendInvitation(invitation.users.email, invitation.users.name, "", invitation.organizations.org_name);
         } catch (err) {
             console.log(err);
-
             throw new InternalServerErrorException(err)
         }
     }
