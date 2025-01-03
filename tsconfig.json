@@ -19,7 +19,9 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@app/drizzle/*": ["libs/drizzle/src/*"],
-      "src/*": ["apps/notification/src/*", "apps/collab-hub-backend/src/*"]
+      "src/*": ["apps/notification/src/*", "apps/collab-hub-backend/src/*"],
+      "@app/mailer/*": ["libs/mailer/src/*"],
+      "@app/redis/*": ["libs/redis/src/*"]
     }
   }
 }

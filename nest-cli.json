@@ -3,15 +3,15 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "apps/collab-hub-backend/src",
   "compilerOptions": {
-    "assets": [
-      {
-        "include": "mailer/templates/**/*",
-        "outDir": "dist/apps/notification/"
-      }
-    ],
     "watchAssets": true,
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger/plugin"],
+    "assets": [
+      {
+        "include": "../../../libs/mailer/src/templates/*.hbs",
+        "outDir": "dist/apps/collab-hub-backend/"
+      }
+    ],
     "webpack": true,
     "tsConfigPath": "apps/collab-hub-backend/tsconfig.app.json"
   },
@@ -43,6 +43,24 @@
       "sourceRoot": "libs/drizzle/src",
       "compilerOptions": {
         "tsConfigPath": "libs/drizzle/tsconfig.lib.json"
+      }
+    },
+    "mailer": {
+      "type": "library",
+      "root": "libs/mailer",
+      "entryFile": "index",
+      "sourceRoot": "libs/mailer/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mailer/tsconfig.lib.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
       }
     }
   }

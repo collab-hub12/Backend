@@ -34,7 +34,7 @@ export class UserService {
     if (countUser > 0)
       throw new ConflictException('This Email is already Registered');
 
-    const newUser = await this.db
+    const [newUser] = await this.db
       .insert(users)
       .values({
         ...dto,
@@ -42,7 +42,8 @@ export class UserService {
       })
       .returning();
 
-    return newUser[0];
+    const {password, ...response} = newUser
+    return response;
   }
 
   async findOne(id: number) {

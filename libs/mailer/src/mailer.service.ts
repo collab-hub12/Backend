@@ -14,6 +14,15 @@ export class MailService {
         })
     }
 
+    async sendOTP(email: string, name: string, otp: string) {
+        await this.mailerService.sendMail({
+            to: email,
+            subject: 'OTP sent to the user',
+            template: './otpverification.hbs',
+            context: {name, otp}
+        })
+    }
+
     async sendNotification(email: string, name: string, message: string) {
         await this.mailerService.sendMail({
             to: email,

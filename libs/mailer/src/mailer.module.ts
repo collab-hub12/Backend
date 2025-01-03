@@ -1,6 +1,5 @@
 import {Global, Module} from '@nestjs/common';
 import {MailService} from './mailer.service';
-import {MailerController} from './mailer.controller';
 import {join} from 'path';
 import {HandlebarsAdapter} from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import {MailerModule} from '@nestjs-modules/mailer';
@@ -24,7 +23,7 @@ import {ConfigService} from '@nestjs/config';
           from: `"No Reply" <${configService.get('MAIL_FROM')}>`,
         },
         template: {
-          dir: join(__dirname, 'mailer', 'templates'),
+          dir: join(__dirname, 'templates'),
           adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
           options: {
             strict: true,
@@ -33,7 +32,6 @@ import {ConfigService} from '@nestjs/config';
       }),
     }),
   ],
-  controllers: [MailerController],
   providers: [MailService],
   exports: [MailService],
 })

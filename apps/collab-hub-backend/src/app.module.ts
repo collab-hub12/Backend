@@ -11,6 +11,7 @@ import {AuthModule} from './auth/auth.module';
 import {TeamModule} from './team/team.module';
 import {TaskModule} from './task/task.module';
 import {NotifyModule} from './notify/notify.module';
+import {OTPModule} from './otp/otp.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import {NotifyModule} from './notify/notify.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    OTPModule,
     NotifyModule,
     SocketModule,
     QueueModule,

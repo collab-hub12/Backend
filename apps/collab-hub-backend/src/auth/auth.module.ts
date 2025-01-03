@@ -11,10 +11,13 @@ import {JwtRefreshStrategy} from './strategies/jwt-refresh-token.strategy';
 import {APP_GUARD} from '@nestjs/core';
 import {JwtAuthGuard} from './guards/access_token.guard';
 import {UserModule} from 'src/user/user.module';
+import {OTPModule} from 'src/otp/otp.module';
+
 @Module({
   imports: [
     UserModule,
     ConfigModule,
+    OTPModule,
     JwtModule.registerAsync({
       useFactory: async () => {
         return {
