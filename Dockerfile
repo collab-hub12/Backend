@@ -45,6 +45,8 @@ ENV NODE_ENV production
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
 RUN npm ci --only=production && npm cache clean --force
 
+RUN npm install @css-inline/css-inline-linux-x64-musl
+
 USER node
 
 ###################

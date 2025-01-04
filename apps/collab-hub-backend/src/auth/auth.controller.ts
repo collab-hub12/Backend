@@ -39,7 +39,6 @@ export class AuthController {
     private userService: UserService,
     private authenticationService: AuthService,
     private authRefreshTokenService: AuthRefreshTokenService,
-    private otpService: OTPService
   ) { }
 
   @ApiBody({type: LoginUserDto})
@@ -89,21 +88,19 @@ export class AuthController {
 
   @Public()
   @Post("/signup")
-  async signup(@Body() dto: CreateUserDto) {
-    const user = await this.userService.create(dto)
-    await this.otpService.requestOTP(dto.email);
+  async signup(@Body() signupDTO: CreateUserDto) {
+    await this.authenticationService.signup(signupDTO)
   }
 
   @Public()
   @Get("/otp/resend")
   async resendOTP(@Query('email') email: string) {
-    await this.otpService.requestOTP(email)
+    await this.authenticationService.requestOTP(email)
   }
 
   @Public()
   @Post("/otp/verify")
-  @HttpCode(HttpStatus.ACCEPTED)
-  async verify(@Body() dto: verifyOTPDTO) {
-    await this.otpService.verifyOTP(dto.email, dto.otp)
+  async verify(@Body() dto: verifyOTPDTO, @Res({passthrough: true}) res: Response) {
+    return await this.authenticationService.verifyOTP(dto.email, dto.otp, res)
   }
 }

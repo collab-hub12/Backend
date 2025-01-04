@@ -22,6 +22,20 @@
       "when": 1734970544300,
       "tag": "0002_natural_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1735973219402,
+      "tag": "0003_chief_bucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1735973489081,
+      "tag": "0004_tearful_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

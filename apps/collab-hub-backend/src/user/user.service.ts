@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import {NodePgDatabase} from 'drizzle-orm/node-postgres';
 import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
-import {CreateUserDto} from './dto/user.dto';
+import {CreateUserDto, UpdateUserDto} from './dto/user.dto';
 import {users} from '@app/drizzle/schemas/users.schema';
-import {eq, count, or, like, getTableColumns} from 'drizzle-orm';
+import {eq, and, count, or, like, getTableColumns} from 'drizzle-orm';
 import {schema} from '@app/drizzle/schemas/schema';
 import {InvitationsService} from 'src/invitations/invitations.service';
 import {OrganizationService} from 'src/organization/organization.service';
@@ -25,14 +25,6 @@ export class UserService {
   ) { }
 
   async create(dto: CreateUserDto) {
-    const [query] = await this.db
-      .select({value: count()})
-      .from(users)
-      .where(eq(users.email, dto.email));
-    const countUser = query.value;
-
-    if (countUser > 0)
-      throw new ConflictException('This Email is already Registered');
 
     const [newUser] = await this.db
       .insert(users)
@@ -58,6 +50,20 @@ export class UserService {
       .where(eq(users.email, email));
 
     return result;
+  }
+
+  async findByEmailVerified(email: string) {
+    const [result] = await this.db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email), eq(users.isVerified, true)));
+
+    return result;
+  }
+
+  async UpdateUser(updateuserDTO: UpdateUserDto) {
+    const {email, ...updateValues} = updateuserDTO
+    await this.db.update(users).set(updateValues).where(eq(users.email, email));
   }
 
   async findById(id: number) {

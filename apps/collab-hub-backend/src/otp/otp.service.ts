@@ -4,12 +4,19 @@ import * as crypto from "crypto"
 import {compare, hash} from "bcrypt";
 import {Redis} from "ioredis";
 import {MailService} from "@app/mailer/mailer.service";
+import {DrizzleAsyncProvider} from "@app/drizzle/drizzle.provider";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {schema} from "@app/drizzle/schemas/schema";
+import {users} from "@app/drizzle/schemas/users.schema";
+import {eq} from "drizzle-orm";
 
 @Injectable()
 export class OTPService {
     constructor(
         @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
-        private readonly mailService: MailService
+        @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
+        private readonly mailService: MailService,
+
     ) { }
 
     private readonly OTP_EXPIRATION_TIME = 5 * 60; // 5 minutes
@@ -91,6 +98,9 @@ export class OTPService {
 
             throw new HttpException('Invalid OTP', HttpStatus.FORBIDDEN);
         }
+
+        await this.db.update(users).set({isVerified: true}).where(eq(users.email, email));
+
     }
 
 }
