@@ -12,12 +12,13 @@ import {
   UseInterceptors,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import {UserService} from 'src/user/user.service';
 import {ApiBearerAuth, ApiBody, ApiTags} from '@nestjs/swagger';
 import {AuthService} from './auth.service';
 import {AuthRefreshTokenService} from './auth-refresh-token.service';
-import {LoginUserDto} from './dto/auth.dto';
+import {LoginUserDto, resetPasswordDTO} from './dto/auth.dto';
 import {Response, Request} from 'express';
 import {
   cookieConfig,
@@ -27,7 +28,6 @@ import {LocalAuthGuard} from './guards/local-auth.guard';
 import {Public} from 'src/common/decorator/public.decorator';
 import {User} from 'src/common/decorator/user.decorator';
 import {RefreshTokenGuard} from './guards/refresh_token.guard';
-import {OTPService} from 'src/otp/otp.service';
 import {CreateUserDto} from 'src/user/dto/user.dto';
 import {verifyOTPDTO} from './dto/otp.dto';
 
@@ -103,4 +103,14 @@ export class AuthController {
   async verify(@Body() dto: verifyOTPDTO, @Res({passthrough: true}) res: Response) {
     return await this.authenticationService.verifyOTP(dto.email, dto.otp, res)
   }
+
+  @ApiBearerAuth()
+  @Put("/password/reset")
+  async resetpassword(
+    @Body() resetPasswordDTO: resetPasswordDTO,
+    @User() authUser: Express.User,
+  ) {
+    return await this.authenticationService.resetPassword(resetPasswordDTO.password, authUser.id);
+  }
+
 }

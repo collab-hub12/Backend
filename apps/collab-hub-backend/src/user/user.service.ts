@@ -63,7 +63,11 @@ export class UserService {
 
   async UpdateUser(updateuserDTO: UpdateUserDto) {
     const {email, ...updateValues} = updateuserDTO
-    await this.db.update(users).set(updateValues).where(eq(users.email, email));
+    await this.db.update(users).set({...updateValues, password: await hash(updateValues.password, 10)}).where(eq(users.email, email));
+  }
+
+  async UpdatePassword(userid: number, password: string) {
+    await this.db.update(users).set({password: await hash(password, 10)}).where(eq(users.id, userid));
   }
 
   async findById(id: number) {

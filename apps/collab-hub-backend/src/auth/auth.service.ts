@@ -56,12 +56,29 @@ export class AuthService {
   }
 
   async requestOTP(email: string) {
+    const user = await this.userService.findByEmail(email)
+
+    if (!user) {
+      throw new HttpException("User with this email Id doesnt exists", HttpStatus.NOT_FOUND);
+    }
+
     await this.otpService.requestOTP(email)
   }
 
   async verifyOTP(email: string, otp: string, res: Response) {
-    await this.otpService.verifyOTP(email, otp)
+
     const user = await this.userService.findByEmail(email)
+
+    if (!user) {
+      throw new HttpException("User with this email Id doesnt exists", HttpStatus.NOT_FOUND);
+    }
+
+    await this.otpService.verifyOTP(email, otp)
+
     return this.authRefreshTokenService.generateTokenPair({id: user.id}, res)
+  }
+
+  async resetPassword(password: string, userid: number) {
+    await this.userService.UpdatePassword(userid, password)
   }
 }
