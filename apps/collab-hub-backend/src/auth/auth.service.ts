@@ -29,6 +29,10 @@ export class AuthService {
       return null;
     }
 
+    if (!user.isVerified) {
+      return null
+    }
+
     const isMatch = await compare(password, user.password);
 
     if (!isMatch) {
