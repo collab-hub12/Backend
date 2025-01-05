@@ -508,4 +508,10 @@ export class OrganizationService {
   ) {
     await this.taskService.deleteTask(task_id)
   }
+
+  async removeTeam(
+    team_id: string
+  ) {
+    await this.teamService.deleteTeam(team_id)
+  }
 }

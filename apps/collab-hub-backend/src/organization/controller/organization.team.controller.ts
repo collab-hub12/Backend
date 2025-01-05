@@ -181,4 +181,17 @@ export class OrganizationTeamController {
     ) {
         return this.orgService.removeUserFromTeam(org_id, team_id, user_id);
     }
+
+    @ApiOperation({summary: 'Remove a team'})
+    @ApiParam({name: 'org_id', description: 'Organization ID'})
+    @ApiParam({name: 'team_id', description: 'Team ID'})
+    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
+    @Delete(':org_id/teams/:team_id')
+    async removeTeam(
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+    ) {
+        return this.orgService.removeTeam(team_id);
+    }
 }

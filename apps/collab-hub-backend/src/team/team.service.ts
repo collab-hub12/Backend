@@ -33,6 +33,10 @@ export class TeamService {
     )[0];
   }
 
+  async deleteTeam(team_id: string) {
+    return await this.db.delete(teams).where(eq(teams.id, team_id));
+  }
+
   // by team_id
   async findATeamUnderOrgById(org_id: string, team_id: string) {
     const team = (
