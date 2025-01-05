@@ -19,6 +19,7 @@ import {OTPModule} from './otp/otp.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AuthModule,
     OTPModule,
     NotifyModule,
     SocketModule,
@@ -28,7 +29,6 @@ import {OTPModule} from './otp/otp.module';
     DrizzleModule,
     UserModule,
     OrganizationModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

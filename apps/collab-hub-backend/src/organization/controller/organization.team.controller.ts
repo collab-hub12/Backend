@@ -40,8 +40,8 @@ export class OrganizationTeamController {
     @ApiParam({name: 'team_id', description: 'Team ID'})
     @Get(':org_id/teams/:team_id')
     async getTeamDetails(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
         @Req() req: Request,
     ) {
         return this.orgService.getTeamDetails(org_id, team_id, req.user.id);
@@ -53,7 +53,7 @@ export class OrganizationTeamController {
     @UseGuards(RolesGuard)
     @Post(':org_id/teams')
     async addTeamUnderOrg(
-        @Param('org_id') org_id: number,
+        @Param('org_id') org_id: string,
         @Body() createTeamUnderOrgDto: CreateTeamUnderOrgDto,
         @Req() req: Request,
     ) {
@@ -67,7 +67,7 @@ export class OrganizationTeamController {
     @ApiParam({name: 'org_id', description: 'Organization ID'})
     @Get(':org_id/teams')
     async getTeams(
-        @Param('org_id') org_id: number,
+        @Param('org_id') org_id: string,
         @Req() req: Request,
         @Query('page') page?: number,
         @Query('per_page') per_page?: number,
@@ -102,8 +102,8 @@ export class OrganizationTeamController {
     })
     @Get(':org_id/teams/:team_id/members')
     async getTeamMemberDetails(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
         @Query('search') search_text?: string,
         @Query('page') page?: number,
         @Query('per_page') per_page?: number,
@@ -126,8 +126,8 @@ export class OrganizationTeamController {
     @UseGuards(RolesGuard)
     @Post(':org_id/teams/:team_id/members')
     async addUserToATeam(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
         @Body() addUserTeamDTO: AddUserToTeamDto,
     ) {
         return this.orgService.addUserToATeam(
@@ -145,9 +145,9 @@ export class OrganizationTeamController {
     @UseGuards(RolesGuard)
     @Put(':org_id/teams/:team_id/members/:user_id/roles')
     async grantAdminRoleToUserinTeam(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('user_id') user_id: string,
     ) {
         return this.orgService.grantAdminRoleToUserInTeam(org_id, team_id, user_id);
     }
@@ -160,9 +160,9 @@ export class OrganizationTeamController {
     @UseGuards(RolesGuard)
     @Delete(':org_id/teams/:team_id/members/:user_id/roles')
     async revokeAdminRoleFromUserinTeam(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('user_id') user_id: string,
     ) {
         return this.orgService.revokeAdminRoleInTeam(org_id, team_id, user_id);
     }
@@ -175,9 +175,9 @@ export class OrganizationTeamController {
     @UseGuards(RolesGuard)
     @Delete(':org_id/teams/:team_id/members/:user_id')
     async removeUserFromTeam(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('user_id') user_id: string,
     ) {
         return this.orgService.removeUserFromTeam(org_id, team_id, user_id);
     }

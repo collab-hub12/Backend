@@ -38,7 +38,7 @@ export class OrganizationMemberController {
     @UseGuards(RolesGuard)
     @Roles(Role.ORG_ADMIN)
     async addMemberToOrganization(
-        @Param('org_id') org_id: number,
+        @Param('org_id') org_id: string,
         @Body() dto: AddUserToOrgDto,
     ) {
         await this.orgService.SendInvitation(org_id, dto.user_email);
@@ -67,7 +67,7 @@ export class OrganizationMemberController {
     })
     @Get(':org_id/members')
     async getMembers(
-        @Param('org_id') orgId: number,
+        @Param('org_id') orgId: string,
         @Query('search') search_text?: string,
         @Query('page') page?: number,
         @Query('per_page') per_page?: number,
@@ -84,8 +84,8 @@ export class OrganizationMemberController {
     @UseGuards(RolesGuard)
     @Put(':org_id/members/:user_id/roles')
     async makeUserAdminInOrg(
-        @Param('org_id') orgId: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') orgId: string,
+        @Param('user_id') user_id: string,
     ) {
         await this.orgService.makeUserAdminInsideOrg(user_id, orgId);
         return {message: 'operation successfull'};
@@ -98,8 +98,8 @@ export class OrganizationMemberController {
     @UseGuards(RolesGuard)
     @Delete(':org_id/members/:user_id/roles')
     async RevokeAdminRoleInOrg(
-        @Param('org_id') orgId: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') orgId: string,
+        @Param('user_id') user_id: string,
     ) {
         await this.orgService.revokeAdminRoleInsideOrg(user_id, orgId);
         return {message: 'operation successfull'};
@@ -112,8 +112,8 @@ export class OrganizationMemberController {
     @UseGuards(RolesGuard)
     @Delete(':org_id/members/:user_id')
     async removeMemberFromOrganization(
-        @Param('org_id') orgId: number,
-        @Param('user_id') user_id: number,
+        @Param('org_id') orgId: string,
+        @Param('user_id') user_id: string,
     ) {
         return this.orgService.removeMember(orgId, user_id);
     }

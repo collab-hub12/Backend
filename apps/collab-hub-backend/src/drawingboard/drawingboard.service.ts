@@ -11,7 +11,7 @@ export class DrawingboardService {
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
   ) { }
 
-  async create(task_id: number) {
+  async create(task_id: string) {
     const board = (
       await this.db
         .insert(drawingBoards)
@@ -24,7 +24,7 @@ export class DrawingboardService {
       throw new BadRequestException('Error Occured While Creating Board');
   }
 
-  async GetBoardDetails(task_id: number) {
+  async GetBoardDetails(task_id: string) {
     const board = (
       await this.db
         .select()
@@ -36,7 +36,7 @@ export class DrawingboardService {
     return board;
   }
 
-  async updateNodes(task_id: number, nodesChanges: unknown) {
+  async updateNodes(task_id: string, nodesChanges: unknown) {
     const res = (
       await this.db
         .update(drawingBoards)
@@ -46,7 +46,7 @@ export class DrawingboardService {
     if (res === 0)
       throw new BadRequestException('Error Occured while updating nodes');
   }
-  async updateEdges(task_id: number, edgesChanges: unknown) {
+  async updateEdges(task_id: string, edgesChanges: unknown) {
     const res = (
       await this.db
         .update(drawingBoards)

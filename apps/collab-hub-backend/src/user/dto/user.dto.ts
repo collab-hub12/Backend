@@ -18,8 +18,8 @@ export class CreateUserDto {
 
 export class InvitationDto {
   @ApiProperty()
-  @IsNumber()
-  org_id: number;
+  @IsString()
+  org_id: string;
 }
 
 export class UpdateUserDto extends CreateUserDto { }

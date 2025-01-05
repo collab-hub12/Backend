@@ -1,10 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber } from 'class-validator';
+import {ApiProperty} from '@nestjs/swagger';
+import {IsBoolean, IsNumber, IsString} from 'class-validator';
 
 export class InvitationResponseDto {
   @ApiProperty()
-  @IsNumber()
-  org_Id: number;
+  @IsString()
+  org_Id: string;
   @ApiProperty()
   @IsBoolean()
   acceptInvitation: string;

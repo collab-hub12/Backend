@@ -12,7 +12,7 @@ export class RoleService {
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
   ) { }
 
-  async isOrgAdmin(org_id: number, user_id: number) {
+  async isOrgAdmin(org_id: string, user_id: string) {
     const [result] = await this.db
       .select()
       .from(orgMembers)
@@ -28,7 +28,7 @@ export class RoleService {
     return result.is_admin;
   }
 
-  async isTeamAdmin(team_id: number, user_id: number) {
+  async isTeamAdmin(team_id: string, user_id: string) {
     const [result] = await this.db
       .select()
       .from(teamMember)

@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsEmail, IsString} from "class-validator";
+import {IsEmail, IsOptional, IsString} from "class-validator";
 
 export class verifyOTPDTO {
     @ApiProperty()
@@ -9,4 +9,10 @@ export class verifyOTPDTO {
     @ApiProperty()
     @IsString()
     otp: string;
+}
+
+export class InvitationQueryFilter {
+    @IsOptional()
+    @IsString()
+    invitation: string
 }

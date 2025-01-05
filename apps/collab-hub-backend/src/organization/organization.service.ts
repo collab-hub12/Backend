@@ -23,8 +23,7 @@ import {users} from '@app/drizzle/schemas/users.schema';
 import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 import {InvitationsService} from 'src/invitations/invitations.service';
-import {ConfigService} from '@nestjs/config';
-import {NotifyService} from 'src/notify/notify.service';
+import {assignedTasks} from '@app/drizzle/schemas/tasks.schema';
 
 @Injectable()
 export class OrganizationService {
@@ -38,11 +37,10 @@ export class OrganizationService {
     private readonly teamService: TeamService,
     private readonly taskService: TaskService,
     private readonly drawingBoardService: DrawingboardService,
-    private readonly notifyService: NotifyService,
-    private readonly configService: ConfigService
+
   ) { }
 
-  async createOrganization(dto: CreateOrgDto, founder_id: number) {
+  async createOrganization(dto: CreateOrgDto, founder_id: string) {
     const founder = await this.userService.findById(founder_id);
     if (!founder) {
       throw new ConflictException('user not found');
@@ -60,7 +58,7 @@ export class OrganizationService {
     return result[0];
   }
 
-  async findOrgById(org_id: number) {
+  async findOrgById(org_id: string) {
     const org_detail = (
       await this.db
         .select()
@@ -83,7 +81,7 @@ export class OrganizationService {
   }
 
   async findOrgsThatUserIsPartOf(
-    user_id: number,
+    user_id: string,
     limit: number,
     offset: number,
   ) {
@@ -118,7 +116,7 @@ export class OrganizationService {
     };
   }
 
-  async getMemberInOrg(org_id: number, user_id: number) {
+  async getMemberInOrg(org_id: string, user_id: string) {
     const result = (
       await this.db
         .select()
@@ -133,7 +131,7 @@ export class OrganizationService {
     return result;
   }
 
-  async makeUserAdminInsideOrg(user_id: number, org_id: number) {
+  async makeUserAdminInsideOrg(user_id: string, org_id: string) {
     const rowsAffected = (
       await this.db
         .update(orgMembers)
@@ -149,7 +147,7 @@ export class OrganizationService {
       throw new ConflictException('issue occured while making an user admin');
   }
 
-  async revokeAdminRoleInsideOrg(user_id: number, org_id: number) {
+  async revokeAdminRoleInsideOrg(user_id: string, org_id: string) {
     const rowsAffected = (
       await this.db
         .update(orgMembers)
@@ -165,44 +163,26 @@ export class OrganizationService {
       throw new ConflictException('issue occured while making an user admin');
   }
 
-  async SendInvitation(org_id: number, user_email: string) {
+  async SendInvitation(org_id: string, user_email: string) {
 
-    const user = await this.userService.findByEmail(user_email);
-    if (!user) {
-      throw new ConflictException('user with this email does not exist');
-    }
     const org_details = await this.findOrgById(org_id);
     if (!org_details) {
       throw new ConflictException('org doesnt exists');
     }
 
-    //checking if user already exists or not
-    const isAlreadyInOrg = await this.getMemberInOrg(org_id, user.id);
-
-    if (isAlreadyInOrg) {
-      throw new ConflictException('user is already added in Org');
-    }
-
     // send invitaion to user
-    const invitation_details = await this.inviationService.invite(org_id, user_email);
+    await this.inviationService.invite(org_id, user_email);
 
-    await this.notifyService.SendNotification({
-      user_id: user.id,
-      org_id: org_details.id,
-      invitation_id: invitation_details.id,
-      notified_at: (new Date()).toISOString(),
-      description: "Invitation sent to User"
-    })
   }
 
-  async addMemberToOrg(org_id: number, user_id: number) {
+  async addMemberToOrg(org_id: string, user_id: string) {
     return await this.db
       .insert(orgMembers)
       .values({userId: user_id, organizationId: org_id, is_admin: false});
   }
 
   async getMembers(
-    org_id: number,
+    org_id: string,
     search_text: string,
     offset: number,
     limit: number,
@@ -253,7 +233,7 @@ export class OrganizationService {
     };
   }
 
-  async CheckFounderorNot(org_id: number, user_id: number): Promise<boolean> {
+  async CheckFounderorNot(org_id: string, user_id: string): Promise<boolean> {
     const IsFounder = (
       await this.db
         .select()
@@ -268,7 +248,7 @@ export class OrganizationService {
     return Boolean(IsFounder);
   }
 
-  async removeMember(org_id: number, user_id: number) {
+  async removeMember(org_id: string, user_id: string) {
     const orgExists = await this.findOrgById(org_id);
     if (!orgExists) {
       throw new ConflictException('org doesnt exists');
@@ -291,10 +271,16 @@ export class OrganizationService {
     if (result.rowCount === 0) {
       throw new NotFoundException('User not found in the Organization');
     }
+
+    //revoke taks from user
+    await this.db.delete(assignedTasks).where(
+      eq(assignedTasks.user_id, user_id)
+    )
+
     return {message: 'user removed from org succcessfully'};
   }
 
-  async deleteOrganization(org_id: number) {
+  async deleteOrganization(org_id: string) {
     const result = await this.db
       .delete(organizations)
       .where(eq(organizations.id, org_id));
@@ -304,11 +290,11 @@ export class OrganizationService {
     return {message: 'organization deleted successfully'};
   }
 
-  async getTeamDetails(org_id: number, team_id: number, user_id: number) {
+  async getTeamDetails(org_id: string, team_id: string, user_id: string) {
     return await this.teamService.getTeamDetails(team_id, user_id, org_id);
   }
 
-  async addTeamUnderOrg(createTeamDto: CreateTeamDto, user_id: number) {
+  async addTeamUnderOrg(createTeamDto: CreateTeamDto, user_id: string) {
     const orgExists = await this.findOrgById(createTeamDto.org_id);
     if (!orgExists) {
       throw new ConflictException('org doesnt exists');
@@ -334,8 +320,8 @@ export class OrganizationService {
   }
 
   async getTeamsThatUserIsPartOf(
-    org_id: number,
-    user_id: number,
+    org_id: string,
+    user_id: string,
     offset: number,
     limit: number,
   ) {
@@ -347,7 +333,7 @@ export class OrganizationService {
     );
   }
 
-  async getTeamInsideOrg(org_id: number, team_id: number) {
+  async getTeamInsideOrg(org_id: string, team_id: string) {
     const orgExists = await this.findOrgById(org_id);
     if (!orgExists) {
       throw new ConflictException('org doesnt exists');
@@ -363,9 +349,9 @@ export class OrganizationService {
   }
 
   async grantAdminRoleToUserInTeam(
-    org_id: number,
-    team_id: number,
-    user_id: number,
+    org_id: string,
+    team_id: string,
+    user_id: string,
   ) {
     // check if Team and org exists
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
@@ -376,9 +362,9 @@ export class OrganizationService {
   }
 
   async revokeAdminRoleInTeam(
-    org_id: number,
-    team_id: number,
-    user_id: number,
+    org_id: string,
+    team_id: string,
+    user_id: string,
   ) {
     // check if Team and org exists
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
@@ -388,7 +374,7 @@ export class OrganizationService {
     return {msg: 'admin permission revoked inside team'};
   }
 
-  async addUserToATeam(org_id: number, team_id: number, user_id: number) {
+  async addUserToATeam(org_id: string, team_id: string, user_id: string) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
 
     const isUserPartofOrg = await this.getMemberInOrg(org_id, user_id);
@@ -404,7 +390,7 @@ export class OrganizationService {
     );
   }
 
-  async removeUserFromTeam(org_id: number, team_id: number, user_id: number) {
+  async removeUserFromTeam(org_id: string, team_id: string, user_id: string) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
 
     const isUserPartofOrg = await this.getMemberInOrg(org_id, user_id);
@@ -420,8 +406,8 @@ export class OrganizationService {
   }
 
   async getTeamMember(
-    org_id: number,
-    team_id: number,
+    org_id: string,
+    team_id: string,
     search_text: string,
     offset: number,
     limit: number,
@@ -443,8 +429,8 @@ export class OrganizationService {
   }
 
   async createTask(
-    org_id: number,
-    team_id: number,
+    org_id: string,
+    team_id: string,
     createTaskDto: CreateTaskDto,
   ) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
@@ -458,16 +444,16 @@ export class OrganizationService {
   }
 
   async updateTask(
-    org_id: number,
-    team_id: number,
-    task_id: number,
+    org_id: string,
+    team_id: string,
+    task_id: string,
     updateTaskDto: UpdateTaskDto,
   ) {
     await this.getTeamInsideOrg(org_id, team_id);
     return await this.taskService.updateTask(task_id, updateTaskDto);
   }
 
-  async getTasks(org_id: number, team_id: number, userIds: number[]) {
+  async getTasks(org_id: string, team_id: string, userIds: string[]) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
     return await this.taskService.getAllTasksOfATeamInsideOrg(
       org_id,
@@ -476,7 +462,7 @@ export class OrganizationService {
     );
   }
 
-  async getTaskById(org_id: number, team_id: number, task_id: number) {
+  async getTaskById(org_id: string, team_id: string, task_id: string) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
     return await this.taskService.getTaskOfATeamInsideOrg(
       org_id,
@@ -486,10 +472,10 @@ export class OrganizationService {
   }
 
   async assignTask(
-    org_id: number,
-    team_id: number,
-    task_id: number,
-    assignee_id: number,
+    org_id: string,
+    team_id: string,
+    task_id: string,
+    assignee_id: string,
   ) {
     const {user_id} = await this.teamService.getUserinTeaminOrg(
       team_id,
@@ -501,10 +487,10 @@ export class OrganizationService {
   }
 
   async revokeTask(
-    org_id: number,
-    team_id: number,
-    task_id: number,
-    revoked_from: number,
+    org_id: string,
+    team_id: string,
+    task_id: string,
+    revoked_from: string,
   ) {
     const {user_id} = await this.teamService.getUserinTeaminOrg(
       team_id,
@@ -513,5 +499,13 @@ export class OrganizationService {
     );
     await this.taskService.revokeTask(user_id, task_id);
     return {msg: 'task revoked from user successfully'};
+  }
+
+  async deleteTask(
+    org_id: string,
+    team_id: string,
+    task_id: string
+  ) {
+    await this.taskService.deleteTask(task_id)
   }
 }

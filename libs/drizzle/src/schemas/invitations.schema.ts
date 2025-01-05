@@ -1,14 +1,12 @@
 import {organizations} from './organizations.schema';
-import {users} from './users.schema';
 import {relations, sql} from 'drizzle-orm';
-import {integer, pgTable, serial, text} from 'drizzle-orm/pg-core';
+import {pgTable, text, uuid} from 'drizzle-orm/pg-core';
 
 export const invitations = pgTable('invitations', {
-  id: serial('id').primaryKey(),
-  user_id: integer('user_id')
-    .notNull()
-    .references(() => users.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
-  invitation_from: integer('invitation_from')
+  id: uuid('id').defaultRandom().primaryKey(),
+  sent_to: text('sent_to')
+    .notNull(),//email id that invitation is sent to
+  invitation_from: uuid('invitation_from')
     .notNull()
     .references(() => organizations.id, {
       onDelete: 'cascade',
@@ -21,10 +19,6 @@ export const invitations = pgTable('invitations', {
 });
 
 export const invitationRelations = relations(invitations, ({one}) => ({
-  user: one(users, {
-    fields: [invitations.user_id],
-    references: [users.id],
-  }),
   org: one(organizations, {
     fields: [invitations.invitation_from],
     references: [organizations.id],

@@ -3,13 +3,13 @@ import {ProducerService} from 'src/queue/producer.service';
 
 
 interface Notification {
-    org_id?: number,
-    user_id: number,
-    task_id?: number,
-    team_id?: number,
+    org_id?: string,
+    user_email: string,
+    task_id?: string,
+    team_id?: string,
     description: string,
     notified_at: string,
-    invitation_id?: number
+    invitation_id?: string
 }
 
 

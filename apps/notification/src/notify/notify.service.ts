@@ -7,17 +7,17 @@ import {invitations} from '@app/drizzle/schemas/invitations.schema';
 import {users} from '@app/drizzle/schemas/users.schema';
 import {and, eq} from 'drizzle-orm';
 import {organizations} from '@app/drizzle/schemas/organizations.schema';
-import {MailService} from 'src/mailer/mailer.service';
+import {MailService} from '@app/mailer/mailer.service';
 
 
 interface Notification {
     org_id?: number,
-    user_id: number,
+    user_email: string,
     task_id?: number,
     team_id?: number,
     description: string,
     notified_at: string,
-    invitation_id?: number
+    invitation_id?: string
 }
 
 
@@ -33,7 +33,10 @@ export class NotifyService {
         try {
             const [notification] = await this.db.insert(notifications).values(message).returning()
 
-            if (!message.invitation_id) return;
+            if (!message.invitation_id) {
+                await this.mailservice.sendNotification(message)
+                return;
+            }
 
             const [invitation] = await this.db.select().from(invitations)
                 .innerJoin(users, eq(invitations.user_id, users.id))

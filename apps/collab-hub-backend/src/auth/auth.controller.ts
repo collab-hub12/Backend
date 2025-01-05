@@ -15,7 +15,7 @@ import {
   Put,
 } from '@nestjs/common';
 import {UserService} from 'src/user/user.service';
-import {ApiBearerAuth, ApiBody, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags} from '@nestjs/swagger';
 import {AuthService} from './auth.service';
 import {AuthRefreshTokenService} from './auth-refresh-token.service';
 import {LoginUserDto, resetPasswordDTO} from './dto/auth.dto';
@@ -41,14 +41,21 @@ export class AuthController {
     private authRefreshTokenService: AuthRefreshTokenService,
   ) { }
 
+  @ApiOperation({summary: 'Login user'})
   @ApiBody({type: LoginUserDto})
+  @ApiQuery({name: 'invitation', required: false, type: String})
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Req() req: Request, @Res({passthrough: true}) res: Response) {
-    return this.authenticationService.login(res, req.user);
+  login(
+    @Req() req: Request,
+    @Res({passthrough: true}) res: Response,
+    @Query('invitation') invitation?: string
+  ) {
+    return this.authenticationService.login(res, req.user, invitation);
   }
 
+  @ApiOperation({summary: 'Get Profile Details'})
   @ApiBearerAuth()
   @Get('profile')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -60,6 +67,7 @@ export class AuthController {
     return this.userService.findOne(authUser.id);
   }
 
+  @ApiOperation({summary: 'Get Refresh tokens'})
   @ApiBearerAuth()
   @Public()
   @UseGuards(RefreshTokenGuard)
@@ -80,30 +88,40 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({summary: 'logout user remove ,refresh token cookie'})
   @Public()
   @Post('logout')
   clearAuthCookie(@Res({passthrough: true}) res: Response) {
     res.clearCookie(cookieConfig.refreshToken.name);
   }
 
+  @ApiOperation({summary: 'User signup , OTP send to user'})
   @Public()
   @Post("/signup")
   async signup(@Body() signupDTO: CreateUserDto) {
     await this.authenticationService.signup(signupDTO)
   }
 
+  @ApiOperation({summary: 'Request OTP'})
   @Public()
   @Get("/otp/resend")
   async resendOTP(@Query('email') email: string) {
     await this.authenticationService.requestOTP(email)
   }
 
+  @ApiOperation({summary: 'Verify OTP'})
+  @ApiQuery({name: 'invitation', required: false, type: String})
   @Public()
   @Post("/otp/verify")
-  async verify(@Body() dto: verifyOTPDTO, @Res({passthrough: true}) res: Response) {
-    return await this.authenticationService.verifyOTP(dto.email, dto.otp, res)
+  async verify(
+    @Body() dto: verifyOTPDTO,
+    @Res({passthrough: true}) res: Response,
+    @Query('invitation') invitation?: string
+  ) {
+    return await this.authenticationService.verifyOTP(dto.email, dto.otp, res, invitation)
   }
 
+  @ApiOperation({summary: 'Reset Password'})
   @ApiBearerAuth()
   @Put("/password/reset")
   async resetpassword(

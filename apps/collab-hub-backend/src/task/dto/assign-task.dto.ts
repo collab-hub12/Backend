@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import {ApiProperty} from '@nestjs/swagger';
+import {IsString} from 'class-validator';
 
 export class AssignTaskDto {
   @ApiProperty()
-  @IsNumber()
-  assign_to: number;
+  @IsString()
+  assign_to: string;
 }

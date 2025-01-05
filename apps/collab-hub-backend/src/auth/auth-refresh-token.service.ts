@@ -56,7 +56,7 @@ export class AuthRefreshTokenService {
 
   private async isRefreshTokenBlackListed(
     hashedRefreshToken: string,
-    userId: number,
+    userId: string,
   ) {
     const refreshToken = await this.db
       .select()

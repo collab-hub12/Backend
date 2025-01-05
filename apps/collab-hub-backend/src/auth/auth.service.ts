@@ -6,20 +6,28 @@ import {Response} from 'express';
 import {compare} from 'bcrypt';
 import {CreateUserDto} from 'src/user/dto/user.dto';
 import {OTPService} from 'src/otp/otp.service';
+import {InvitationsService} from 'src/invitations/invitations.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly authRefreshTokenService: AuthRefreshTokenService,
-    private readonly otpService: OTPService
+    private readonly otpService: OTPService,
+    private readonly invitationService: InvitationsService
   ) { }
 
-  async login(res: Response, user?: Express.User) {
+  async login(res: Response, user?: Express.User, invitation?: string) {
     if (!user) {
       throw new InternalServerErrorException('User not set in request');
     }
-    return this.authRefreshTokenService.generateTokenPair(user, res);
+    if (invitation) {
+      // accept inviation
+      await this.invitationService.acceptInvitation(user.id, invitation)
+    }
+    const loginResponse = await this.authRefreshTokenService.generateTokenPair(user, res);
+
+    return loginResponse
   }
 
   async validateUser(email: string, password: string) {
@@ -69,7 +77,7 @@ export class AuthService {
     await this.otpService.requestOTP(email)
   }
 
-  async verifyOTP(email: string, otp: string, res: Response) {
+  async verifyOTP(email: string, otp: string, res: Response, invitation: string) {
 
     const user = await this.userService.findByEmail(email)
 
@@ -79,10 +87,14 @@ export class AuthService {
 
     await this.otpService.verifyOTP(email, otp)
 
+    if (invitation) {
+      this.invitationService.acceptInvitation(user.id, invitation)
+    }
+
     return this.authRefreshTokenService.generateTokenPair({id: user.id}, res)
   }
 
-  async resetPassword(password: string, userid: number) {
+  async resetPassword(password: string, userid: string) {
     await this.userService.UpdatePassword(userid, password)
   }
 }

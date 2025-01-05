@@ -18,7 +18,7 @@ export class TaskService {
     private readonly drawingBoardService: DrawingboardService,
   ) { }
 
-  async create(createTaskDto: CreateTaskDto, team_id: number, org_id: number) {
+  async create(createTaskDto: CreateTaskDto, team_id: string, org_id: string) {
     // get last task's position
     const last_task = (
       await this.db
@@ -53,7 +53,7 @@ export class TaskService {
     return task_detail;
   }
 
-  async getAllTasksOfATeamInsideOrg(org_id: number, team_id: number, user_ids: number[]) {
+  async getAllTasksOfATeamInsideOrg(org_id: string, team_id: string, user_ids: string[]) {
 
     const filter = [
       eq(tasks.org_id, org_id),
@@ -95,9 +95,9 @@ export class TaskService {
   }
 
   async getTaskOfATeamInsideOrg(
-    org_id: number,
-    team_id: number,
-    task_id: number,
+    org_id: string,
+    team_id: string,
+    task_id: string,
   ) {
     const task_details = (
       await this.db
@@ -130,7 +130,7 @@ export class TaskService {
     return {...task_details, assigned_to, boardDetails};
   }
 
-  async assignTask(user_id: number, task_id: number) {
+  async assignTask(user_id: string, task_id: string) {
     const taskAlreadyAssigned = (
       await this.db
         .select()
@@ -151,7 +151,7 @@ export class TaskService {
     await this.db.insert(assignedTasks).values({user_id, task_id});
   }
 
-  async revokeTask(user_id: number, task_id: number) {
+  async revokeTask(user_id: string, task_id: string) {
     await this.db
       .delete(assignedTasks)
       .where(
@@ -162,21 +162,20 @@ export class TaskService {
       );
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const task_detail = (
       await this.db.select().from(tasks).where(eq(tasks.id, id))
     )[0];
     return task_detail;
   }
 
-  async deleteTask(id: number) {
-    const rowsAffected = (await this.db.delete(tasks).where(eq(tasks.id, id)))
-      .rowCount;
+  async deleteTask(id: string) {
+    const rowsAffected = (await this.db.delete(tasks).where(eq(tasks.id, id))).rowCount;
     if (!rowsAffected) throw new ConflictException('task didnt get deleted');
     return {msg: 'task deleted successfully'};
   }
 
-  async updateTask(id: number, updatetaskdto: UpdateTaskDto) {
+  async updateTask(id: string, updatetaskdto: UpdateTaskDto) {
     await this.db.transaction(async (tx) => {
       try {
         if (updatetaskdto.position) {
@@ -251,7 +250,7 @@ export class TaskService {
     return {msg: 'task updated successfully'};
   }
 
-  async getUserTasks(user_id: number, limit: number, offset: number) {
+  async getUserTasks(user_id: string, limit: number, offset: number) {
     return await this.db.selectDistinct({
       ...getTableColumns(organizations),
       team_name: teams.name,

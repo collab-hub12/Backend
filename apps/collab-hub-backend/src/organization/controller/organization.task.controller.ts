@@ -7,6 +7,7 @@ import {
     Put,
     Query,
     UseGuards,
+    Delete,
 } from '@nestjs/common';
 import {OrganizationService} from '../organization.service';
 import {Roles} from 'src/common/decorator/roles.decorator';
@@ -40,8 +41,8 @@ export class OrganizationTaskController {
     @UseGuards(RolesGuard)
     @Post(':org_id/teams/:team_id/tasks')
     async createTask(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
         @Body() createTaskDto: CreateTaskDto,
     ) {
         return this.orgService.createTask(org_id, team_id, createTaskDto);
@@ -51,13 +52,13 @@ export class OrganizationTaskController {
     @ApiParam({name: 'org_id', description: 'Organization ID'})
     @ApiParam({name: 'team_id', description: 'Team ID'})
     @ApiParam({name: 'task_id', description: 'Task ID'})
-    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @Roles(Role.ORG_ADMIN)
     @UseGuards(RolesGuard)
     @Put(':org_id/teams/:team_id/tasks/:task_id')
     async UpdateTask(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('task_id') task_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('task_id') task_id: string,
         @Body() updatetaskDto: UpdateTaskDto,
     ) {
         return this.orgService.updateTask(org_id, team_id, task_id, updatetaskDto);
@@ -69,9 +70,9 @@ export class OrganizationTaskController {
     @ApiQuery({name: 'user_ids', description: 'User IDs', required: false})
     @Get(':org_id/teams/:team_id/tasks')
     async getTasks(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Query('user_ids', ParseUserIdsPipe) userIDs?: number[]
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Query('user_ids', ParseUserIdsPipe) userIDs?: string[]
     ) {
         return this.orgService.getTasks(org_id, team_id, userIDs);
     }
@@ -82,9 +83,9 @@ export class OrganizationTaskController {
     @ApiParam({name: 'task_id', description: 'Task ID'})
     @Get(':org_id/teams/:team_id/tasks/:task_id')
     async getTasksById(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('task_id') task_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('task_id') task_id: string,
     ) {
         return this.orgService.getTaskById(org_id, team_id, task_id);
     }
@@ -94,11 +95,12 @@ export class OrganizationTaskController {
     @ApiParam({name: 'team_id', description: 'Team ID'})
     @ApiParam({name: 'task_id', description: 'Task ID'})
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
     @Put(':org_id/teams/:team_id/tasks/:task_id/assign')
     async assignTask(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('task_id') task_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('task_id') task_id: string,
         @Body() assigntaskdto: AssignTaskDto,
     ) {
         return this.orgService.assignTask(
@@ -114,11 +116,12 @@ export class OrganizationTaskController {
     @ApiParam({name: 'team_id', description: 'Team ID'})
     @ApiParam({name: 'task_id', description: 'Task ID'})
     @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
     @Put(':org_id/teams/:team_id/tasks/:task_id/revoke')
     async revokeTask(
-        @Param('org_id') org_id: number,
-        @Param('team_id') team_id: number,
-        @Param('task_id') task_id: number,
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('task_id') task_id: string,
         @Body() revoketaskdto: RevokeTaskDto,
     ) {
         return this.orgService.revokeTask(
@@ -127,5 +130,20 @@ export class OrganizationTaskController {
             task_id,
             revoketaskdto.revoke_from,
         );
+    }
+
+    @ApiOperation({summary: 'Delete task'})
+    @ApiParam({name: 'org_id', description: 'Organization ID'})
+    @ApiParam({name: 'team_id', description: 'Team ID'})
+    @ApiParam({name: 'task_id', description: 'Task ID'})
+    @Roles(Role.ORG_ADMIN, Role.TEAM_ADMIN)
+    @UseGuards(RolesGuard)
+    @Delete(':org_id/teams/:team_id/tasks/:task_id')
+    async DeleteTask(
+        @Param('org_id') org_id: string,
+        @Param('team_id') team_id: string,
+        @Param('task_id') task_id: string,
+    ) {
+        return this.orgService.deleteTask(org_id, team_id, task_id)
     }
 }

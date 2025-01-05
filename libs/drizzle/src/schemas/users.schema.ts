@@ -1,5 +1,5 @@
 import {relations, sql} from 'drizzle-orm';
-import {boolean, pgTable, serial, text} from 'drizzle-orm/pg-core';
+import {boolean, pgTable, text, uuid} from 'drizzle-orm/pg-core';
 import {orgMembers, organizations} from './organizations.schema';
 import {assignedTasks} from './tasks.schema';
 import {teamMember} from './teams.schema';
@@ -7,7 +7,7 @@ import {invitations} from './invitations.schema';
 import {refreshTokens} from './refreshtoken';
 
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),

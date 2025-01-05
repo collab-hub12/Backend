@@ -1,19 +1,18 @@
 import {
-  integer,
   primaryKey,
   text,
   pgTable,
-  serial,
   boolean,
+  uuid,
 } from 'drizzle-orm/pg-core';
-import { organizations } from './organizations.schema';
-import { users } from './users.schema';
-import { relations } from 'drizzle-orm';
+import {organizations} from './organizations.schema';
+import {users} from './users.schema';
+import {relations} from 'drizzle-orm';
 
 export const teams = pgTable('teams', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
-  org_id: integer('org_id')
+  org_id: uuid('org_id')
     .notNull()
     .references(() => organizations.id, {
       onDelete: 'cascade',
@@ -21,7 +20,7 @@ export const teams = pgTable('teams', {
     }),
 });
 
-export const teamRelation = relations(teams, ({ one, many }) => ({
+export const teamRelation = relations(teams, ({one, many}) => ({
   teamMember: many(teamMember),
   organization: one(organizations, {
     fields: [teams.org_id],
@@ -32,13 +31,13 @@ export const teamRelation = relations(teams, ({ one, many }) => ({
 export const teamMember = pgTable(
   'team_member_details',
   {
-    user_id: integer('user_id')
+    user_id: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    team_id: integer('team_id')
+      .references(() => users.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
+    team_id: uuid('team_id')
       .notNull()
-      .references(() => teams.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    org_id: integer('org_id')
+      .references(() => teams.id, {onDelete: 'cascade', onUpdate: 'cascade'}),
+    org_id: uuid('org_id')
       .notNull()
       .references(() => organizations.id, {
         onDelete: 'cascade',
@@ -47,11 +46,11 @@ export const teamMember = pgTable(
     is_admin: boolean('is_admin').notNull(),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.user_id, t.team_id, t.org_id] }),
+    pk: primaryKey({columns: [t.user_id, t.team_id, t.org_id]}),
   }),
 );
 
-export const teamMemberRelations = relations(teamMember, ({ one }) => ({
+export const teamMemberRelations = relations(teamMember, ({one}) => ({
   team: one(teams, {
     fields: [teamMember.team_id],
     references: [teams.id],

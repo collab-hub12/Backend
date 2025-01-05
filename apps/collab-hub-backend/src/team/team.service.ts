@@ -13,6 +13,7 @@ import {teamMember, teams} from '@app/drizzle/schemas/teams.schema';
 import {and, count, eq, getTableColumns, like, or, sql} from 'drizzle-orm';
 import {users} from '@app/drizzle/schemas/users.schema';
 import {organizations} from '@app/drizzle/schemas/organizations.schema';
+import {assignedTasks} from '@app/drizzle/schemas/tasks.schema';
 
 @Injectable()
 export class TeamService {
@@ -33,7 +34,7 @@ export class TeamService {
   }
 
   // by team_id
-  async findATeamUnderOrgById(org_id: number, team_id: number) {
+  async findATeamUnderOrgById(org_id: string, team_id: string) {
     const team = (
       await this.db
         .select()
@@ -47,7 +48,7 @@ export class TeamService {
   }
 
   // by team_name
-  async findATeamUnderOrgByName(org_id: number, team_name: string) {
+  async findATeamUnderOrgByName(org_id: string, team_name: string) {
     const team = (
       await this.db
         .select()
@@ -59,8 +60,8 @@ export class TeamService {
   }
 
   async getAllTeamsThatUserIsPartOf(
-    org_id: number,
-    user_id: number,
+    org_id: string,
+    user_id: string,
     offset: number,
     limit: number,
   ) {
@@ -96,9 +97,9 @@ export class TeamService {
   }
 
   async addMemberToTeam(
-    team_id: number,
-    user_id: number,
-    org_id: number,
+    team_id: string,
+    user_id: string,
+    org_id: string,
     is_admin?: boolean,
   ) {
     const rowsAffected = (
@@ -111,7 +112,7 @@ export class TeamService {
     return {msg: 'member added to the team successFully'};
   }
 
-  async removeMemberFromTeam(team_id: number, user_id: number, org_id: number) {
+  async removeMemberFromTeam(team_id: string, user_id: string, org_id: string) {
     const rowsAffected = (
       await this.db
         .delete(teamMember)
@@ -128,10 +129,16 @@ export class TeamService {
       throw new ConflictException(
         'issue occured removing member from the team',
       );
+
+    // remove all assigned tasks from user
+    await this.db.delete(assignedTasks).where(
+      eq(assignedTasks.user_id, user_id)
+    )
+
     return {msg: 'member removed from the team successFully'};
   }
 
-  async getUserinTeaminOrg(team_id: number, user_id: number, org_id: number) {
+  async getUserinTeaminOrg(team_id: string, user_id: string, org_id: string) {
     // check if team exists
     await this.findATeamUnderOrgById(org_id, team_id);
 
@@ -153,7 +160,7 @@ export class TeamService {
     return user;
   }
 
-  async getTeamDetails(team_id: number, user_id: number, org_id: number) {
+  async getTeamDetails(team_id: string, user_id: string, org_id: string) {
     // check if team exists
     await this.findATeamUnderOrgById(org_id, team_id);
 
@@ -177,8 +184,8 @@ export class TeamService {
   }
 
   async getUsersinTeamInOrg(
-    team_id: number,
-    org_id: number,
+    team_id: string,
+    org_id: string,
     search_text: string,
     offset: number,
     limit: number,
@@ -216,7 +223,7 @@ export class TeamService {
     return data;
   }
 
-  async makeUserAdminInsideTeam(user_id: number, team_id: number) {
+  async makeUserAdminInsideTeam(user_id: string, team_id: string) {
     const rowsAffected = (
       await this.db
         .update(teamMember)
@@ -229,7 +236,7 @@ export class TeamService {
       throw new ConflictException('issue occured while making an user admin');
   }
 
-  async revokeAdminRoleInTeam(user_id: number, team_id: number) {
+  async revokeAdminRoleInTeam(user_id: string, team_id: string) {
     const rowsAffected = (
       await this.db
         .update(teamMember)

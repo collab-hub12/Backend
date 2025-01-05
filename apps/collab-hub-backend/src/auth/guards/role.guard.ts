@@ -33,7 +33,7 @@ export class RolesGuard implements CanActivate {
     if (
       params.org_id &&
       requiredRoles.includes(Role.ORG_ADMIN) &&
-      !(await this.roleService.isOrgAdmin(Number(params.org_id), user.id))
+      !(await this.roleService.isOrgAdmin(params.org_id, user.id))
     ) {
       throw new ForbiddenException(
         'You are not authorized to access this Organization resource',
@@ -42,7 +42,7 @@ export class RolesGuard implements CanActivate {
     if (
       params.team_id &&
       requiredRoles.includes(Role.TEAM_ADMIN) &&
-      !(await this.roleService.isTeamAdmin(Number(params.team_id), user.id))
+      !(await this.roleService.isTeamAdmin(params.team_id, user.id))
     ) {
       throw new ForbiddenException(
         'You are not authorized to access this Team resource',

@@ -38,7 +38,7 @@ export class UserService {
     return response;
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const result = await this.db.select().from(users).where(eq(users.id, id));
     return result[0];
   }
@@ -66,11 +66,11 @@ export class UserService {
     await this.db.update(users).set({...updateValues, password: await hash(updateValues.password, 10)}).where(eq(users.email, email));
   }
 
-  async UpdatePassword(userid: number, password: string) {
+  async UpdatePassword(userid: string, password: string) {
     await this.db.update(users).set({password: await hash(password, 10)}).where(eq(users.id, userid));
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     const [result] = await this.db.select().from(users).where(eq(users.id, id));
     return result;
   }
@@ -109,16 +109,8 @@ export class UserService {
     };
   }
 
-  async getInvitaions(user_id: number) {
+  async getInvitaions(user_id: string) {
     return await this.invitationService.getAllInvites(user_id);
   }
 
-  async respondToInvitaion(status: string, user_id: number, org_id: number) {
-    await this.invitationService.remove(org_id, user_id);
-
-    if (status === 'accept') {
-      await this.orgService.addMemberToOrg(org_id, user_id);
-    }
-    return {message: 'Invitation Responded'};
-  }
 }

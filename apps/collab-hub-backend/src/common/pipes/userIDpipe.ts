@@ -1,17 +1,11 @@
-import {PipeTransform, Injectable, BadRequestException} from '@nestjs/common';
+import {PipeTransform, Injectable} from '@nestjs/common';
 
 @Injectable()
 export class ParseUserIdsPipe implements PipeTransform {
-    transform(value: string): number[] {
+    transform(value: string): string[] {
         if (!value) return []
         // Split the string by commas and map to numbers
-        const userIds = value.split(',').map((id) => {
-            const num = Number(id);
-            if (isNaN(num)) {
-                throw new BadRequestException(`Invalid userId: ${id}`);
-            }
-            return num;
-        });
+        const userIds = value.split(',')
 
         return userIds;
     }

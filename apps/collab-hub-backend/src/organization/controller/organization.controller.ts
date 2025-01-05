@@ -41,7 +41,7 @@ export class OrganizationController {
   @ApiOperation({summary: 'Get organization by id'})
   @ApiParam({name: 'org_id', description: 'Organization ID'})
   @Get(':org_id')
-  async getOrgById(@Param('org_id') org_id: number, @Req() req: Request) {
+  async getOrgById(@Param('org_id') org_id: string, @Req() req: Request) {
     const user = await this.orgService.getMemberInOrg(org_id, req.user.id);
 
     if (user === undefined) {
@@ -78,7 +78,7 @@ export class OrganizationController {
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':org_id')
-  async deleteOrganization(@Param('org_id') id: number) {
+  async deleteOrganization(@Param('org_id') id: string) {
     return this.orgService.deleteOrganization(id);
   }
 }

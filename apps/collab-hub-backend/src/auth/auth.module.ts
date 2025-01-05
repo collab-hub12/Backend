@@ -12,6 +12,7 @@ import {APP_GUARD} from '@nestjs/core';
 import {JwtAuthGuard} from './guards/access_token.guard';
 import {UserModule} from 'src/user/user.module';
 import {OTPModule} from 'src/otp/otp.module';
+import {InvitationsModule} from 'src/invitations/invitations.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import {OTPModule} from 'src/otp/otp.module';
         };
       },
     }),
+    InvitationsModule
   ],
   controllers: [AuthController],
   providers: [
