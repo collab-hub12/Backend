@@ -1,8 +1,8 @@
 import {ApiProperty} from '@nestjs/swagger';
-import {IsNumber} from 'class-validator';
+import {IsString} from 'class-validator';
 
 export class RevokeTaskDto {
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   revoke_from: string;
 }

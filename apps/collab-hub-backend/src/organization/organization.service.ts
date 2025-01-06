@@ -24,6 +24,7 @@ import {UpdateTaskDto} from 'src/task/dto/update-task.dto';
 import {DrawingboardService} from 'src/drawingboard/drawingboard.service';
 import {InvitationsService} from 'src/invitations/invitations.service';
 import {assignedTasks} from '@app/drizzle/schemas/tasks.schema';
+import {NotifyService} from 'src/notify/notify.service';
 
 @Injectable()
 export class OrganizationService {
@@ -37,7 +38,7 @@ export class OrganizationService {
     private readonly teamService: TeamService,
     private readonly taskService: TaskService,
     private readonly drawingBoardService: DrawingboardService,
-
+    private readonly notifyService: NotifyService
   ) { }
 
   async createOrganization(dto: CreateOrgDto, founder_id: string) {
@@ -55,6 +56,14 @@ export class OrganizationService {
     await this.db
       .insert(orgMembers)
       .values({userId: founder_id, organizationId: org_id, is_admin: true});
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_email: founder.email,
+      description: "Congrats! you successfully created new Organization",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return result[0];
   }
 
@@ -145,6 +154,13 @@ export class OrganizationService {
     ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured while making an user admin');
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      description: "You have been promoted to Org Admin",
+      notified_at: new Date(Date.now()).toISOString()
+    })
   }
 
   async revokeAdminRoleInsideOrg(user_id: string, org_id: string) {
@@ -161,6 +177,13 @@ export class OrganizationService {
     ).rowCount;
     if (!rowsAffected)
       throw new ConflictException('issue occured while making an user admin');
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      description: "Your Admin role is revoked",
+      notified_at: new Date(Date.now()).toISOString()
+    })
   }
 
   async SendInvitation(org_id: string, user_email: string) {
@@ -277,6 +300,13 @@ export class OrganizationService {
       eq(assignedTasks.user_id, user_id)
     )
 
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      description: "You have been kicked out",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return {message: 'user removed from org succcessfully'};
   }
 
@@ -358,6 +388,15 @@ export class OrganizationService {
     // throws forbidden exception if user is not found inside team inside Org
     await this.getTeamDetails(org_id, team_id, user_id);
     await this.teamService.makeUserAdminInsideTeam(user_id, teamExistsInOrg.id);
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      description: "Admin Role granted",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return {msg: 'admin permission granted inside team'};
   }
 
@@ -371,6 +410,15 @@ export class OrganizationService {
     // throws forbidden exception if user is not found inside team inside Org
     await this.getTeamDetails(org_id, team_id, user_id);
     await this.teamService.revokeAdminRoleInTeam(user_id, teamExistsInOrg.id);
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      description: "Admin Role revoked",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return {msg: 'admin permission revoked inside team'};
   }
 
@@ -382,6 +430,14 @@ export class OrganizationService {
     if (!isUserPartofOrg) {
       throw new ConflictException('user is not part of this org');
     }
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      description: "You have been added",
+      notified_at: new Date(Date.now()).toISOString()
+    })
 
     return await this.teamService.addMemberToTeam(
       teamExistsInOrg.id,
@@ -398,6 +454,15 @@ export class OrganizationService {
     if (!isUserPartofOrg) {
       throw new ConflictException('user is not part of this org');
     }
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      description: "You have been removed",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return await this.teamService.removeMemberFromTeam(
       teamExistsInOrg.id,
       user_id,
@@ -483,6 +548,16 @@ export class OrganizationService {
       org_id,
     );
     await this.taskService.assignTask(user_id, task_id);
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      task_id,
+      description: "You have been assigned",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return {msg: 'task assigned to the user successfully'};
   }
 
@@ -498,6 +573,16 @@ export class OrganizationService {
       org_id,
     );
     await this.taskService.revokeTask(user_id, task_id);
+
+    await this.notifyService.SendNotification({
+      org_id,
+      user_id,
+      team_id,
+      task_id,
+      description: "You are no longer assigned",
+      notified_at: new Date(Date.now()).toISOString()
+    })
+
     return {msg: 'task revoked from user successfully'};
   }
 

@@ -11,13 +11,14 @@ import {MailService} from '@app/mailer/mailer.service';
 
 
 interface Notification {
-    org_id?: number,
+    org_id?: string,
     user_email: string,
-    task_id?: number,
-    team_id?: number,
+    task_id?: string,
+    team_id?: string,
     description: string,
     notified_at: string,
-    invitation_id?: string
+    invitation_id?: string,
+    user_id: string,
 }
 
 
