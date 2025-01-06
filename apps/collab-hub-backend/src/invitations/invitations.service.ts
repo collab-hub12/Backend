@@ -3,18 +3,19 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
-import {and, eq, getTableColumns} from 'drizzle-orm';
-import {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import { and, eq, getTableColumns } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
-import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
-import {invitations} from '@app/drizzle/schemas/invitations.schema';
-import {organizations} from '@app/drizzle/schemas/organizations.schema';
-import {schema} from '@app/drizzle/schemas/schema';
-import {users} from '@app/drizzle/schemas/users.schema';
-import {OrganizationService} from "../organization/organization.service";
-import {ConfigService} from '@nestjs/config';
-import {NotifyService} from 'src/notify/notify.service'
+import { DrizzleAsyncProvider } from '@app/drizzle/drizzle.provider';
+import { invitations } from '@app/drizzle/schemas/invitations.schema';
+import { organizations } from '@app/drizzle/schemas/organizations.schema';
+import { schema } from '@app/drizzle/schemas/schema';
+import { users } from '@app/drizzle/schemas/users.schema';
+import { OrganizationService } from '../organization/organization.service';
+import { ConfigService } from '@nestjs/config';
+import { NotifyService } from 'src/notify/notify.service';
 
 @Injectable()
 export class InvitationsService {
@@ -23,8 +24,8 @@ export class InvitationsService {
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,
     private readonly configService: ConfigService,
-    private readonly notificationService: NotifyService
-  ) { }
+    private readonly notificationService: NotifyService,
+  ) {}
 
   async invite(org_id: string, user_email: string) {
     const org_details = await this.orgService.findOrgById(org_id);
@@ -47,13 +48,15 @@ export class InvitationsService {
       description: `invitation_link:${this.configService.get('FRONTEND_URL')}/invitations/${invitaiton.id}/accept,org_name:${org_details.org_name}`,
       notified_at: new Date(Date.now()).toISOString(),
       user_email,
-      org_id: org_id
-    })
-
+      org_id: org_id,
+    });
   }
 
   async getAllInvites(user_id: string) {
-    const [user] = await this.db.select().from(users).where(eq(users.id, user_id));
+    const [user] = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.id, user_id));
 
     return await this.db
       .select({
@@ -79,42 +82,43 @@ export class InvitationsService {
         ),
       );
   }
-
-  async acceptInvitation(
-    user_id: string,
-    invitation_id: string,
-  ) {
-
+  async getInvitation(user_id: string, invitation_id: string) {
     // Fetch the invitation details
-    const [invitation_response] = await this.db
+    const invitation_response = await this.db
       .select()
       .from(invitations)
       .innerJoin(users, eq(users.email, invitations.sent_to))
-      .where(
-        and(
-          eq(invitations.sent_to, users.email),
-          eq(invitations.id, invitation_id),
-        ),
+      .where(and(eq(users.id, user_id), eq(invitations.id, invitation_id)));
+
+    if (invitation_response.length === 0) {
+      throw new UnauthorizedException(
+        'You are not authorized to accept this invitation',
       );
+    }
+
+    const invitation = invitation_response[0].invitations;
+    return invitation;
+  }
+
+  async acceptInvitation(user_id: string, invitation_id: string) {
+    const invitation = await this.getInvitation(user_id, invitation_id);
 
     // Check if the invitation is expired
     const currentTime = new Date().toISOString();
 
-    if (invitation_response.invitations.expiresAt < currentTime) {
-
+    if (invitation.expiresAt < currentTime) {
       throw new BadRequestException('Invitation has expired or already used');
     }
 
     // Add the user to the organization
-    await this.orgService.addMemberToOrg(invitation_response.invitations.invitation_from, user_id);
+    await this.orgService.addMemberToOrg(invitation.invitation_from, user_id);
 
     // Expire the invitation
     await this.db
       .update(invitations)
-      .set({expiresAt: new Date().toISOString()})
+      .set({ expiresAt: new Date().toISOString() })
       .where(eq(invitations.id, invitation_id));
 
-    return {message: 'User accepted invitation successfully'};
-
+    return { message: 'User accepted invitation successfully' };
   }
 }
