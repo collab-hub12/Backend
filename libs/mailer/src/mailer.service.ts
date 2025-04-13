@@ -5,12 +5,12 @@ import {Injectable} from '@nestjs/common';
 export class MailService {
     constructor(private readonly mailerService: MailerService) { }
 
-    async sendInvitation(email: string, name: string, url: string, organization: string) {
+    async sendInvitation(email: string, url: string, organization: string) {
         await this.mailerService.sendMail({
             to: email,
             subject: 'Invitation to join organization',
             template: './invitation',
-            context: {name, url, organization}
+            context: {url, organization}
         })
     }
 

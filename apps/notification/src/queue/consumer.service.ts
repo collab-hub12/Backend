@@ -33,7 +33,7 @@ export class ConsumerService implements OnModuleInit {
             if (message) {
               const content = JSON.parse(message.content.toString());
               this.logger.log('Received message:', content);
-              this.notifyService.notify(content)
+              await this.notifyService.notify(content)
               channel.ack(message);
             }
           },

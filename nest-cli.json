@@ -9,7 +9,7 @@
     "assets": [
       {
         "include": "../../../libs/mailer/src/templates/*.hbs",
-        "outDir": "dist/apps/collab-hub-backend/"
+        "outDir": "dist/apps/notification/"
       }
     ],
     "webpack": true,
