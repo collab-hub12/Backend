@@ -1,0 +1,1 @@
+ALTER TABLE "tasks" ADD COLUMN "archived" boolean DEFAULT true NOT NULL;

@@ -1,15 +1,15 @@
-import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import {JwtService} from '@nestjs/jwt';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
-import {and, eq, lte} from 'drizzle-orm';
-import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {Response} from 'express';
-import {cookieConfig} from 'src/common/constants/cookies';
-import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
-import {refreshTokens} from '@app/drizzle/schemas/refreshtoken';
-import {schema} from '@app/drizzle/schemas/schema';
-import {Cron, CronExpression} from '@nestjs/schedule';
+import { and, eq, lte } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { Response } from 'express';
+import { cookieConfig } from 'src/common/constants/cookies';
+import { DrizzleAsyncProvider } from '@app/drizzle/drizzle.provider';
+import { refreshTokens } from '@app/drizzle/schemas/refreshtoken';
+import { schema } from '@app/drizzle/schemas/schema';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthRefreshTokenService {
@@ -17,7 +17,7 @@ export class AuthRefreshTokenService {
     private jwtService: JwtService,
     private configService: ConfigService,
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
-  ) { }
+  ) {}
 
   async generateRefreshToken(
     authUser: Express.User,
@@ -25,7 +25,7 @@ export class AuthRefreshTokenService {
     currentRefreshTokenExpiresAt?: Date,
   ) {
     const newRefreshToken = this.jwtService.sign(
-      {sub: authUser.id},
+      { sub: authUser.id },
       {
         secret: this.configService.get('JWT_REFRESH_SECRET'),
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
@@ -76,7 +76,7 @@ export class AuthRefreshTokenService {
     currentRefreshToken?: string,
     currentRefreshTokenExpiresAt?: Date,
   ) {
-    const payload = {sub: user.id};
+    const payload = { sub: user.id };
 
     res.cookie(
       cookieConfig.refreshToken.name,

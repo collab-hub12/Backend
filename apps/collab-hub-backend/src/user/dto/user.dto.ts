@@ -1,5 +1,5 @@
-import {ApiProperty} from '@nestjs/swagger';
-import {IsEmail, IsNumber, IsString} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -22,4 +22,4 @@ export class InvitationDto {
   org_id: string;
 }
 
-export class UpdateUserDto extends CreateUserDto { }
+export class UpdateUserDto extends CreateUserDto {}

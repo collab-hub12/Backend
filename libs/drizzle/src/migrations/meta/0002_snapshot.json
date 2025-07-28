@@ -1,4 +1,6 @@
 {
+  "id": "980146c0-bc70-47f2-8109-c8e36b6261e5",
+  "prevId": "d842f1e6-61f2-42a1-a9bb-b61ca8f54bf9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -13,8 +15,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "task_id": {
-          "name": "task_id",
+        "team_id": {
+          "name": "team_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -34,25 +36,25 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "drawing_boards_task_id_tasks_id_fk": {
-          "name": "drawing_boards_task_id_tasks_id_fk",
+        "drawing_boards_team_id_teams_id_fk": {
+          "name": "drawing_boards_team_id_teams_id_fk",
           "tableFrom": "drawing_boards",
+          "tableTo": "teams",
           "columnsFrom": [
-            "task_id"
+            "team_id"
           ],
-          "tableTo": "tasks",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.invitations": {
       "name": "invitations",
@@ -96,22 +98,22 @@
         "invitations_invitation_from_organizations_id_fk": {
           "name": "invitations_invitation_from_organizations_id_fk",
           "tableFrom": "invitations",
+          "tableTo": "organizations",
           "columnsFrom": [
             "invitation_from"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.notifications": {
       "name": "notifications",
@@ -166,48 +168,48 @@
         "notifications_task_id_tasks_id_fk": {
           "name": "notifications_task_id_tasks_id_fk",
           "tableFrom": "notifications",
+          "tableTo": "tasks",
           "columnsFrom": [
             "task_id"
           ],
-          "tableTo": "tasks",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
         "notifications_org_id_organizations_id_fk": {
           "name": "notifications_org_id_organizations_id_fk",
           "tableFrom": "notifications",
+          "tableTo": "organizations",
           "columnsFrom": [
             "org_id"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
         "notifications_team_id_teams_id_fk": {
           "name": "notifications_team_id_teams_id_fk",
           "tableFrom": "notifications",
+          "tableTo": "teams",
           "columnsFrom": [
             "team_id"
           ],
-          "tableTo": "teams",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.organization_members": {
       "name": "organization_members",
@@ -237,28 +239,28 @@
         "organization_members_user_id_users_id_fk": {
           "name": "organization_members_user_id_users_id_fk",
           "tableFrom": "organization_members",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "organization_members_organization_id_organizations_id_fk": {
           "name": "organization_members_organization_id_organizations_id_fk",
           "tableFrom": "organization_members",
+          "tableTo": "organizations",
           "columnsFrom": [
             "organization_id"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -272,8 +274,8 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.organizations": {
       "name": "organizations",
@@ -323,22 +325,22 @@
         "organizations_founder_id_users_id_fk": {
           "name": "organizations_founder_id_users_id_fk",
           "tableFrom": "organizations",
+          "tableTo": "users",
           "columnsFrom": [
             "founder_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.refresh_tokens": {
       "name": "refresh_tokens",
@@ -368,22 +370,22 @@
         "refresh_tokens_user_id_users_id_fk": {
           "name": "refresh_tokens_user_id_users_id_fk",
           "tableFrom": "refresh_tokens",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.assigned_task_details": {
       "name": "assigned_task_details",
@@ -407,28 +409,28 @@
         "assigned_task_details_user_id_users_id_fk": {
           "name": "assigned_task_details_user_id_users_id_fk",
           "tableFrom": "assigned_task_details",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
         "assigned_task_details_task_id_tasks_id_fk": {
           "name": "assigned_task_details_task_id_tasks_id_fk",
           "tableFrom": "assigned_task_details",
+          "tableTo": "tasks",
           "columnsFrom": [
             "task_id"
           ],
-          "tableTo": "tasks",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -442,8 +444,8 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.tasks": {
       "name": "tasks",
@@ -497,6 +499,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "archived": {
+          "name": "archived",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         }
       },
       "indexes": {},
@@ -504,35 +513,35 @@
         "tasks_team_id_teams_id_fk": {
           "name": "tasks_team_id_teams_id_fk",
           "tableFrom": "tasks",
+          "tableTo": "teams",
           "columnsFrom": [
             "team_id"
           ],
-          "tableTo": "teams",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "tasks_org_id_organizations_id_fk": {
           "name": "tasks_org_id_organizations_id_fk",
           "tableFrom": "tasks",
+          "tableTo": "organizations",
           "columnsFrom": [
             "org_id"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.team_member_details": {
       "name": "team_member_details",
@@ -568,41 +577,41 @@
         "team_member_details_user_id_users_id_fk": {
           "name": "team_member_details_user_id_users_id_fk",
           "tableFrom": "team_member_details",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "team_member_details_team_id_teams_id_fk": {
           "name": "team_member_details_team_id_teams_id_fk",
           "tableFrom": "team_member_details",
+          "tableTo": "teams",
           "columnsFrom": [
             "team_id"
           ],
-          "tableTo": "teams",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "team_member_details_org_id_organizations_id_fk": {
           "name": "team_member_details_org_id_organizations_id_fk",
           "tableFrom": "team_member_details",
+          "tableTo": "organizations",
           "columnsFrom": [
             "org_id"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -617,8 +626,8 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.teams": {
       "name": "teams",
@@ -649,22 +658,22 @@
         "teams_org_id_organizations_id_fk": {
           "name": "teams_org_id_organizations_id_fk",
           "tableFrom": "teams",
+          "tableTo": "organizations",
           "columnsFrom": [
             "org_id"
           ],
-          "tableTo": "organizations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.users": {
       "name": "users",
@@ -722,28 +731,26 @@
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "71d99b2a-38ed-4230-9a4d-460be77ee82d",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "sequences": {},
+  "roles": {},
   "policies": {},
   "views": {},
-  "roles": {}
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
 }

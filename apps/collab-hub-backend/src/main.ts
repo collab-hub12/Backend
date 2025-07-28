@@ -1,8 +1,8 @@
-import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app.module';
-import {ValidationPipe} from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,9 +28,9 @@ async function bootstrap() {
   //cross origin resource sharing
   app.enableCors({
     credentials: true,
-    origin: process.env.ALLOWED_ORIGINS?.split(','),
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || true, // Allow all origins if ALLOWED_ORIGINS is not set
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
-  await app.listen(8000);
+  await app.listen(8000, '0.0.0.0');
 }
 bootstrap();

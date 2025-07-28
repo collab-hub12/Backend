@@ -4,16 +4,16 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import {Reflector} from '@nestjs/core';
-import {Role} from 'src/common/enum/role.enum';
-import {RoleService} from 'src/role/role.service';
+import { Reflector } from '@nestjs/core';
+import { Role } from 'src/common/enum/role.enum';
+import { RoleService } from 'src/role/role.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private readonly roleService: RoleService,
-  ) { }
+  ) {}
 
   matchRoles(roles: string[], userRole: string) {
     return roles.some((role) => role === userRole);
@@ -28,7 +28,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const {user, params} = context.switchToHttp().getRequest();
+    const { user, params } = context.switchToHttp().getRequest();
 
     if (
       params.org_id &&

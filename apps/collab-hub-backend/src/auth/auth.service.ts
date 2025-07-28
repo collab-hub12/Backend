@@ -27,7 +27,6 @@ export class AuthService {
       throw new InternalServerErrorException('User not set in request');
     }
     if (invitation) {
-
       // accept inviation
       await this.invitationService.acceptInvitation(user.id, invitation);
     }

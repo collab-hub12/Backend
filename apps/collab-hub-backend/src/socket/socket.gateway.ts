@@ -45,7 +45,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() {user, roomId}: {user: User; roomId: string},
   ) {
     socketClient.join(roomId);
-    // check if room exists or noT
+    // check if room exists or not
     if (!this.Rooms.has(roomId)) {
       // creating room with empty user array
       this.Rooms.set(roomId, []);
@@ -68,18 +68,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('nodesChange')
   async handleOnNodeChanges(
     @ConnectedSocket() socketClient: Socket,
-    @MessageBody() data: {roomId: string; changes: unknown; task_id: string},
+    @MessageBody() data: {roomId: string; changes: unknown; team_id: string},
   ) {
-    await this.drawingBoardService.updateNodes(data.task_id, data.changes);
+    await this.drawingBoardService.updateNodes(data.team_id, data.changes);
     socketClient.to(data.roomId).emit('nodesChange', data.changes);
   }
 
   @SubscribeMessage('edgesChange')
   async handleOnEdgesChanges(
     @ConnectedSocket() socketClient: Socket,
-    @MessageBody() data: {roomId: string; changes: unknown; task_id: string},
+    @MessageBody() data: {roomId: string; changes: unknown; team_id: string},
   ) {
-    await this.drawingBoardService.updateEdges(data.task_id, data.changes);
+    await this.drawingBoardService.updateEdges(data.team_id, data.changes);
     socketClient.to(data.roomId).emit('edgesChange', data.changes);
   }
 }

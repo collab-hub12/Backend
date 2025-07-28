@@ -1,8 +1,8 @@
-import {pgTable, text, uuid} from 'drizzle-orm/pg-core';
-import {tasks} from './tasks.schema';
-import {relations} from 'drizzle-orm';
-import {teams} from './teams.schema';
-import {organizations} from './organizations.schema';
+import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
+import { tasks } from './tasks.schema';
+import { relations } from 'drizzle-orm';
+import { teams } from './teams.schema';
+import { organizations } from './organizations.schema';
 
 export const notifications = pgTable('notifications', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -20,7 +20,7 @@ export const notifications = pgTable('notifications', {
   description: text('description').notNull(),
 });
 
-export const notificationRelation = relations(notifications, ({one}) => ({
+export const notificationRelation = relations(notifications, ({ one }) => ({
   task: one(tasks, {
     fields: [notifications.task_id],
     references: [tasks.id],

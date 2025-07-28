@@ -1,11 +1,10 @@
-import {organizations} from './organizations.schema';
-import {relations, sql} from 'drizzle-orm';
-import {pgTable, text, uuid} from 'drizzle-orm/pg-core';
+import { organizations } from './organizations.schema';
+import { relations, sql } from 'drizzle-orm';
+import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
 
 export const invitations = pgTable('invitations', {
   id: uuid('id').defaultRandom().primaryKey(),
-  sent_to: text('sent_to')
-    .notNull(),//email id that invitation is sent to
+  sent_to: text('sent_to').notNull(),
   invitation_from: uuid('invitation_from')
     .notNull()
     .references(() => organizations.id, {
@@ -18,7 +17,7 @@ export const invitations = pgTable('invitations', {
   expiresAt: text('expires_at').notNull(),
 });
 
-export const invitationRelations = relations(invitations, ({one}) => ({
+export const invitationRelations = relations(invitations, ({ one }) => ({
   org: one(organizations, {
     fields: [invitations.invitation_from],
     references: [organizations.id],

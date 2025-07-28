@@ -16,7 +16,6 @@
     "tsConfigPath": "apps/collab-hub-backend/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/collab-hub-backend",
   "projects": {
     "collab-hub-backend": {
       "type": "application",
@@ -41,27 +40,21 @@
       "root": "libs/drizzle",
       "entryFile": "index",
       "sourceRoot": "libs/drizzle/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/drizzle/tsconfig.lib.json"
-      }
+      "compilerOptions": { "tsConfigPath": "libs/drizzle/tsconfig.lib.json" }
     },
     "mailer": {
       "type": "library",
       "root": "libs/mailer",
       "entryFile": "index",
       "sourceRoot": "libs/mailer/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/mailer/tsconfig.lib.json"
-      }
+      "compilerOptions": { "tsConfigPath": "libs/mailer/tsconfig.lib.json" }
     },
     "redis": {
       "type": "library",
       "root": "libs/redis",
       "entryFile": "index",
       "sourceRoot": "libs/redis/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/redis/tsconfig.lib.json"
-      }
+      "compilerOptions": { "tsConfigPath": "libs/redis/tsconfig.lib.json" }
     }
   }
 }

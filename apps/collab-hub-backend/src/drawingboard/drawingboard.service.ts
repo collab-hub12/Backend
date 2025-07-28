@@ -1,59 +1,83 @@
-import {BadRequestException, Inject, Injectable} from '@nestjs/common';
-import {eq} from 'drizzle-orm';
-import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
-import {drawingBoards} from '@app/drizzle/schemas/boards.schema';
-import {schema} from '@app/drizzle/schemas/schema';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DrizzleAsyncProvider } from '@app/drizzle/drizzle.provider';
+import { drawingBoards } from '@app/drizzle/schemas/boards.schema';
+import { schema } from '@app/drizzle/schemas/schema';
 
 @Injectable()
 export class DrawingboardService {
   constructor(
     @Inject(DrizzleAsyncProvider) private readonly db: NodePgDatabase<schema>,
-  ) { }
+  ) {}
 
-  async create(task_id: string) {
+  async create(team_id: string) {
     const board = (
       await this.db
         .insert(drawingBoards)
         .values({
-          task_id,
+          team_id,
         })
         .returning()
     )[0];
     if (!board)
-      throw new BadRequestException('Error Occured While Creating Board');
+      throw new BadRequestException('Error Occurred While Creating Board');
   }
 
-  async GetBoardDetails(task_id: string) {
+  async GetBoardDetails(team_id: string) {
     const board = (
       await this.db
         .select()
         .from(drawingBoards)
-        .where(eq(drawingBoards.task_id, task_id))
+        .where(eq(drawingBoards.team_id, team_id))
     )[0];
     if (!board)
-      throw new BadRequestException('Error Occured While Getting Board');
+      throw new BadRequestException('Error Occurred While Getting Board');
     return board;
   }
 
-  async updateNodes(task_id: string, nodesChanges: unknown) {
+  async updateNodes(team_id: string, nodesChanges: unknown) {
     const res = (
       await this.db
         .update(drawingBoards)
-        .set({nodes: nodesChanges})
-        .where(eq(drawingBoards.task_id, task_id))
+        .set({ nodes: nodesChanges })
+        .where(eq(drawingBoards.team_id, team_id))
     ).rowCount;
-    if (res === 0)
-      throw new BadRequestException('Error Occured while updating nodes');
+
+    if (res === 0) {
+      // Drawing board doesn't exist, create it and then update
+      try {
+        await this.create(team_id);
+        await this.db
+          .update(drawingBoards)
+          .set({ nodes: nodesChanges })
+          .where(eq(drawingBoards.team_id, team_id));
+      } catch (error) {
+        console.log(error);
+        throw new BadRequestException('Error Occurred while updating nodes');
+      }
+    }
   }
-  async updateEdges(task_id: string, edgesChanges: unknown) {
+
+  async updateEdges(team_id: string, edgesChanges: unknown) {
     const res = (
       await this.db
         .update(drawingBoards)
-        .set({edges: edgesChanges})
-        .where(eq(drawingBoards.task_id, task_id))
+        .set({ edges: edgesChanges })
+        .where(eq(drawingBoards.team_id, team_id))
     ).rowCount;
-    if (res === 0)
-      throw new BadRequestException('Error Occured while updating nodes');
+
+    if (res === 0) {
+      // Drawing board doesn't exist, create it and then update
+      try {
+        await this.create(team_id);
+        await this.db
+          .update(drawingBoards)
+          .set({ edges: edgesChanges })
+          .where(eq(drawingBoards.team_id, team_id));
+      } catch (error) {
+        throw new BadRequestException('Error Occurred while updating edges');
+      }
+    }
   }
 }

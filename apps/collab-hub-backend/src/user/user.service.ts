@@ -4,15 +4,15 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import {NodePgDatabase} from 'drizzle-orm/node-postgres';
-import {DrizzleAsyncProvider} from '@app/drizzle/drizzle.provider';
-import {CreateUserDto, UpdateUserDto} from './dto/user.dto';
-import {users} from '@app/drizzle/schemas/users.schema';
-import {eq, and, count, or, like, getTableColumns} from 'drizzle-orm';
-import {schema} from '@app/drizzle/schemas/schema';
-import {InvitationsService} from 'src/invitations/invitations.service';
-import {OrganizationService} from 'src/organization/organization.service';
-import {hash} from 'bcrypt';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DrizzleAsyncProvider } from '@app/drizzle/drizzle.provider';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { users } from '@app/drizzle/schemas/users.schema';
+import { eq, and, count, or, like, getTableColumns } from 'drizzle-orm';
+import { schema } from '@app/drizzle/schemas/schema';
+import { InvitationsService } from 'src/invitations/invitations.service';
+import { OrganizationService } from 'src/organization/organization.service';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -22,10 +22,9 @@ export class UserService {
     private readonly invitationService: InvitationsService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly orgService: OrganizationService,
-  ) { }
+  ) {}
 
   async create(dto: CreateUserDto) {
-
     const [newUser] = await this.db
       .insert(users)
       .values({
@@ -34,7 +33,7 @@ export class UserService {
       })
       .returning();
 
-    const {password, ...response} = newUser
+    const { password, ...response } = newUser;
     return response;
   }
 
@@ -62,12 +61,18 @@ export class UserService {
   }
 
   async UpdateUser(updateuserDTO: UpdateUserDto) {
-    const {email, ...updateValues} = updateuserDTO
-    await this.db.update(users).set({...updateValues, password: await hash(updateValues.password, 10)}).where(eq(users.email, email));
+    const { email, ...updateValues } = updateuserDTO;
+    await this.db
+      .update(users)
+      .set({ ...updateValues, password: await hash(updateValues.password, 10) })
+      .where(eq(users.email, email));
   }
 
   async UpdatePassword(userid: string, password: string) {
-    await this.db.update(users).set({password: await hash(password, 10)}).where(eq(users.id, userid));
+    await this.db
+      .update(users)
+      .set({ password: await hash(password, 10) })
+      .where(eq(users.id, userid));
   }
 
   async findById(id: string) {
@@ -79,7 +84,7 @@ export class UserService {
     search_text = search_text?.toLowerCase();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {password, ...columns} = getTableColumns(users);
+    const { password, ...columns } = getTableColumns(users);
     // fetch all users
     const query = this.db
       .select(columns)
@@ -97,7 +102,7 @@ export class UserService {
     }
     //count total users
     const [resultTotalUserCount] = await this.db
-      .select({count: count(users.id)})
+      .select({ count: count(users.id) })
       .from(users);
     const result = await query;
 
@@ -112,5 +117,4 @@ export class UserService {
   async getInvitaions(user_id: string) {
     return await this.invitationService.getAllInvites(user_id);
   }
-
 }

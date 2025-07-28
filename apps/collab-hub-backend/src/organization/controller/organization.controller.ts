@@ -10,13 +10,11 @@ import {
   Req,
   ForbiddenException,
 } from '@nestjs/common';
-import {
-  CreateOrgDto,
-} from '../dto/organization.dto';
-import {Request} from 'express';
-import {Roles} from 'src/common/decorator/roles.decorator';
-import {Role} from 'src/common/enum/role.enum';
-import {RolesGuard} from 'src/auth/guards/role.guard';
+import { CreateOrgDto } from '../dto/organization.dto';
+import { Request } from 'express';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
+import { RolesGuard } from 'src/auth/guards/role.guard';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -24,22 +22,22 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import {OrganizationService} from '../organization.service';
+import { OrganizationService } from '../organization.service';
 
 @ApiTags('Organization')
 @ApiBearerAuth()
 @Controller('orgs')
 export class OrganizationController {
-  constructor(private readonly orgService: OrganizationService) { }
+  constructor(private readonly orgService: OrganizationService) {}
 
-  @ApiOperation({summary: 'Create a new organization'})
+  @ApiOperation({ summary: 'Create a new organization' })
   @Post()
   async createOrganization(@Body() dto: CreateOrgDto, @Req() req: Request) {
     return this.orgService.createOrganization(dto, req.user.id);
   }
 
-  @ApiOperation({summary: 'Get organization by id'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Get organization by id' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Get(':org_id')
   async getOrgById(@Param('org_id') org_id: string, @Req() req: Request) {
     const user = await this.orgService.getMemberInOrg(org_id, req.user.id);
@@ -51,7 +49,7 @@ export class OrganizationController {
     }
   }
 
-  @ApiOperation({summary: 'Get all organizations that the user is part of'})
+  @ApiOperation({ summary: 'Get all organizations that the user is part of' })
   @ApiQuery({
     name: 'page',
     description: 'Page number',
@@ -73,8 +71,8 @@ export class OrganizationController {
     return this.orgService.findOrgsThatUserIsPartOf(req.user.id, limit, offset);
   }
 
-  @ApiOperation({summary: 'Delete an organization'})
-  @ApiParam({name: 'org_id', description: 'Organization ID'})
+  @ApiOperation({ summary: 'Delete an organization' })
+  @ApiParam({ name: 'org_id', description: 'Organization ID' })
   @Roles(Role.ORG_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':org_id')

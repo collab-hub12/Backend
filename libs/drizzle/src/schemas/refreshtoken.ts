@@ -1,6 +1,6 @@
-import {pgTable, text, uuid} from 'drizzle-orm/pg-core';
-import {users} from './users.schema';
-import {relations} from 'drizzle-orm';
+import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
+import { users } from './users.schema';
+import { relations } from 'drizzle-orm';
 
 export const refreshTokens = pgTable('refresh_tokens', {
   refreshToken: text('refresh_token').primaryKey(),
@@ -11,7 +11,7 @@ export const refreshTokens = pgTable('refresh_tokens', {
   expiresAt: text('expires_at').notNull(),
 });
 
-export const refreshTokenRelations = relations(refreshTokens, ({one}) => ({
+export const refreshTokenRelations = relations(refreshTokens, ({ one }) => ({
   user: one(users, {
     fields: [refreshTokens.userId],
     references: [users.id],

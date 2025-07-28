@@ -1,9 +1,8 @@
-
-import {Injectable, OnModuleInit, Logger} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import amqp, {ChannelWrapper} from 'amqp-connection-manager';
-import {ConfirmChannel} from 'amqplib';
-import {NotifyService} from 'src/notify/notify.service';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import amqp, { ChannelWrapper } from 'amqp-connection-manager';
+import { ConfirmChannel } from 'amqplib';
+import { NotifyService } from 'src/notify/notify.service';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {
@@ -12,7 +11,7 @@ export class ConsumerService implements OnModuleInit {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly notifyService: NotifyService
+    private readonly notifyService: NotifyService,
   ) {
     const connection = amqp.connect([
       configService.get<string>('RABBIT_MQ_CONNECTION_URL'),
@@ -33,7 +32,7 @@ export class ConsumerService implements OnModuleInit {
             if (message) {
               const content = JSON.parse(message.content.toString());
               this.logger.log('Received message:', content);
-              await this.notifyService.notify(content)
+              await this.notifyService.notify(content);
               channel.ack(message);
             }
           },

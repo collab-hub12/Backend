@@ -1,11 +1,5 @@
 import {relations, sql} from 'drizzle-orm';
-import {
-  primaryKey,
-  pgTable,
-  text,
-  boolean,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import {primaryKey, pgTable, text, boolean, uuid} from 'drizzle-orm/pg-core';
 import {users} from './users.schema';
 import {teamMember} from './teams.schema';
 import {tasks} from './tasks.schema';
@@ -51,9 +45,7 @@ export const orgMembers = pgTable(
       }),
     is_admin: boolean('is_admin').notNull(),
   },
-  (t) => ({
-    pk: primaryKey({columns: [t.organizationId, t.userId]}),
-  }),
+  (t) => [primaryKey({columns: [t.organizationId, t.userId]})],
 );
 
 export const orgMemberRelations = relations(orgMembers, ({one}) => ({

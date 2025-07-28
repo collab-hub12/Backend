@@ -38,7 +38,7 @@ export class OrganizationService {
     private readonly teamService: TeamService,
     private readonly taskService: TaskService,
     private readonly drawingBoardService: DrawingboardService,
-    private readonly notifyService: NotifyService
+    private readonly notifyService: NotifyService,
   ) { }
 
   async createOrganization(dto: CreateOrgDto, founder_id: string) {
@@ -60,9 +60,9 @@ export class OrganizationService {
     await this.notifyService.SendNotification({
       org_id,
       user_email: founder.email,
-      description: "Congrats! you successfully created new Organization",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'Congrats! you successfully created new Organization',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return result[0];
   }
@@ -158,9 +158,9 @@ export class OrganizationService {
     await this.notifyService.SendNotification({
       org_id,
       user_id,
-      description: "You have been promoted to Org Admin",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You have been promoted to Org Admin',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
   }
 
   async revokeAdminRoleInsideOrg(user_id: string, org_id: string) {
@@ -181,13 +181,12 @@ export class OrganizationService {
     await this.notifyService.SendNotification({
       org_id,
       user_id,
-      description: "Your Admin role is revoked",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'Your Admin role is revoked',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
   }
 
   async SendInvitation(org_id: string, user_email: string) {
-
     const org_details = await this.findOrgById(org_id);
     if (!org_details) {
       throw new ConflictException('org doesnt exists');
@@ -195,7 +194,6 @@ export class OrganizationService {
 
     // send invitaion to user
     await this.inviationService.invite(org_id, user_email);
-
   }
 
   async addMemberToOrg(org_id: string, user_id: string) {
@@ -296,16 +294,16 @@ export class OrganizationService {
     }
 
     //revoke taks from user
-    await this.db.delete(assignedTasks).where(
-      eq(assignedTasks.user_id, user_id)
-    )
+    await this.db
+      .delete(assignedTasks)
+      .where(eq(assignedTasks.user_id, user_id));
 
     await this.notifyService.SendNotification({
       org_id,
       user_id,
-      description: "You have been kicked out",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You have been kicked out',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return {message: 'user removed from org succcessfully'};
   }
@@ -338,6 +336,9 @@ export class OrganizationService {
       throw new ConflictException('team is already added inside org');
     }
     const teamDetails = await this.teamService.createTeam(createTeamDto);
+
+    // Create drawing board for the new team
+    await this.drawingBoardService.create(teamDetails.id);
 
     await this.teamService.addMemberToTeam(
       teamDetails.id,
@@ -393,9 +394,9 @@ export class OrganizationService {
       org_id,
       user_id,
       team_id,
-      description: "Admin Role granted",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'Admin Role granted',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return {msg: 'admin permission granted inside team'};
   }
@@ -415,9 +416,9 @@ export class OrganizationService {
       org_id,
       user_id,
       team_id,
-      description: "Admin Role revoked",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'Admin Role revoked',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return {msg: 'admin permission revoked inside team'};
   }
@@ -435,9 +436,9 @@ export class OrganizationService {
       org_id,
       user_id,
       team_id,
-      description: "You have been added",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You have been added',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return await this.teamService.addMemberToTeam(
       teamExistsInOrg.id,
@@ -459,9 +460,9 @@ export class OrganizationService {
       org_id,
       user_id,
       team_id,
-      description: "You have been removed",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You have been removed',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return await this.teamService.removeMemberFromTeam(
       teamExistsInOrg.id,
@@ -504,7 +505,6 @@ export class OrganizationService {
       teamExistsInOrg.id,
       teamExistsInOrg.org_id,
     );
-    await this.drawingBoardService.create(task.id);
     return task;
   }
 
@@ -518,12 +518,30 @@ export class OrganizationService {
     return await this.taskService.updateTask(task_id, updateTaskDto);
   }
 
+  async archiveTask(org_id: string, team_id: string, task_id: string) {
+    await this.getTeamInsideOrg(org_id, team_id);
+    return await this.taskService.archiveTask(task_id);
+  }
+
+  async unarchiveTask(org_id: string, team_id: string, task_id: string) {
+    await this.getTeamInsideOrg(org_id, team_id);
+    return await this.taskService.unarchiveTask(task_id);
+  }
+
   async getTasks(org_id: string, team_id: string, userIds: string[]) {
     const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
     return await this.taskService.getAllTasksOfATeamInsideOrg(
       org_id,
       teamExistsInOrg.id,
-      userIds
+      userIds,
+    );
+  }
+
+  async getArchivedTasks(org_id: string, team_id: string, userIds: string[]) {
+    const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
+    return await this.taskService.getArchivedTasksOfATeamInsideOrg(
+      org_id,
+      teamExistsInOrg.id,
     );
   }
 
@@ -554,9 +572,9 @@ export class OrganizationService {
       user_id,
       team_id,
       task_id,
-      description: "You have been assigned",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You have been assigned',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return {msg: 'task assigned to the user successfully'};
   }
@@ -579,24 +597,23 @@ export class OrganizationService {
       user_id,
       team_id,
       task_id,
-      description: "You are no longer assigned",
-      notified_at: new Date(Date.now()).toISOString()
-    })
+      description: 'You are no longer assigned',
+      notified_at: new Date(Date.now()).toISOString(),
+    });
 
     return {msg: 'task revoked from user successfully'};
   }
 
-  async deleteTask(
-    org_id: string,
-    team_id: string,
-    task_id: string
-  ) {
-    await this.taskService.deleteTask(task_id)
+  async getDrawingBoardState(org_id: string, team_id: string) {
+    const teamExistsInOrg = await this.getTeamInsideOrg(org_id, team_id);
+    return await this.drawingBoardService.GetBoardDetails(teamExistsInOrg.id);
   }
 
-  async removeTeam(
-    team_id: string
-  ) {
-    await this.teamService.deleteTeam(team_id)
+  async deleteTask(org_id: string, team_id: string, task_id: string) {
+    await this.taskService.deleteTask(task_id);
+  }
+
+  async removeTeam(team_id: string) {
+    await this.teamService.deleteTeam(team_id);
   }
 }
